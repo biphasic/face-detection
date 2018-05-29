@@ -1,4 +1,4 @@
-function events = decay(recording, scaleFactorTime)
+function events = shannonise(recording, scaleFactorTime)
 %DECAY Summary of this function goes here
 %   Detailed explanation goes here
 
