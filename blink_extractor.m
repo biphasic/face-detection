@@ -1,15 +1,30 @@
-recording = fullfile('~', 'Recordings', 'face-detection', 'Fede', 'run1.es');
+path = fullfile('~', 'Recordings', 'face-detection');
 
-if exist('events', 'var') == 0
+subject = 'Fede/run1.es'
+coordinates = [142 123];
+blinks = [2432000, 5129000, 6767000, 9021000, 10910000];
+amplitudeScale = 60;
+
+%subject = 'Alex/run1.es'
+%coordinates = [142 159];
+%blinks = [1012000, 2010000, 6195000];
+%amplitudeScale = 74;
+
+%subject = 'Laur/run3.es'
+%coordinates = [143 113];
+%blinks = [2930000, 6912000];
+%amplitudeScale = 67;
+
+path = fullfile(path, subject);
+if ~exist('events', 'var') || ~exist('loadedSubject', 'var') || ~strcmp(loadedSubject, subject)
     tic
-    events = load_eventstream(recording);
+    events = load_eventstream(path);
     toc
+    loadedSubject = subject;
 end
 
-eye = crop_spatial(events, 142, 123, 19, 15);
-blinks = [2432000, 5129000, 6767000, 9021000, 10910000];
+eye = crop_spatial(events, coordinates(1), coordinates(2), 19, 15);
 colors = ["blue", "red",  "cyan", "magenta", "black"];
-blinkstart = 2002100;
 blinklength = 400000;
 eye = activity(eye, 50000, true);
 
@@ -34,19 +49,20 @@ else
     masterOff = masterOn;
     
     for i = 1:length(blinks)
-        indexes = eye.ts >= blinks(i) & eye.ts <= (blinks(i)+blinklength);
+        indexes = eye.ts >= blinks(i) & eye.ts < (blinks(i)+blinklength);
         %on = plot(eye.ts(indexes)-blinks(i), eye.activityOn(indexes));
-        on = plot(eye.activityOn(indexes));
+        on = plot(eye.activityOn(indexes)/amplitudeScale);
         on.Color = colors(3);
         hold on
         %off = plot(eye.ts(indexes)-blinks(i), eye.activityOff(indexes));
-        off = plot(eye.activityOff(indexes));
+        off = plot(eye.activityOff(indexes)/amplitudeScale);
         off.Color = colors(3);
-        masterOn = masterOn + eye.activityOn(indexes);
-        masterOff = masterOff + eye.activityOff(indexes);
+        % normalise over number of blinks and a normalising factor that is specific to each recording
+        scaledAverageOn = eye.activityOn(indexes) / length(blinks) / amplitudeScale;
+        masterOn = masterOn + scaledAverageOn;
+        scaledAverageOff = eye.activityOff(indexes) / length(blinks) / amplitudeScale;
+        masterOff = masterOff + scaledAverageOff;
     end
-    masterOn = masterOn / length(blinks);
-    masterOff = masterOff / length(blinks);
     hold on
     averageOn = plot(masterOn);
     averageOn.Color = colors(1);
@@ -54,6 +70,14 @@ else
     averageOff = plot(masterOff);
     averageOff.Color = colors(1);
     averageOff.LineWidth = 2;
+   
+    hold on
+    %plot(fedeOn/60);
+    %plot(fedeOff/60);
+    %plot(alexOn/74);
+    %plot(alexOff/74);
+    %plot(laurOn/67);
+    %plot(laurOff/67);
     
 end
 
