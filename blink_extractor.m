@@ -28,8 +28,8 @@ colors = ["blue", "red",  "cyan", "magenta", "black"];
 blinklength = 400000;
 eye = activity(eye, 50000, true);
 
-%representation = "events";
-representation = "continuous";
+representation = "events";
+%representation = "continuous";
 
 if representation == "events"
     for i = 1:length(blinks)
