@@ -11,35 +11,67 @@ eye.NumberOfEvents = nan(1, length(eye.ts));
 slidingWindowWidth = 400000;
 bufferScale = 100;
 bufferSize = slidingWindowWidth/bufferScale;
-minimumDifference = slidingWindowWidth/4;
+minimumDifference = slidingWindowWidth/2;
+lastOnTS = 0;
+lastOffTS = 0;
 lastTS = 0;
 lastPM = 0;
-buffer = circVBuf(int64(bufferSize), int64(1), 0);
+bufferOn = circVBuf(int64(bufferSize), int64(1), 0);
+bufferOff = circVBuf(int64(bufferSize), int64(1), 0);
+for j = 1:bufferSize
+    bufferOn.append(0);
+    bufferOff.append(0);
+end
 
 %loop over every event
 for i = 1:length(eye.ts)
-    diff = eye.ts(i) - lastTS;
-    if diff / slidingWindowWidth > 1 %haven't received an event for at least one slidingWindow length
-        buffer.clear
+    if ~isnan(eye.activityOn(i))
+        diff = eye.ts(i) - lastOnTS;
+        if diff / slidingWindowWidth > 1 %haven't received an event for at least one slidingWindow length
+            bufferOn.clear
+            for q=1:bufferSize
+                bufferOn.append(0);
+            end
+        else % fill up buffer with 0s related to how much time has passed
+            limit = floor((eye.ts(i)-lastOnTS)/bufferScale); 
+            for u=1:limit
+                bufferOn.append(0);
+            end
+        end
+        if floor((eye.ts(i)-lastOnTS)/bufferScale) > 0
+            bufferOn.append(eye.activityOn(i));
+        end
+        lastOnTS = eye.ts(i);
     else
-        limit = floor((eye.ts(i)-lastTS)/bufferScale);
-        for u=1:limit
-            buffer.append(0);
-        end
-    end
-    if i ~= 1 && floor((eye.ts(i)-eye.ts(i-1))/bufferScale) > 0
-        if ~isnan(eye.activityOn(i)) 
-            buffer.append(eye.activityOn(i));
+        diff = eye.ts(i) - lastOffTS;
+        if diff / slidingWindowWidth > 1
+            bufferOff.clear
+            for q=1:bufferSize
+                bufferOff.append(0);
+            end
         else
-            buffer.append(0);
+            limit = floor((eye.ts(i)-lastOffTS)/bufferScale);
+            for u=1:limit
+                bufferOff.append(0);
+            end
         end
+        if floor((eye.ts(i)-lastOffTS)/bufferScale) > 0
+            bufferOff.append(eye.activityOff(i));
+        end
+        lastOffTS = eye.ts(i);
     end
-    lastTS = eye.ts(i);
     
-    numberOfEventsWithinWindow = buffer.raw(buffer.fst:buffer.lst);
-    numberOfEventsWithinWindow = length(numberOfEventsWithinWindow(numberOfEventsWithinWindow > 0));
-    if eye.ts(i) - lastPM >= minimumDifference && numberOfEventsWithinWindow > 60 && numberOfEventsWithinWindow < 300
-        buf = buffer.raw(buffer.fst:buffer.lst)' / amplitudeScale;
+    bufOn = bufferOn.raw(bufferOn.fst:bufferOn.lst)';
+    bufOff = bufferOff.raw(bufferOff.fst:bufferOff.lst)';
+    combBuf = or(bufOn > 0, bufOff > 0);
+    numberOfEventsWithinWindow = length(combBuf(combBuf == 1));
+    %numberOfEventsWithinWindow = 0;
+    
+    if eye.ts(i)>2107000
+        return
+    end
+    if eye.ts(i) - lastPM >= minimumDifference && numberOfEventsWithinWindow > 40 && numberOfEventsWithinWindow < 500
+        buf = bufferOn.raw(bufferOn.fst:bufferOn.lst)' / amplitudeScale;
         if length(buf) < bufferSize
             zeroedBuf = zeros(1,bufferSize);
             zeroedBuf(end-length(buf)+1:end) = buf;
@@ -58,7 +90,7 @@ disp('number of windows: ')
 length(windows)
 stem(eye.ts, eye.activityOn/amplitudeScale);
 hold on
-stem(eye.ts, eye.activityOff/amplitudeScale);
+stem(eye.ts, -eye.activityOff/amplitudeScale);
 for i=eye.ts(~isnan(eye.PatternCorrelation))
     temp = eye.NumberOfEvents(eye.ts == i)/100;
     plot([i i], [0 temp(~isnan(temp))]);
