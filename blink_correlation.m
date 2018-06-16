@@ -11,7 +11,7 @@ eye.NumberOfEvents = nan(1, length(eye.ts));
 slidingWindowWidth = 400000;
 bufferScale = 100;
 bufferSize = slidingWindowWidth/bufferScale;
-minimumDifference = slidingWindowWidth/2;
+minimumDifference = slidingWindowWidth/8;
 lastOnTS = eye.ts(1)-bufferScale-1;
 lastOffTS = eye.ts(1)-bufferScale-1;
 lastTS = eye.ts(1)-bufferScale-1;
@@ -25,8 +25,7 @@ end
 
 stem(eye.ts, eye.activityOn/amplitudeScale);
 hold on
-%stem(eye.ts, eye.activityOff/amplitudeScale);
-%hold on
+stem(eye.ts, -eye.activityOff/amplitudeScale);
 
 %loop over every event
 for i = 2760:length(eye.ts)
@@ -93,10 +92,10 @@ for i = 2760:length(eye.ts)
     combBuf = or(bufOn > 0, bufOff > 0);
     numberOfEventsWithinWindow = length(combBuf(combBuf == 1));    
     if timestamp>10807000
-        break
+        %break
     end
     
-    if timestamp - lastPM >= minimumDifference && numberOfEventsWithinWindow > 40 && numberOfEventsWithinWindow < 1000
+    if timestamp - lastPM >= minimumDifference && numberOfEventsWithinWindow > 100 && numberOfEventsWithinWindow < 300
         bufOn = bufOn / amplitudeScale;
         bufOff = bufOff / amplitudeScale;
         %if length(buf) < bufferSize
@@ -107,11 +106,13 @@ for i = 2760:length(eye.ts)
         samples = filteredAverageOn .* (bufOn>0);
         samplesOff = filteredAverageOff .* (bufOff>0);
         res = xcorr(bufOn, samples, 'coeff');
-        lastPM = timestamp;
-        eye.PatternCorrelation(i) = res(bufferSize);
+        resOff = xcorr(bufOff, samplesOff, 'coeff');
+        lastPM = timestamp
+        eye.PatternCorrelation(i) = res(bufferSize)*resOff(bufferSize);
         eye.NumberOfEvents(i) = numberOfEventsWithinWindow;
-        length(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp)
-        stem(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp, -bufOn)
+        %length(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp)
+        %stem(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp, -bufOn)
+        %stem(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp, bufOff)
     end 
 end
 
