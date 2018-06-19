@@ -12,6 +12,7 @@ slidingWindowWidth = 400000;
 bufferScale = 100;
 bufferSize = slidingWindowWidth/bufferScale;
 minimumDifference = slidingWindowWidth/8;
+correlationThreshold = 0.88;
 lastOnTS = eye.ts(1)-bufferScale-1;
 lastOffTS = eye.ts(1)-bufferScale-1;
 lastTS = eye.ts(1)-bufferScale-1;
@@ -25,8 +26,10 @@ end
 
 stem(eye.ts, eye.activityOn/amplitudeScale);
 hold on
-stem(eye.ts, -eye.activityOff/amplitudeScale);
+stem(eye.ts, eye.activityOff/amplitudeScale);
+plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
 
+tic
 %loop over every event
 for i = 2760:length(eye.ts)
     timestamp = eye.ts(i);
@@ -105,24 +108,32 @@ for i = 2760:length(eye.ts)
         %end
         samples = filteredAverageOn .* (bufOn>0);
         samplesOff = filteredAverageOff .* (bufOff>0);
+        tic
         res = xcorr(bufOn, samples, 'coeff');
         resOff = xcorr(bufOff, samplesOff, 'coeff');
+        toc
         lastPM = timestamp
         eye.PatternCorrelation(i) = res(bufferSize)*resOff(bufferSize);
         eye.NumberOfEvents(i) = numberOfEventsWithinWindow;
-        %length(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp)
+        length(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp)
         %stem(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp, -bufOn)
         %stem(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp, bufOff)
     end 
 end
+toc
+eye.ts(end)
 
 windows = eye.ts(~isnan(eye.PatternCorrelation));
 disp('number of windows: ')
 length(windows)
 for i=eye.ts(~isnan(eye.PatternCorrelation))
     temp = eye.NumberOfEvents(eye.ts == i)/100;
-    plot([i i], [0 temp(~isnan(temp))]);
-    stem(i, temp(~isnan(temp)));
+    %plot([i i], [0 temp(~isnan(temp))]);
+    %stem(i, temp(~isnan(temp)));
     a = area([i-slidingWindowWidth i], [eye.PatternCorrelation(eye.ts == i) eye.PatternCorrelation(eye.ts == i)]);
     a.FaceAlpha = 0.3;
+    if eye.PatternCorrelation(eye.ts == i) > correlationThreshold
+        a.FaceColor = 'yellow';
+        a.FaceAlpha = 0.7;
+    end
 end
