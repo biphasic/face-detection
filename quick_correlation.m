@@ -1,27 +1,36 @@
+eye.PatternCorrelation = nan(1, length(eye.ts));
+
 slidingWindowWidth = 400000;
 minimumDifference = slidingWindowWidth/8;
 correlationThreshold = 0.88;
 
 bufferOn = zeros(1, length(eye.activityOn));
 bufferOff = zeros(1, length(eye.activityOn));
-bufferOnStart = 2760;
-bufferOffStart = 2760;
+skip = find(eye.ts > 1000000);
+skip = skip(1);
+bufferOnStart = skip;
+bufferOffStart = skip;
+corrBufferScale = 100;
 lastPM = 0;
 columns = 0;
 
 stem(eye.ts, eye.activityOn/amplitudeScale);
 hold on;
-%stem(eye.ts
+stem(eye.ts, -eye.activityOff/amplitudeScale);
+plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
 
 tic
-for i = 2760:length(eye.ts)
+%loop over all events
+for i = skip:length(eye.ts)
     timestamp = eye.ts(i);
+    % add latest event to the buffer
     if isnan(eye.activityOff(i))
         bufferOn(i) = 1;
     else
         bufferOff(i) = 1;
     end
-    for j = bufferOnStart:(i-1)%find(bufferOn == 1)
+    % remove events from buffer that are outside slinding window
+    for j = bufferOnStart:(i-1)
         if eye.ts(j) < (timestamp - slidingWindowWidth)
             bufferOn(j) = 0;
         else
@@ -29,7 +38,7 @@ for i = 2760:length(eye.ts)
             break;
         end
     end
-    for j = bufferOffStart:(i-1)%find(bufferOn == 1)
+    for j = bufferOffStart:(i-1)
         if eye.ts(j) < (timestamp - slidingWindowWidth)
             bufferOff(j) = 0;
         else
@@ -38,18 +47,45 @@ for i = 2760:length(eye.ts)
         end
     end
     
+    % check sum of ON/OFF events within buffers
     n = nnz(bufferOn) + nnz(bufferOff);
+    %tic
     if timestamp - lastPM >= minimumDifference && n > 50 && n < 300
-        sampleOn = zeros(1, slidingWindowWidth/100);
+        bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
+        bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
+        divisor = timestamp - slidingWindowWidth;
+        % generate a 'time representation' rather than simply the events
+        % and downscale to smaller buffer size
         for k=find(bufferOn == 1)
-            index = floor(mod(eye.ts(k), slidingWindowWidth)/100);
-            sampleOn(index) = eye.activityOn(k)/amplitudeScale;
+            index = ceil(mod(eye.ts(k), divisor)/corrBufferScale);
+            bufOn(index) = eye.activityOn(k)/amplitudeScale;
         end
-        %stem(eye.ts(bufferOn == 1), -eye.activityOn(bufferOn == 1)/amplitudeScale)
-        stem(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp, -sampleOn)
+        for k=find(bufferOff == 1)
+            index = ceil(mod(eye.ts(k), divisor)/corrBufferScale);
+            bufOff(index) = eye.activityOff(k)/amplitudeScale;
+        end
+        samplesOn = filteredAverageOn .* (bufOn>0);
+        samplesOff = filteredAverageOff .* (bufOff>0);
+        resOn = xcorr(bufOn, samplesOn, 'coeff');
+        resOff = xcorr(bufOff, samplesOff, 'coeff');
+        eye.PatternCorrelation(i) = resOn(bufferSize)*resOff(bufferSize);
+        %stem(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp, -bufOn)
         stem(timestamp, n/100)
         lastPM = timestamp
         columns = columns + 1
     end
+    %t = t+toc;
 end
 toc
+
+windows = eye.ts(~isnan(eye.PatternCorrelation));
+disp('number of windows: ')
+length(windows)
+for i=eye.ts(~isnan(eye.PatternCorrelation))
+    a = area([i-slidingWindowWidth i], [eye.PatternCorrelation(eye.ts == i) eye.PatternCorrelation(eye.ts == i)]);
+    a.FaceAlpha = 0.3;
+    if eye.PatternCorrelation(eye.ts == i) > correlationThreshold
+        a.FaceColor = 'yellow';
+        a.FaceAlpha = 0.7;
+    end
+end
