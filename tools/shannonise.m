@@ -45,3 +45,4 @@ for event = 1:l
         events.activityOff(index) = recording.activityOff(event);
     end
 end
+end
