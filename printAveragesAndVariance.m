@@ -6,6 +6,8 @@
 %plot(alexOn)
 %plot(alexOff)
 
+load('averages')
+
 averageOn = fedeOn + alexOn + laurOn;
 averageOn = averageOn / 3;
 averageOff = fedeOff + alexOff + laurOff;

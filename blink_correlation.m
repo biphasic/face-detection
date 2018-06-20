@@ -94,29 +94,22 @@ for i = 2760:length(eye.ts)
     bufOff = bufferOff.raw(bufferOff.fst:bufferOff.lst)';
     combBuf = or(bufOn > 0, bufOff > 0);
     numberOfEventsWithinWindow = length(combBuf(combBuf == 1));    
-    if timestamp>10807000
+    %if timestamp>10807000
         %break
-    end
+    %end
     
-    if timestamp - lastPM >= minimumDifference && numberOfEventsWithinWindow > 100 && numberOfEventsWithinWindow < 300
+    if timestamp - lastPM >= minimumDifference && numberOfEventsWithinWindow > 50 && numberOfEventsWithinWindow < 300
         bufOn = bufOn / amplitudeScale;
         bufOff = bufOff / amplitudeScale;
-        %if length(buf) < bufferSize
-        %    zeroedBuf = zeros(1,bufferSize);
-        %    zeroedBuf(end-length(buf)+1:end) = buf;
-        %    buf = zeroedBuf;
-        %end
         samples = filteredAverageOn .* (bufOn>0);
         samplesOff = filteredAverageOff .* (bufOff>0);
-        tic
         res = xcorr(bufOn, samples, 'coeff');
         resOff = xcorr(bufOff, samplesOff, 'coeff');
-        toc
         lastPM = timestamp
         eye.PatternCorrelation(i) = res(bufferSize)*resOff(bufferSize);
         eye.NumberOfEvents(i) = numberOfEventsWithinWindow;
-        length(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp)
-        %stem(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp, -bufOn)
+        %length(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp)
+        stem(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp, -bufOn)
         %stem(timestamp-slidingWindowWidth+bufferScale:bufferScale:timestamp, bufOff)
     end 
 end
@@ -129,7 +122,7 @@ length(windows)
 for i=eye.ts(~isnan(eye.PatternCorrelation))
     temp = eye.NumberOfEvents(eye.ts == i)/100;
     %plot([i i], [0 temp(~isnan(temp))]);
-    %stem(i, temp(~isnan(temp)));
+    stem(i, temp(~isnan(temp)));
     a = area([i-slidingWindowWidth i], [eye.PatternCorrelation(eye.ts == i) eye.PatternCorrelation(eye.ts == i)]);
     a.FaceAlpha = 0.3;
     if eye.PatternCorrelation(eye.ts == i) > correlationThreshold
