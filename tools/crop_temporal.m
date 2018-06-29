@@ -1,4 +1,6 @@
 function subset = crop_temporal(recording, start, fin)
+% only keep events that have timestamps within [start, fin]
+
     mask = and(recording.ts >= start, recording.ts <= fin);
 
     %struct fields
