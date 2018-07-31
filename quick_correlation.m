@@ -39,7 +39,7 @@ for i = skip:length(eye.ts)
     else
         bufferOff(i) = 1;
     end
-    % remove events from buffer that are outside slinding window
+    % remove events from buffer that are outside sliding window
     for j = bufferOnStart:(i-1)
         if eye.ts(j) < (timestamp - slidingWindowWidth)
             bufferOn(j) = 0;
