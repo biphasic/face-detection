@@ -13,7 +13,7 @@ for i = 1:gridScale
     for j = 1:gridScale
         tile = crop_spatial(rec, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
         tile = activity(tile, 50000, true);
-        tile = quick_correlation(tile, 60);
+        tile = quick_correlation(tile, amplitudeScale);
         c{i,j} = tile;
     end
     i
@@ -23,7 +23,7 @@ for i = 1:gridScale
     for j = 1:gridScale
         tile = crop_spatial(rec, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
         tile = activity(tile, 50000, true);
-        tile = quick_correlation(tile, 60);
+        tile = quick_correlation(tile, amplitudeScale);
         c2{i,j} = tile;
     end
     i

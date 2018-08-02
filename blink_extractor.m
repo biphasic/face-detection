@@ -1,16 +1,18 @@
 path = fullfile('~', 'Recordings', 'face-detection');
 
-subject = 'Fede/run1.es'
-coordinates = [142 123; 52 117; 218 124];
-blinks = [2432000, 5129000, 6767000, 9021000, 10910000;
-            16200000, 17040000, 19350000, 20340000, 0;
-            31280000, 36130000, 0, 0, 0];
-amplitudeScale = 60;
+%subject = 'Fede/run1.es'
+%coordinates = [142 123; 52 117; 218 124];
+%blinks = [2432000, 5129000, 6767000, 9021000, 10910000;
+%            16200000, 17040000, 19350000, 20340000, 0;
+%            31280000, 36130000, 0, 0, 0];
+%amplitudeScale = 60;
 
-%subject = 'Alex/run1.es'
-%coordinates = [142 159; 102 138; 213 138];
-%blinks = [1012000, 2010000, 6195000];
-%amplitudeScale = 74;
+subject = 'Alex/run1.es'
+coordinates = [142 159; 102 138; 213 138];
+blinks = [1012000, 2010000, 6195000;
+            13560000, 14770000, 0;
+            30240000, 32740000, 34730000];
+amplitudeScale = 62;
 
 %subject = 'Laur/run3.es'
 %coordinates = [143 113];
@@ -84,13 +86,12 @@ for l = 1:3
         %plot(alexOff/74);
         %plot(laurOn/67);
         %plot(laurOff/67);
-        absMasterOn = (absMasterOn + masterOn/3);
-        absMasterOff = (absMasterOff + masterOff/3);
+        absMasterOn = (absMasterOn + masterOn/nnz(blinkRow>0));
+        absMasterOff = (absMasterOff + masterOff/nnz(blinkRow>0));
     end
 end
 hold on
-absOn = plot(absMasterOn);        averageOff.LineWidth = 2;
-
+absOn = plot(absMasterOn); 
 absOn.Color = colors(4);
 absOn.LineWidth = 3;
 absOff = plot(absMasterOff);
