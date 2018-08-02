@@ -7,17 +7,19 @@ path = fullfile('~', 'Recordings', 'face-detection');
 %            31280000, 36130000, 0, 0, 0];
 %amplitudeScale = 60;
 
-subject = 'Alex/run1.es'
-coordinates = [142 159; 102 138; 213 138];
-blinks = [1012000, 2010000, 6195000;
-            13560000, 14770000, 0;
-            30240000, 32740000, 34730000];
-amplitudeScale = 62;
+%subject = 'Alex/run1.es'
+%coordinates = [142 159; 102 138; 213 138];
+%blinks = [1012000, 2010000, 6195000;
+%            13560000, 14770000, 0;
+%            30240000, 32740000, 34730000];
+%amplitudeScale = 62;
 
-%subject = 'Laur/run3.es'
-%coordinates = [143 113];
-%blinks = [2930000, 6912000];
-%amplitudeScale = 67;
+subject = 'Laur/run3.es'
+coordinates = [143 113; 92 106; 193 111];
+blinks = [2940000, 6922000;
+            15470000, 17780000;
+            28000000, 29200000];
+amplitudeScale = 73;
 
 path = fullfile(path, subject);
 if ~exist('events', 'var') || ~exist('loadedSubject', 'var') || ~strcmp(loadedSubject, subject)
@@ -86,8 +88,8 @@ for l = 1:3
         %plot(alexOff/74);
         %plot(laurOn/67);
         %plot(laurOff/67);
-        absMasterOn = (absMasterOn + masterOn/nnz(blinkRow>0));
-        absMasterOff = (absMasterOff + masterOff/nnz(blinkRow>0));
+        absMasterOn = (absMasterOn + masterOn/3);
+        absMasterOff = (absMasterOff + masterOff/3);
     end
 end
 hold on
