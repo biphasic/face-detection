@@ -1,25 +1,28 @@
 path = fullfile('~', 'Recordings', 'face-detection');
 
-%subject = 'Fede/run1.es'
-%coordinates = [142 123; 52 117; 218 124];
-%blinks = [2432000, 5129000, 6767000, 9021000, 10910000;
-%            16200000, 17040000, 19350000, 20340000, 0;
-%            31280000, 36130000, 0, 0, 0];
-%amplitudeScale = 60;
-
-%subject = 'Alex/run1.es'
-%coordinates = [142 159; 102 138; 213 138];
-%blinks = [1012000, 2010000, 6195000;
-%            13560000, 14770000, 0;
-%            30240000, 32740000, 34730000];
-%amplitudeScale = 62;
-
-subject = 'Laur/run3.es'
-coordinates = [143 113; 92 106; 193 111];
-blinks = [2940000, 6922000;
-            15470000, 17780000;
-            28000000, 29200000];
-amplitudeScale = 73;
+subject = 1
+if subject == 1
+    subject = 'Fede/run1.es'
+    coordinates = [142 123; 52 117; 218 124];
+    blinks = [2442000     5139000     6777000     9031000    10920000;
+            16210000    17050000    19360000    20350000      0;
+            31290000    36140000    0  0 0];
+    amplitudeScale = 64;
+elseif subject == 2
+    subject = 'Alex/run1.es'
+    coordinates = [142 159; 102 138; 213 138];
+    blinks = [1012000, 2010000, 6195000;
+                13560000, 14770000, 0;
+                30240000, 32740000, 34730000];
+    amplitudeScale = 54;
+else
+    subject = 'Laur/run3.es'
+    coordinates = [143 113; 92 106; 193 111];
+    blinks = [2940000, 6922000;
+                15470000, 17780000;
+                28000000, 29200000];
+    amplitudeScale = 73;
+end
 
 path = fullfile(path, subject);
 if ~exist('events', 'var') || ~exist('loadedSubject', 'var') || ~strcmp(loadedSubject, subject)
