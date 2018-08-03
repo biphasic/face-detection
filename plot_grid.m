@@ -1,4 +1,4 @@
-correlationThreshold = 0.9;
+correlationThreshold = 0.88;
 print1 = 1
 if print1
     for j = 1:gridScale

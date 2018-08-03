@@ -34,6 +34,7 @@ end
 
 absMasterOn = zeros(1,4000);
 absMasterOff = absMasterOn;
+averages = cell(2,3);
 
 for l = 1:3
     eye = crop_spatial(events, coordinates(l, 1), coordinates(l, 2), 19, 15);
@@ -80,9 +81,12 @@ for l = 1:3
         averageOn = plot(masterOn);
         averageOn.Color = colors(1);
         averageOn.LineWidth = 2;
+        %store all the averages for each location
+        averages{1, l} = masterOn;
         averageOff = plot(masterOff);
         averageOff.Color = colors(1);
         averageOff.LineWidth = 2;
+        averages{2, l} = masterOff;
 
         %hold on
         %plot(fedeOn/60);
