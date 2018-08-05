@@ -1,4 +1,4 @@
-function eye = quick_correlation(eye, amplitudeScale)
+function eye = quick_correlation(eye, onFilter, offFilter, amplitudeScale)
 
 eye.patternCorrelation = nan(1, length(eye.ts));
 
@@ -8,7 +8,8 @@ corrBufferScale = 100;
 bufferSize = slidingWindowWidth/corrBufferScale;
 %correlationThreshold = 0.88;
 
-load('averages', 'filteredAverageOn', 'filteredAverageOff');
+filteredAverageOn = onFilter;
+filteredAverageOff = offFilter;
 
 bufferOn = zeros(1, length(eye.activityOn));
 bufferOff = zeros(1, length(eye.activityOn));
