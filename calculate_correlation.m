@@ -47,4 +47,16 @@ for s = 1:numberOfSubjects
     grids{2,s} = c2;
 end
 toc
-    
+
+subjects(1,1) = {'-'}
+subjects(1,2) = {'Fede'}
+subjects(1,3) = {'Alex'}
+subjects(1,4) = {'Laure'}
+subjects(2,1) = {'grid 1'}
+subjects(3,1) = {'grid 2'}
+subjects(4,1) = {'corr Threshold'}
+subjects(4,2) = {0.88}
+subjects(4,3) = {0.88}
+subjects(4,4) = {0.88}
+subjects = cell(4);
+subjects(2:3,2:4) = grids;

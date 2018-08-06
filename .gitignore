@@ -1,4 +1,6 @@
 *.es
 *.dat
+*.mat
 Recording-alias
 backups
+testfile.m
