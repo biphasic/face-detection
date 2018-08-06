@@ -25,7 +25,7 @@ for s = 1:numberOfSubjects
     c2 = cell(gridScale - 1);
     
     disp('grid 1')
-    for i = 1:gridScale
+    parfor i = 1:gridScale
         for j = 1:gridScale
             tile = crop_spatial(rec, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
             tile = activity(tile, 50000, true);
@@ -35,8 +35,8 @@ for s = 1:numberOfSubjects
     end
 
     disp('grid 2')
-    for i = 1:gridScale
-        for j = 1:gridScale
+    parfor i = 1:(gridScale-1)
+        for j = 1:(gridScale-1)
             tile = crop_spatial(rec, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
             tile = activity(tile, 50000, true);
             tile = quick_correlation(tile, filterOn, filterOff, amplitudeScale);
@@ -55,8 +55,7 @@ subjects(1,4) = {'Laure'}
 subjects(2,1) = {'grid 1'}
 subjects(3,1) = {'grid 2'}
 subjects(4,1) = {'corr Threshold'}
-subjects(4,2) = {0.88}
-subjects(4,3) = {0.88}
-subjects(4,4) = {0.88}
-subjects = cell(4);
+%subjects(4,2) = {0.88}
+%subjects(4,3) = {0.88}
+%subjects(4,4) = {0.88}
 subjects(2:3,2:4) = grids;

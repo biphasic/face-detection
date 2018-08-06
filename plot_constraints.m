@@ -6,11 +6,11 @@ for s = 1:numberOfSubjects
     ax = subplot(1,numberOfSubjects,s);
     hold on
     %for each cell
-    [n, m] = size(c);
-    for i = 1:n
-        for j = 1:m
-            %for each valid event in cell
-            if print1
+    [m, n] = size(c);
+    if print1
+        for i = 1:m
+            for j = 1:n
+                %for each valid event in cell
                 for ts = subjects{2,s+1}{i, j}.ts(subjects{2,s+1}{i,j}.patternCorrelation>subjects{4,s+1})
                     if i < n
                         for a = subjects{2,s+1}{i+1, j}.ts(subjects{2,s+1}{i+1,j}.patternCorrelation>subjects{4,s+1})
@@ -30,8 +30,13 @@ for s = 1:numberOfSubjects
                     end
                 end
             end
-            if print2
-                for ts = subjects{3,s+1}{i, j}.ts(subjects{3,s+1}{i,j}.patternCorrelation>correlationThreshold)
+        end
+    end
+    if print2
+        [m, n] = size(c2);
+        for i = 1:m
+            for j = 1:n
+                for ts = subjects{3,s+1}{i, j}.ts(subjects{3,s+1}{i,j}.patternCorrelation>subjects{4,s+1})
                     if i < n
                         for a = subjects{3,s+1}{i+1, j}.ts(subjects{3,s+1}{i+1,j}.patternCorrelation>subjects{4,s+1})
                             if ts < a && (a - maxDiff) < ts
@@ -50,7 +55,6 @@ for s = 1:numberOfSubjects
                     end
                 end
             end
-            %disp('next')
         end
     end
 end

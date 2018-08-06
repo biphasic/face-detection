@@ -1,7 +1,20 @@
-
-
-
 %%%variance across subjects%%%
+
+a = plot(alexOn);
+hold on
+a.Color = 'b';
+a = plot(alexOff);
+a.Color = 'b';
+
+b = plot(fedeOn);
+b.Color = 'r';
+b = plot(fedeOff);
+b.Color = 'r';
+
+c = plot(laureOn);
+c.Color = 'g';
+c = plot(laureOff);
+c.Color = 'g';
 
 subjectAverageOn = (fedeOn + laureOn + alexOn) / 3;
 subjectAverageOff = (fedeOff + laureOff + alexOff) / 3;

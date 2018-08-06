@@ -1,3 +1,4 @@
+figure 
 for s = 1:numberOfSubjects
     %ax = subplot(3,3*numberOfSubjects,[16+3*s 16+3*s+1 16+3*s+2]);
     ax = subplot(1,numberOfSubjects,s);
@@ -37,5 +38,8 @@ for s = 1:numberOfSubjects
             end
         end
     end
+    set(gca, 'xtick', [0:19:304])
+    set(gca, 'ytick', [0:15:240])
+    axis([0 340 0 240])
 end
 plot_constraints

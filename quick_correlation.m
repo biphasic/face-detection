@@ -2,8 +2,8 @@ function eye = quick_correlation(eye, onFilter, offFilter, amplitudeScale)
 
 eye.patternCorrelation = nan(1, length(eye.ts));
 
-slidingWindowWidth = 400000;
-minimumDifference = slidingWindowWidth/8;
+slidingWindowWidth = 300000;
+minimumDifference = slidingWindowWidth/6;
 corrBufferScale = 100;
 bufferSize = slidingWindowWidth/corrBufferScale;
 %correlationThreshold = 0.88;
@@ -24,11 +24,6 @@ bufferOnStart = skip;
 bufferOffStart = skip;
 lastPM = 0;
 %columns = 0;
-
-%stem(eye.ts, eye.activityOn/amplitudeScale);
-%hold on;
-%stem(eye.ts, -eye.activityOff/amplitudeScale);
-%plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
 
 %tic
 %loop over all events
@@ -59,9 +54,10 @@ for i = skip:length(eye.ts)
     end
     
     % check sum of ON/OFF events within buffers
-    n = nnz(bufferOn) + nnz(bufferOff);
+    nOn = nnz(bufferOn);
+    nOff = nnz(bufferOff);
     %tic
-    if timestamp - lastPM >= minimumDifference && n > 50 && n < 300
+    if timestamp - lastPM >= minimumDifference && nOn > 30 && nOn < 300 && nOff > 20 && nOff < 200
         bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
         bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
         divisor = timestamp - slidingWindowWidth;
@@ -94,17 +90,5 @@ for i = skip:length(eye.ts)
     %t = t+toc;
 end
 %toc
-
-%windows = eye.ts(~isnan(eye.patternCorrelation));
-%disp('number of windows: ')
-%length(windows)
-%for i=eye.ts(~isnan(eye.patternCorrelation))
-%    a = area([i-slidingWindowWidth i], [eye.patternCorrelation(eye.ts == i) eye.patternCorrelation(eye.ts == i)]);
-%    a.FaceAlpha = 0.3;
-%    if eye.patternCorrelation(eye.ts == i) > correlationThreshold
-%        a.FaceColor = 'yellow';
-%        a.FaceAlpha = 0.7;
-%    end
-%end
 
 end

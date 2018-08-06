@@ -14,7 +14,8 @@ for s = 1:numberOfSubjects
     elseif s == 2
         events = eventsAlex;
         subject = 'Alex/run1.es'
-        coordinates = [142 159; 102 138; 213 138];
+        %coordinates = [142 159; 102 138; 213 138];
+        coordinates = [142 159; 72 136; 213 138];
         blinks = [1012000, 2010000, 6195000;
                     13560000, 14770000, 0;
                     30240000, 32740000, 34730000];
@@ -29,7 +30,8 @@ for s = 1:numberOfSubjects
         amplitudeScale = 73;
     end
 
-    absMasterOn = zeros(1,4000);
+    blinkLength = 300000;
+    absMasterOn = zeros(1,blinkLength/100);
     absMasterOff = absMasterOn;
     averages = cell(2,3);
 
@@ -37,8 +39,8 @@ for s = 1:numberOfSubjects
     for l = 1:3
         eye = crop_spatial(events, coordinates(l, 1), coordinates(l, 2), 19, 15);
         colors = ["blue", "red",  "cyan", "magenta", "black"];
-        blinklength = 400000;
         eye = activity(eye, 50000, true);
+        blinklength = blinkLength;
 
         %representation = "events";
         representation = "continuous";
@@ -57,7 +59,7 @@ for s = 1:numberOfSubjects
             eye = shannonise(eye, scaleFactor);
             blinkRow = blinks(l,:) / scaleFactor;
             blinklength = blinklength / scaleFactor;
-            masterOn = zeros(1,blinklength/ scaleFactor);
+            masterOn = zeros(1, blinklength/ scaleFactor);
             masterOff = masterOn;
 
             %%% however many blinks in one location %%%
