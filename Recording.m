@@ -34,8 +34,12 @@ classdef Recording < handle
             [rightAverageOn, rightAverageOff] = obj.Right.getaverages(obj.AmplitudeScale, obj.Eventstream, blinkLength);
         end
         
-        function model = getmodelblink(obj, blinkLength)
-            model = (obj.getcenteraverages(blinkLength) + obj.getleftaverages(blinkLength) + obj.getrightaverages(blinkLength)) / 3;
+        function [modelOn, modelOff] = getmodelblink(obj, blinkLength)
+            [centerOn, centerOff] = obj.getcenteraverages(blinkLength);
+            [leftOn, leftOff] = obj.getleftaverages(blinkLength);
+            [rightOn, rightOff] = obj.getrightaverages(blinkLength);
+            modelOn = (centerOn + leftOn + rightOn) / 3;
+            modelOff = (centerOff + leftOff + rightOff) / 3;
         end
         
     end
