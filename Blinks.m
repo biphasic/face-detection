@@ -24,7 +24,7 @@ classdef Blinks
             blinks = blinkLength;
         end
         
-        function averages = getaverages(obj, amplitudeScale, rec, blinkLength)
+        function [averageOn, averageOff] = getaverages(obj, amplitudeScale, rec, blinkLength)
             if ~isempty(obj.Location) && ~isempty(obj.Times)
                 eye = crop_spatial(rec, obj.Location(1), obj.Location(2), 19, 15);
                 eye = activity(eye, 50000, true);
@@ -43,8 +43,8 @@ classdef Blinks
                     scaledAverageOff = eye.activityOff(indexes) / amplitudeScale;
                     masterOff = masterOff + scaledAverageOff / nnz(blinkRow);
                 end
-                averages(1) = masterOn;
-                averages(2) = masterOff;
+                averageOn = masterOn;
+                averageOff = masterOff;
                 
             else
                 error('no blinks saved for this location');
