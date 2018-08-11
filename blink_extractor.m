@@ -7,43 +7,43 @@ for s = 1:numel(names)
         disp('Fede/run1.es')
         fede = Subject(names{s});
         fede.addrecording(1, Recording(eventsFede, true));
-        fede.Recordings(1).Center.Location = [142 123];
-        fede.Recordings(1).Left.Location = [ 52 117];
-        fede.Recordings(1).Right.Location =  [218 124];
-        fede.Recordings(1).Center.Times = [2442000, 5139000, 6777000, 9031000, 10920000];
-        fede.Recordings(1).Left.Times = [16210000, 17050000, 19360000, 20350000];
-        fede.Recordings(1).Right.Times = [31290000, 36140000];
-        fede.Recordings(1).AmplitudeScale = 64;
+        fede.Recordings{1}.Center.Location = [142 123];
+        fede.Recordings{1}.Left.Location = [ 52 117];
+        fede.Recordings{1}.Right.Location =  [218 124];
+        fede.Recordings{1}.Center.Times = [2442000, 5139000, 6777000, 9031000, 10920000];
+        fede.Recordings{1}.Left.Times = [16210000, 17050000, 19360000, 20350000];
+        fede.Recordings{1}.Right.Times = [31290000, 36140000];
+        fede.Recordings{1}.AmplitudeScale = 64;
         subjects(s) = fede;
     elseif s == 2
         disp('Alex/run1.es')
         alex = Subject(names{s});
         alex.addrecording(1, Recording(eventsAlex, true));
-        %alex.Recordings(1).blinkCoordinates = [142 159; 102 138; 213 138];
-        alex.Recordings(1).Center.Location = [142 159];
-        alex.Recordings(1).Left.Location =   [ 72 136];
-        alex.Recordings(1).Right.Location =  [213 138];
-        alex.Recordings(1).Center.Times = [1012000, 2010000, 6195000];
-        alex.Recordings(1).Left.Times = [13560000, 14770000];
-        alex.Recordings(1).Right.Times = [30240000, 32740000, 34730000];
-        alex.Recordings(1).AmplitudeScale = 54;
+        %alex.Recordings{1}.blinkCoordinates = [142 159; 102 138; 213 138];
+        alex.Recordings{1}.Center.Location = [142 159];
+        alex.Recordings{1}.Left.Location =   [ 72 136];
+        alex.Recordings{1}.Right.Location =  [213 138];
+        alex.Recordings{1}.Center.Times = [1012000, 2010000, 6195000];
+        alex.Recordings{1}.Left.Times = [13560000, 14770000];
+        alex.Recordings{1}.Right.Times = [30240000, 32740000, 34730000];
+        alex.Recordings{1}.AmplitudeScale = 54;
         subjects(s) = alex;
     elseif s == 3
         disp('Laure/run3.es')
         laure = Subject(names{s});
         laure.addrecording(3, Recording(eventsLaure, true));
-        laure.Recordings(3).Center.Location = [143 113]; 
-        laure.Recordings(3).Left.Location =   [ 92 106];
-        laure.Recordings(3).Right.Location =  [193 111];
-        laure.Recordings(3).Center.Times = [2940000, 6922000];
-        laure.Recordings(3).Left.Times = [15470000, 17780000];
-        laure.Recordings(3).Right.Times = [28000000, 29200000];
-        laure.Recordings(3).AmplitudeScale = 73;
+        laure.Recordings{3}.Center.Location = [143 113]; 
+        laure.Recordings{3}.Left.Location =   [ 92 106];
+        laure.Recordings{3}.Right.Location =  [193 111];
+        laure.Recordings{3}.Center.Times = [2940000, 6922000];
+        laure.Recordings{3}.Left.Times = [15470000, 17780000];
+        laure.Recordings{3}.Right.Times = [28000000, 29200000];
+        laure.Recordings{3}.AmplitudeScale = 73;
         subjects(s) = laure;
     end
     
     
-    for b = 1:numel(subjects(s).
+    
 
     
 end
@@ -51,7 +51,6 @@ end
 return
 
    
-    blinkLength = 300000;
     absMasterOn = zeros(1,blinkLength/100);
     absMasterOff = absMasterOn;
     averages = cell(2,3);
@@ -155,4 +154,3 @@ return
     shadedErrorBar(x, filteredAverageOn, filteredSigmaOn, 'lineprops', '-b')
     shadedErrorBar(x, filteredAverageOff, filteredSigmaOff, 'lineprops', '-r')
     
-end
