@@ -52,7 +52,6 @@ for s = 1:numel(names)
     ax = subplot(1,numel(names),s);
     hold on
     
-    x = 1:length(varianceOn);
     filterResolution = length(averageOn) / 100;
     movingAverageWindow = ones(1, filterResolution)/filterResolution;
 
@@ -61,7 +60,7 @@ for s = 1:numel(names)
     filteredAverageOff = filter(movingAverageWindow, 1, averageOff);
     filteredSigmaOff = filter(movingAverageWindow, 1, sqrt(varianceOff));
     title(ax, names{s})
-    shadedErrorBar(x, filteredAverageOn, filteredSigmaOn, 'lineprops', '-b')
-    shadedErrorBar(x, filteredAverageOff, filteredSigmaOff, 'lineprops', '-r')
+    shadedErrorBar(1:length(filteredAverageOn), filteredAverageOn, filteredSigmaOn, 'lineprops', '-b')
+    shadedErrorBar(1:length(filteredAverageOff), filteredAverageOff, filteredSigmaOff, 'lineprops', '-r')
 
 end
