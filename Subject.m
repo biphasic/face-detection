@@ -13,16 +13,7 @@ classdef Subject < handle
         end
         
         function obj = addrecording(obj, number, rec)
-            if isempty(obj.Recordings)
-                if number == 1
-                    obj.Recordings = rec;
-                else
-                    obj.Recordings = zeros(1,number);
-                    obj.Recordings(1,number) = rec;
-                end
-            else
-                obj.Recordings(1,number) = rec;
-            end
+            obj.Recordings{1,number} = rec;
         end
     end
     
