@@ -8,9 +8,11 @@ tile_width = 19;
 tile_height = 15;
 eye = crop_spatial(rec, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
 eye = activity(eye, 50000, true);
-tic
+%tic
+%profile on
 eye = quick_correlation(eye, filterOn, filterOff, amplitudeScale);
-toc
+%profile viewer
+%toc
 
 slidingWindowWidth = 300000;
 
@@ -23,8 +25,7 @@ stem(eye.ts, -eye.activityOff/amplitudeScale);
 plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
 
 windows = eye.ts(~isnan(eye.patternCorrelation));
-disp('number of windows: ')
-length(windows)
+disp(['Number of windows: ', num2str(length(windows))])
 for i=eye.ts(~isnan(eye.patternCorrelation))
     a = area([i-slidingWindowWidth i], [eye.patternCorrelation(eye.ts == i) eye.patternCorrelation(eye.ts == i)]);
     a.FaceAlpha = 0.1;
