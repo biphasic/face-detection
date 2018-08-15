@@ -5,11 +5,13 @@ classdef Subject < handle
     properties
         Name
         Recordings
+        CorrelationThreshold
     end
         
     methods
         function obj = Subject(name)
             obj.Name = name;
+            obj.CorrelationThreshold = 0.88;
         end
         
         function obj = addrecording(obj, number, rec)
