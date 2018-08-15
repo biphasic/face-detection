@@ -1,45 +1,39 @@
 figure 
-for s = 1:numberOfSubjects
+maximumDifference = 50000;
+for s = 1:length(subjects)
     %ax = subplot(3,3*numberOfSubjects,[16+3*s 16+3*s+1 16+3*s+2]);
-    ax = subplot(1,numberOfSubjects,s);
-    %ax = subplot(1,1,s);
-    %delete(ax);
-    print1 = 1;
-    if print1
-        for j = 1:gridScale
-            for i = 1:gridScale
-                ts = subjects{2,s+1}{i,j}.ts(subjects{2,s+1}{i,j}.patternCorrelation>subjects{4,s+1});
-                if numel(ts) > 0
-                    x = ones(1,numel(ts)).*((i-1) * tile_width + floor(tile_width/2));
-                    y = ones(1,numel(ts)).*((j-1) * tile_height + floor(tile_height/2));
-                    %normalised x and y according to tile
-                    scatter3(ax, x, y, ts, 'b', 'filled');
-                    hold on;
-                    %x and y of last event that triggered correlation
-                    %scatter3(c{i,j}.x(c{i,j}.patternCorrelation>correlationThreshold), c{i,j}.y(c{i,j}.patternCorrelation>correlationThreshold), c{i,j}.ts(c{i,j}.patternCorrelation>correlationThreshold), 'filled');
-                hold on
-                end
-            end
+    ax = subplot(1,length(subjects),s);
+    for r = 1:numel(subjects(s).Recordings)
+        if ~isempty(subjects(s).Recordings{r}) && subjects(s).Recordings{r}.IsTrainingRecording
+            break
+        end
+    end
+    grid1 = subjects(s).Recordings{r}.EventstreamGrid1;
+    corrThreshold = subjects(s).CorrelationThreshold;
+    scatter3(grid1.x(grid1.patternCorrelation>corrThreshold), -grid1.ts(grid1.patternCorrelation>corrThreshold), grid1.y(grid1.patternCorrelation>corrThreshold))
+    hold on
+    
+    %for e = grid1.ts(grid1.patternCorrelation>corrThreshold)
+    maximumDifference = 50000;
+    valid = grid1.ts(grid1.patternCorrelation>corrThreshold);
+    for e = 2:length(valid)
+        %x = abs(grid1.x(grid1.ts == valid(e)) - grid1.x(grid1.ts == valid(e-1)) )/2;
+        x1 = grid1.x(grid1.ts == valid(e));
+        x1 = x1(1);
+        x2 = grid1.x(grid1.ts == valid(e-1));
+        x2 = x2(1);
+        x = (x1 + x2)/2;
+        y = grid1.y(grid1.ts == valid(e));
+        y = y(1);
+        if (valid(e) - valid(e-1)) < maximumDifference && isequal(grid1.y(grid1.ts == valid(e)), grid1.y(grid1.ts == valid(e-1)))
+            scatter3(ax, x, -valid(e), y, 'red', 'diamond', 'filled')
         end
     end
 
-    print2 = 1;
-    if print2
-        for j = 1:(gridScale-1)
-            for i = 1:(gridScale-1)
-                ts = subjects{3,s+1}{i,j}.ts(subjects{3,s+1}{i,j}.patternCorrelation>subjects{4,s+1});
-                if numel(ts) > 0
-                    x = ones(1,numel(ts)).*(i * tile_width);
-                    y = ones(1,numel(ts)).*(j * tile_height);
-                    scatter3(ax, x, y, ts, 'g', 'filled')
-                    %scatter3(c2{i,j}.x(c2{i,j}.patternCorrelation>correlationThreshold), c2{i,j}.y(c2{i,j}.patternCorrelation>correlationThreshold), c2{i,j}.ts(c2{i,j}.patternCorrelation>correlationThreshold), 'filled');
-                hold on
-                end
-            end
-        end
-    end
+    grid2 = subjects(s).Recordings{r}.EventstreamGrid2;
+    scatter3(grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
     set(gca, 'xtick', [0:19:304])
-    set(gca, 'ytick', [0:15:240])
-    axis([0 340 0 240])
+    set(gca, 'ztick', [0:15:240])
+    zlim([0 240])
+    xlim([0 304])
 end
-plot_constraints
