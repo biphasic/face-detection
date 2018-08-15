@@ -14,6 +14,7 @@ for s = 1:numel(names)
         fede.Recordings{1}.Left.Times = [16210000, 17050000, 19360000, 20350000];
         fede.Recordings{1}.Right.Times = [31290000, 36140000];
         fede.Recordings{1}.AmplitudeScale = 64;
+        fede.CorrelationThreshold = 0.88;
         subjects(s) = fede;
     elseif s == 2
         disp('Alex/run1.es')
@@ -39,6 +40,7 @@ for s = 1:numel(names)
         laure.Recordings{3}.Left.Times = [15470000, 17780000];
         laure.Recordings{3}.Right.Times = [28000000, 29200000];
         laure.Recordings{3}.AmplitudeScale = 73;
+        laure.CorrelationThreshold = 0.91;
         subjects(s) = laure;
     end
     
@@ -54,7 +56,6 @@ for s = 1:numel(names)
     
     filterResolution = length(averageOn) / 100;
     movingAverageWindow = ones(1, filterResolution)/filterResolution;
-
     filteredAverageOn = filter(movingAverageWindow, 1, averageOn);
     filteredSigmaOn = filter(movingAverageWindow, 1, sqrt(varianceOn));
     filteredAverageOff = filter(movingAverageWindow, 1, averageOff);
