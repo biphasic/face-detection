@@ -40,7 +40,7 @@ for s = 1:numel(names)
         laure.Recordings{3}.Left.Times = [15470000, 17780000];
         laure.Recordings{3}.Right.Times = [28000000, 29200000];
         laure.Recordings{3}.AmplitudeScale = 73;
-        laure.CorrelationThreshold = 0.91;
+        laure.CorrelationThreshold = 0.9;
         subjects(s) = laure;
     end
     
