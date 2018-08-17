@@ -81,8 +81,7 @@ for i = skip:len
                     if index == 0
                         index = 1;
                     end
-          t=0;
-          bufOff(index) = allActivityOff(k)/amplitudeScale;
+                    bufOff(index) = allActivityOff(k)/amplitudeScale;
                 end
                 samplesOn = filteredAverageOn .* (bufOn>0);
                 samplesOff = filteredAverageOff .* (bufOff>0);

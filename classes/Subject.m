@@ -6,12 +6,14 @@ classdef Subject < handle
         Name
         Recordings
         CorrelationThreshold
+        Modelblink
     end
         
     methods
         function obj = Subject(name)
             obj.Name = name;
             obj.CorrelationThreshold = 0.88;
+            obj.Modelblink = Modelblink();
         end
         
         function obj = addrecording(obj, number, rec)

@@ -51,8 +51,9 @@ classdef Recording < handle
             varianceOff = ((centerOff - modelOff).^2 + (leftOff - modelOff).^2 + (rightOff - modelOff).^2) / 3;
         end
         
-        function [] = calculatecorrelation(obj, blinkLength)
-            [filterOn, filterOff, ~] = obj.getmodelblink(blinkLength);
+        function [] = calculatecorrelation(obj, modelBlink)
+            filterOn = modelBlink.AverageOn;
+            filterOff = modelBlink.AverageOff;
             camera_width = 304;
             camera_height = 240;
             gridScale = 16;

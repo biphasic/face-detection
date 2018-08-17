@@ -18,12 +18,6 @@ classdef Blinks
             %obj.Property1 = inputArg1 + inputArg2;
         end
         
-        function blinks = getblinkarray(blinkLength)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
-            blinks = blinkLength;
-        end
-        
         function [averageOn, averageOff] = getaverages(obj, amplitudeScale, rec, blinkLength)
             if ~isempty(obj.Location) && ~isempty(obj.Times)
                 eye = crop_spatial(rec, obj.Location(1), obj.Location(2), 19, 15);
