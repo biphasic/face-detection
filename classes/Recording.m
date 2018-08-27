@@ -3,7 +3,6 @@ classdef Recording < handle
     %   Detailed explanation goes here
     
     properties
-        AmplitudeScale
         Eventstream
         EventstreamGrid1
         EventstreamGrid2
@@ -25,33 +24,33 @@ classdef Recording < handle
             obj.Grids = cell(1,2);
         end
         
-        function [centerAverageOn, centerAverageOff] = getcenteraverages(obj, blinkLength)
-            [centerAverageOn, centerAverageOff] = obj.Center.getaverages(obj.AmplitudeScale, obj.Eventstream, blinkLength);
+        function [centerAverageOn, centerAverageOff] = getcenteraverages(obj, amplitudeScale, blinkLength)
+            [centerAverageOn, centerAverageOff] = obj.Center.getaverages(amplitudeScale, obj.Eventstream, blinkLength);
         end
         
-        function [centerSigmaOn, centerSigmaOff] = getcentersigmas(obj, blinkLength)
-            [centerSigmaOn, centerSigmaOff] = obj.Center.getsigmas(obj.AmplitudeScale, obj.Eventstream, blinkLength);
+        function [centerSigmaOn, centerSigmaOff] = getcentersigmas(obj, amplitudeScale, blinkLength)
+            [centerSigmaOn, centerSigmaOff] = obj.Center.getsigmas(amplitudeScale, obj.Eventstream, blinkLength);
         end
         
-        function [leftAverageOn, leftAverageOff] = getleftaverages(obj, blinkLength)
-            [leftAverageOn, leftAverageOff] = obj.Left.getaverages(obj.AmplitudeScale, obj.Eventstream, blinkLength);
+        function [leftAverageOn, leftAverageOff] = getleftaverages(obj, amplitudeScale, blinkLength)
+            [leftAverageOn, leftAverageOff] = obj.Left.getaverages(amplitudeScale, obj.Eventstream, blinkLength);
         end
         
-        function [rightAverageOn, rightAverageOff] = getrightaverages(obj, blinkLength)
-            [rightAverageOn, rightAverageOff] = obj.Right.getaverages(obj.AmplitudeScale, obj.Eventstream, blinkLength);
+        function [rightAverageOn, rightAverageOff] = getrightaverages(obj, amplitudeScale, blinkLength)
+            [rightAverageOn, rightAverageOff] = obj.Right.getaverages(amplitudeScale, obj.Eventstream, blinkLength);
         end
         
-        function [modelOn, modelOff, varianceOn, varianceOff] = getmodelblink(obj, blinkLength)
-            [centerOn, centerOff] = obj.getcenteraverages(blinkLength);
-            [leftOn, leftOff] = obj.getleftaverages(blinkLength);
-            [rightOn, rightOff] = obj.getrightaverages(blinkLength);
+        function [modelOn, modelOff, varianceOn, varianceOff] = getmodelblink(obj, amplitudeScale, blinkLength)
+            [centerOn, centerOff] = obj.getcenteraverages(amplitudeScale, blinkLength);
+            [leftOn, leftOff] = obj.getleftaverages(amplitudeScale, blinkLength);
+            [rightOn, rightOff] = obj.getrightaverages(amplitudeScale, blinkLength);
             modelOn = (centerOn + leftOn + rightOn) / 3;
             modelOff = (centerOff + leftOff + rightOff) / 3;
             varianceOn = ((centerOn - modelOn).^2  + (leftOn - modelOn).^2 + (rightOn - modelOn).^2 ) / 3;
             varianceOff = ((centerOff - modelOff).^2 + (leftOff - modelOff).^2 + (rightOff - modelOff).^2) / 3;
         end
         
-        function [] = calculatecorrelation(obj, modelBlink)
+        function [] = calculatecorrelation(obj, amplitudeScale, blinkLength, modelBlink)
             filterOn = modelBlink.AverageOn;
             filterOff = modelBlink.AverageOff;
             camera_width = 304;
@@ -74,7 +73,7 @@ classdef Recording < handle
                 for j = 1:gridScale
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
                     tile = activity(tile, 50000, true);
-                    tile = quick_correlation(tile, filterOn, filterOff, obj.AmplitudeScale);
+                    tile = quick_correlation(tile, filterOn, filterOff, amplitudeScale, blinkLength);
                     c{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
                     x = horzcat(x, ones(1,length(tile.ts)).*((i+0.5) * tile_width));
@@ -101,7 +100,7 @@ classdef Recording < handle
                 for j = 1:(gridScale-1)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
                     tile = activity(tile, 50000, true);
-                    tile = quick_correlation(tile, filterOn, filterOff, obj.AmplitudeScale);
+                    tile = quick_correlation(tile, filterOn, filterOff, amplitudeScale, blinkLength);
                     c2{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
                     x = horzcat(x, ones(1,length(tile.ts)).*(i * tile_width));

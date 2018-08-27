@@ -13,12 +13,10 @@ for s = 1:numel(names)
         fede.Recordings{1}.Center.Times = [2442000, 5139000, 6777000, 9031000, 10920000];
         fede.Recordings{1}.Left.Times = [16210000, 17050000, 19360000, 20350000];
         fede.Recordings{1}.Right.Times = [31290000, 36140000];
-        fede.Recordings{1}.AmplitudeScale = 64;
+        fede.AmplitudeScale = 64;
         fede.CorrelationThreshold = 0.88;
         fede.addrecording(2, Recording(eventsFede(2), false));
-        fede.Recordings{2}.AmplitudeScale = 64;
         fede.addrecording(3, Recording(eventsFede(3), false));
-        fede.Recordings{3}.AmplitudeScale = 64;
         subjects(s) = fede;
     elseif s == 2
         disp('Alex/run1.es')
@@ -31,11 +29,10 @@ for s = 1:numel(names)
         alex.Recordings{1}.Center.Times = [1012000, 2010000, 6195000];
         alex.Recordings{1}.Left.Times = [13560000, 14770000];
         alex.Recordings{1}.Right.Times = [30240000, 32740000, 34730000];
-        alex.Recordings{1}.AmplitudeScale = 54;
+        alex.AmplitudeScale = 54;
+        alex.CorrelationThreshold = 0.88;
         alex.addrecording(2, Recording(eventsAlex(2), false));
         alex.addrecording(3, Recording(eventsAlex(3), false));
-        alex.Recordings{2}.AmplitudeScale = 54;
-        alex.Recordings{3}.AmplitudeScale = 54;
         subjects(s) = alex;
     elseif s == 3
         disp('Laure/run3.es')
@@ -47,12 +44,10 @@ for s = 1:numel(names)
         laure.Recordings{3}.Center.Times = [2940000, 6922000];
         laure.Recordings{3}.Left.Times = [15470000, 17780000];
         laure.Recordings{3}.Right.Times = [28000000, 29200000];
-        laure.Recordings{3}.AmplitudeScale = 73;
+        laure.AmplitudeScale = 73;
         laure.CorrelationThreshold = 0.9;
         laure.addrecording(1, Recording(eventsLaure(1), false));
         laure.addrecording(2, Recording(eventsLaure(2), false));
-        laure.Recordings{1}.AmplitudeScale = 73;
-        laure.Recordings{2}.AmplitudeScale = 73;
         subjects(s) = laure;
     end
     
@@ -63,7 +58,7 @@ for s = 1:numel(names)
     end
     
     m = subjects(s).Modelblink;
-    [m.AverageOn, m.AverageOff, m.VarianceOn, m.VarianceOff] = subjects(s).Recordings{r}.getmodelblink(300000);
+    [m.AverageOn, m.AverageOff, m.VarianceOn, m.VarianceOff] = subjects(s).Recordings{r}.getmodelblink(subjects(s).AmplitudeScale, subjects(s).BlinkLength);
     ax = subplot(1,numel(names),s);
     hold on
     

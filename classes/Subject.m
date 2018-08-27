@@ -7,6 +7,8 @@ classdef Subject < handle
         Recordings
         CorrelationThreshold
         Modelblink
+        AmplitudeScale
+        BlinkLength
     end
         
     methods
@@ -14,6 +16,7 @@ classdef Subject < handle
             obj.Name = name;
             obj.CorrelationThreshold = 0.88;
             obj.Modelblink = Modelblink();
+            obj.BlinkLength = 300000;
         end
         
         function obj = addrecording(obj, number, rec)

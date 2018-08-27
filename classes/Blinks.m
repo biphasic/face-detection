@@ -7,10 +7,6 @@ classdef Blinks
         Times
     end
     
-    properties (Dependent)
-        Average
-    end
-    
     methods
         function obj = Blinks()
             %BLINKS Construct an instance of this class
