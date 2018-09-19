@@ -10,8 +10,8 @@ classdef Modelblink
     end
     
     methods
-        function obj = Modelblink()
-            
+        %no functions
+        function obj = Modelblink()  
         end
     end
 end

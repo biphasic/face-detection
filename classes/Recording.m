@@ -41,13 +41,61 @@ classdef Recording < handle
         end
         
         function [modelOn, modelOff, varianceOn, varianceOff] = getmodelblink(obj, amplitudeScale, blinkLength)
-            [centerOn, centerOff] = obj.getcenteraverages(amplitudeScale, blinkLength);
-            [leftOn, leftOff] = obj.getleftaverages(amplitudeScale, blinkLength);
-            [rightOn, rightOff] = obj.getrightaverages(amplitudeScale, blinkLength);
-            modelOn = (centerOn + leftOn + rightOn) / 3;
-            modelOff = (centerOff + leftOff + rightOff) / 3;
-            varianceOn = ((centerOn - modelOn).^2  + (leftOn - modelOn).^2 + (rightOn - modelOn).^2 ) / 3;
-            varianceOff = ((centerOff - modelOff).^2 + (leftOff - modelOff).^2 + (rightOff - modelOff).^2) / 3;
+            modelOn = zeros(1,3000);
+            modelOff = zeros(1,3000);
+            varianceOn = zeros(1,3000);
+            varianceOff = zeros(1,3000);
+            count = 0;
+            if ~isempty(obj.Center.Location)
+                [centerOn, centerOff] = obj.getcenteraverages(amplitudeScale, blinkLength);
+                modelOn = modelOn + centerOn;
+                modelOff = modelOff + centerOff;
+                count = count + 1;
+            end
+            if ~isempty(obj.Left.Location)
+                [leftOn, leftOff] = obj.getleftaverages(amplitudeScale, blinkLength);
+                modelOn = modelOn + leftOn;
+                modelOff = modelOff + leftOff;
+                count = count + 1;
+            end
+            if ~isempty(obj.Right.Location)
+                [rightOn, rightOff] = obj.getrightaverages(amplitudeScale, blinkLength);
+                modelOn = modelOn + rightOn;
+                modelOff = modelOff + rightOff;
+                count = count + 1;
+            end
+            if count == 0
+                err = MException('MATLAB:UndefinedFunction', "No blink locations set I'm afraid");
+                throw(err)
+            end
+            modelOn = modelOn / count;
+            modelOff = modelOff / count;
+            count = 0;
+            if ~isempty(obj.Center.Location)
+                centerVarianceOn = (centerOn - modelOn).^2;
+                varianceOn = varianceOn + centerVarianceOn;
+                centerVarianceOff = (centerOff - modelOff).^2;
+                varianceOff = varianceOff + centerVarianceOff;
+                count = count + 1;
+            end
+            if ~isempty(obj.Left.Location)
+                leftVarianceOn = (leftOn - modelOn).^2;
+                varianceOn = varianceOn + leftVarianceOn;
+                leftVarianceOff = (leftOff - modelOff).^2;
+                varianceOff = varianceOff + leftVarianceOff;
+                count = count + 1;
+            end
+            if ~isempty(obj.Right.Location)
+                rightVarianceOn = (rightOn - modelOn).^2;
+                varianceOn = varianceOn + rightVarianceOn;
+                rightVarianceOff = (rightOff - modelOff).^2;
+                varianceOff = varianceOff + rightVarianceOff;
+                count = count + 1;
+            end
+            varianceOn = varianceOn / count;
+            varianceOff = varianceOff / count;
+            %varianceOn = ((centerOn - modelOn).^2  + (leftOn - modelOn).^2 + (rightOn - modelOn).^2 ) / 3;
+            %varianceOff = ((centerOff - modelOff).^2 + (leftOff - modelOff).^2 + (rightOff - modelOff).^2) / 3;
         end
         
         function [] = calculatecorrelation(obj, amplitudeScale, blinkLength, modelBlink)
