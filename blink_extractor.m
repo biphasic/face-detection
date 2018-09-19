@@ -51,30 +51,24 @@ for s = 1:numel(names)
         subjects(s) = laure;
     end
     
+    %check for right recording to calculate ModelBlink from
     for r = 1:numel(subjects(s).Recordings)
         if ~isempty(subjects(s).Recordings{r}) && subjects(s).Recordings{r}.IsTrainingRecording
             break
         end
     end
     
+    %retrieve smoothed Model and its variance
     m = subjects(s).Modelblink;
-    [m.AverageOn, m.AverageOff, m.VarianceOn, m.VarianceOff] = subjects(s).Recordings{r}.getmodelblink(subjects(s).AmplitudeScale, subjects(s).BlinkLength);
+    [m.AverageOn, m.AverageOff, m.VarianceOn, m.VarianceOff] = subjects(s).Recordings{r}.getmodelblink(subjects(s).AmplitudeScale, subjects(s).BlinkLength, 30);
+    subjects(s).Modelblink = m;
     ax = subplot(1,numel(names),s);
     hold on
     
-    filterResolution = length(m.AverageOn) / 100;
-    movingAverageWindow = ones(1, filterResolution)/filterResolution;
-    filteredAverageOn = filter(movingAverageWindow, 1, m.AverageOn);
-    filteredSigmaOn = filter(movingAverageWindow, 1, sqrt(m.VarianceOn));
-    filteredAverageOff = filter(movingAverageWindow, 1, m.AverageOff);
-    filteredSigmaOff = filter(movingAverageWindow, 1, sqrt(m.VarianceOff));
+    %plot both average and variance for ON and OFF
     title(ax, names{s})
-    shadedErrorBar(1:length(filteredAverageOn), filteredAverageOn, filteredSigmaOn, 'lineprops', '-b')
-    shadedErrorBar(1:length(filteredAverageOff), filteredAverageOff, filteredSigmaOff, 'lineprops', '-r')
-    m.AverageOn = filteredAverageOn;
-    m.AverageOff = filteredAverageOff;
-    m.VarianceOn = filteredSigmaOn;
-    m.VarianceOff = filteredSigmaOff;
-    subjects(s).Modelblink = m;
-
+    shadedErrorBar(1:length(m.AverageOn), m.AverageOn, m.VarianceOn, 'lineprops', '-b')
+    shadedErrorBar(1:length(m.AverageOff), m.AverageOff, m.VarianceOff, 'lineprops', '-r')
+    
+    clear(names{s}, 'r', 'm', 'ax', 's')
 end
