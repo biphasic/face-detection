@@ -28,16 +28,39 @@ classdef Recording < handle
             [centerAverageOn, centerAverageOff] = obj.Center.getaverages(amplitudeScale, obj.Eventstream, blinkLength);
         end
         
-        function [centerSigmaOn, centerSigmaOff] = getcentersigmas(obj, amplitudeScale, blinkLength)
-            [centerSigmaOn, centerSigmaOff] = obj.Center.getsigmas(amplitudeScale, obj.Eventstream, blinkLength);
+        function [blinksOn, blinksOff] = getcenterblinks(obj, amplitudeScale, blinkLength)
+            [blinksOn, blinksOff] = obj.Center.getblinks(amplitudeScale, obj.Eventstream, blinkLength);
         end
         
         function [leftAverageOn, leftAverageOff] = getleftaverages(obj, amplitudeScale, blinkLength)
             [leftAverageOn, leftAverageOff] = obj.Left.getaverages(amplitudeScale, obj.Eventstream, blinkLength);
         end
         
+        function [blinksOn, blinksOff] = getleftblinks(obj, amplitudeScale, blinkLength)
+            [blinksOn, blinksOff] = obj.Left.getblinks(amplitudeScale, obj.Eventstream, blinkLength);
+        end
+        
         function [rightAverageOn, rightAverageOff] = getrightaverages(obj, amplitudeScale, blinkLength)
             [rightAverageOn, rightAverageOff] = obj.Right.getaverages(amplitudeScale, obj.Eventstream, blinkLength);
+        end
+        
+        function [blinksOn, blinksOff] = getrightblinks(obj, amplitudeScale, blinkLength)
+            [blinksOn, blinksOff] = obj.Right.getblinks(amplitudeScale, obj.Eventstream, blinkLength);
+        end
+        
+        function [blinksOn, blinksOff] = getblinks(obj, amplitudeScale, blinkLength)
+            if ~isempty(obj.Center.Location) && ~isempty(obj.Center.Times)
+                [blinksOn.Center, blinksOff.Center] = obj.getcenterblinks(amplitudeScale, blinkLength);
+            end
+            if ~isempty(obj.Left.Location) && ~isempty(obj.Left.Times)
+                [blinksOn.Left, blinksOff.Left] = obj.getleftblinks(amplitudeScale, blinkLength);
+            end
+            if ~isempty(obj.Right.Location) && ~isempty(obj.Right.Times)
+                [blinksOn.Right, blinksOff.Right] = obj.getrightblinks(amplitudeScale, blinkLength);
+            end
+            if isempty(blinksOn)
+                error('got no blinks')
+            end
         end
         
         function [filteredAverageOn, filteredAverageOff, filteredSigmaOn, filteredSigmaOff] = getmodelblink(obj, amplitudeScale, blinkLength, smoothingFactor)
@@ -46,19 +69,19 @@ classdef Recording < handle
             varianceOn = zeros(1,3000);
             varianceOff = zeros(1,3000);
             count = 0;
-            if ~isempty(obj.Center.Location)
+            if ~isempty(obj.Center.Location) && ~isempty(obj.Center.Times)
                 [centerOn, centerOff] = obj.getcenteraverages(amplitudeScale, blinkLength);
                 modelOn = modelOn + centerOn;
                 modelOff = modelOff + centerOff;
                 count = count + 1;
             end
-            if ~isempty(obj.Left.Location)
+            if ~isempty(obj.Left.Location) && ~isempty(obj.Left.Times)
                 [leftOn, leftOff] = obj.getleftaverages(amplitudeScale, blinkLength);
                 modelOn = modelOn + leftOn;
                 modelOff = modelOff + leftOff;
                 count = count + 1;
             end
-            if ~isempty(obj.Right.Location)
+            if ~isempty(obj.Right.Location) && ~isempty(obj.Right.Times)
                 [rightOn, rightOff] = obj.getrightaverages(amplitudeScale, blinkLength);
                 modelOn = modelOn + rightOn;
                 modelOff = modelOff + rightOff;
@@ -71,21 +94,21 @@ classdef Recording < handle
             modelOn = modelOn / count;
             modelOff = modelOff / count;
             count = 0;
-            if ~isempty(obj.Center.Location)
+            if ~isempty(obj.Center.Location) && ~isempty(obj.Center.Times)
                 centerVarianceOn = (centerOn - modelOn).^2;
                 varianceOn = varianceOn + centerVarianceOn;
                 centerVarianceOff = (centerOff - modelOff).^2;
                 varianceOff = varianceOff + centerVarianceOff;
                 count = count + 1;
             end
-            if ~isempty(obj.Left.Location)
+            if ~isempty(obj.Left.Location) && ~isempty(obj.Left.Times)
                 leftVarianceOn = (leftOn - modelOn).^2;
                 varianceOn = varianceOn + leftVarianceOn;
                 leftVarianceOff = (leftOff - modelOff).^2;
                 varianceOff = varianceOff + leftVarianceOff;
                 count = count + 1;
             end
-            if ~isempty(obj.Right.Location)
+            if ~isempty(obj.Right.Location) && ~isempty(obj.Right.Times)
                 rightVarianceOn = (rightOn - modelOn).^2;
                 varianceOn = varianceOn + rightVarianceOn;
                 rightVarianceOff = (rightOff - modelOff).^2;
