@@ -60,9 +60,9 @@ for i = skip:len
     %tic
     if timestamp - lastPM >= minimumDifference
         nOn = nnz(bufferOn(bufferOnStart:i));
-        if nOn > 30 && nOn < 300
+        if nOn > amplitudeScale/2 && nOn < 10*amplitudeScale/2
             nOff = nnz(bufferOff(bufferOffStart:i));
-            if  nOff > 20 && nOff < 200
+            if  nOff > amplitudeScale/3 && nOff < 10*amplitudeScale/3
                 bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
                 bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
                 divisor = timestamp - slidingWindowWidth;
