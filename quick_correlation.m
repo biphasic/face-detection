@@ -19,9 +19,9 @@ bufferOn = zeros(1, length(allActivityOn));
 bufferOff = zeros(1, length(allActivityOn));
 skip = find(allTimestamps > 500000);
 if ~isempty(skip)
-    skip = skip(1);    
+    skip = skip(1);
 else
-    skip = find(allTimestamps == allTimestamps(end));
+    return;
 end
 
 bufferOnStart = skip;
