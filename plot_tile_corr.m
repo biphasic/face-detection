@@ -1,14 +1,16 @@
+subjects = outdoorSubjects;
 s = 1;
 r = 2;
 rec = subjects(s).Recordings{r}.Eventstream;
-i = 9;
+grid = 2;
+i = 7;
 j = 10;
 
 modelBlink = subjects(s).Modelblink;
 tile_width = 19;
 tile_height = 15;
 
-eye = quick_correlation(subjects(s).Recordings{r}.Grids{1}{i,j}, modelBlink.AverageOn, modelBlink.AverageOff, subjects(s).AmplitudeScale, subjects(s).BlinkLength);
+eye = quick_correlation(subjects(s).Recordings{r}.Grids{grid}{i,j}, modelBlink.AverageOn, modelBlink.AverageOff, subjects(s).AmplitudeScale, subjects(s).BlinkLength);
 
 correlationThreshold = 0.88;
 

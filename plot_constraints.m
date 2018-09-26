@@ -1,6 +1,7 @@
+subjects = outdoorSubjects;
 %correlationThreshold = 0.80;
 maxDiff = 50000;
-
+    
 for s = 1:numberOfSubjects
     %ax = subplot(3,3*numberOfSubjects,[16+3*s 16+3*s+1 16+3*s+2]);
     ax = subplot(1,numberOfSubjects,s);

@@ -1,3 +1,4 @@
+subjects = outdoorSubjects;
 figure 
 maximumDifference = 50000;
 for s = 1:length(subjects)

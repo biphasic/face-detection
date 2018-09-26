@@ -1,3 +1,4 @@
+subjects = outdoorSubjects;
 tic
 for s = 1:length(subjects)
     for r = 1:numel(subjects(s).Recordings)
