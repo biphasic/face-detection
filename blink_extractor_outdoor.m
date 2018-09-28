@@ -1,15 +1,15 @@
 figure
 hold on
-names = {'laure'};
+names = {'laure', 'kevin', 'gregor'};
 
 for s = 1:numel(names)
     if s == 1
         disp('Laure/run3.es')
         laure = Subject(names{s});
         laure.addrecording(2, Recording(outdoorEventsLaure(2), true));
-        laure.Recordings{2}.Center.Location = [126 147]; 
-        laure.Recordings{2}.Left.Location =   [ 38 140];
-        laure.Recordings{2}.Right.Location =  [219 146];
+        laure.Recordings{2}.Center.Location = [136 155]; %mitte des Auges 
+        laure.Recordings{2}.Left.Location =   [ 48 148];
+        laure.Recordings{2}.Right.Location =  [229 154];
         laure.Recordings{2}.Center.Times = [4136000, 5482000];
         %laure.Recordings{2}.Left.Times = [15470000, 17780000];
         %laure.Recordings{2}.Right.Times = [28000000, 29200000];
@@ -18,6 +18,32 @@ for s = 1:numel(names)
         laure.addrecording(1, Recording(eventsLaure(1), false));
         laure.addrecording(3, Recording(eventsLaure(3), false));
         outdoorSubjects(s) = laure;
+    elseif s == 2
+        disp('Kevin')
+        kevin = Subject(names{s});
+        kevin.addrecording(2, Recording(outdoorEventsKevin(2), true));
+        kevin.Recordings{2}.Center.Location = [136 155]; %mitte des Auges
+        kevin.Recordings{2}.Left.Location =   [ 48 148];
+        kevin.Recordings{2}.Right.Location =  [229 154];
+        kevin.Recordings{2}.Center.Times = [4136000, 5482000];
+        %kevin.Recordings{2}.Left.Times = [15470000, 17780000];
+        %kevin.Recordings{2}.Right.Times = [28000000, 29200000];
+        kevin.AmplitudeScale = 20;
+        kevin.CorrelationThreshold = 0.9;
+        kevin.addrecording(1, Recording(eventsLaure(1), false));
+        kevin.addrecording(3, Recording(eventsLaure(3), false));
+        outdoorSubjects(s) = kevin;
+    elseif s == 3
+        disp('Gregor/test7-cour')
+        gregor = Subject(names{s});
+        gregor.addrecording(1, Recording(eventsGregor, true));
+        gregor.Recordings{1}.Center.Location = [157 156];
+        gregor.Recordings{1}.Right.Location = [223 148];
+        gregor.Recordings{1}.Left.Location = [81 158];
+        gregor.Recordings{1}.Center.Times = [7640000]; %, 8570000
+        gregor.Recordings{1}.Left.Times = [13640000,14888000 ]; %
+        gregor.AmplitudeScale = 25;
+        outdoorsubjects(s) = gregor;
     end
     
     %check for first recording that is training recording to calculate ModelBlink from

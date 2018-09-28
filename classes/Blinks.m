@@ -14,9 +14,12 @@ classdef Blinks
             %obj.Property1 = inputArg1 + inputArg2;
         end
         
+        %return all the blinks for one location
         function [blinksOn, blinksOff] = getblinks(obj, amplitudeScale, rec, blinkLength)
             if ~isempty(obj.Location) && ~isempty(obj.Times)
-                eye = crop_spatial(rec, obj.Location(1), obj.Location(2), 19, 15);
+                tileWidth = 19;
+                tileHeight = 15;
+                eye = crop_spatial(rec, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
                 eye = activity(eye, 50000, true);
                 scaleFactor = 10;
                 eye = shannonise(eye, scaleFactor);
@@ -37,31 +40,11 @@ classdef Blinks
             end
         end
                 
+        %return an average model blink for one location
         function [averageOn, averageOff] = getaverages(obj, amplitudeScale, rec, blinkLength)
-            if ~isempty(obj.Location) && ~isempty(obj.Times)
-                eye = crop_spatial(rec, obj.Location(1), obj.Location(2), 19, 15);
-                eye = activity(eye, 50000, true);
-                scaleFactor = 10;
-                eye = shannonise(eye, scaleFactor);
-                blinkRow = obj.Times / scaleFactor;
-                blinklength = blinkLength / scaleFactor;
-                masterOn = zeros(1, blinklength/ scaleFactor);
-                masterOff = masterOn;
-                
-                for i = 1:nnz(blinkRow)
-                    indexes = eye.ts >= blinkRow(i) & eye.ts < (blinkRow(i)+blinklength);
-                    % normalise over number of blinkRow and a normalising factor that is specific to each recording
-                    scaledAverageOn = eye.activityOn(indexes) / amplitudeScale;
-                    masterOn = masterOn + scaledAverageOn / nnz(blinkRow);
-                    scaledAverageOff = eye.activityOff(indexes) / amplitudeScale;
-                    masterOff = masterOff + scaledAverageOff / nnz(blinkRow);
-                end
-                averageOn = masterOn;
-                averageOff = masterOff;
-                
-            else
-                error('no blinks saved for this location');
-            end
+            [averageOn, averageOff] = getblinks(obj, amplitudeScale, rec, blinkLength);
+            averageOn = sum(averageOn) / size(averageOn, 1);
+            averageOff = sum(averageOff) / size(averageOff, 1);
         end
             
     end
