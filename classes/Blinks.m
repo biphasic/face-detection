@@ -43,8 +43,10 @@ classdef Blinks
         %return an average model blink for one location
         function [averageOn, averageOff] = getaverages(obj, amplitudeScale, rec, blinkLength)
             [averageOn, averageOff] = getblinks(obj, amplitudeScale, rec, blinkLength);
-            averageOn = sum(averageOn) / size(averageOn, 1);
-            averageOff = sum(averageOff) / size(averageOff, 1);
+            if size(averageOn, 1) ~= 1
+                averageOn = sum(averageOn) / size(averageOn, 1);
+                averageOff = sum(averageOff) / size(averageOff, 1);
+            end
         end
             
     end
