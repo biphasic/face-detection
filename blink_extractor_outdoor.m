@@ -1,8 +1,8 @@
 figure
 hold on
-names = {'laure', 'kevin'};
+names = {'laure', 'kevin', 'francesco'};
 
-for s = 1:numel(names)
+for s = 1:3%numel(names)
     if s == 1
         disp('Laure/2-filtered.es')
         laure = Subject(names{s});
@@ -13,10 +13,10 @@ for s = 1:numel(names)
         laure.Recordings{2}.Center.Times = [4136000, 5482000];
         %laure.Recordings{2}.Left.Times = [14250000]; not a good shape
         %laure.Recordings{2}.Right.Times = [28000000, 29200000];
-        laure.AmplitudeScale = 20;
+        laure.AmplitudeScale = 15;
         laure.CorrelationThreshold = 0.9;
-        laure.addrecording(1, Recording(eventsLaure(1), false));
-        laure.addrecording(3, Recording(eventsLaure(3), false));
+        laure.addrecording(1, Recording(outdoorEventsLaure(1), false));
+        laure.addrecording(3, Recording(outdoorEventsLaure(3), false));
         outdoorSubjects(s) = laure;
     elseif s == 2
         disp('Kevin')
@@ -28,12 +28,25 @@ for s = 1:numel(names)
         kevin.Recordings{2}.Center.Times = [10440000, 18700000];
         %kevin.Recordings{2}.Left.Times = [15470000, 17780000];
         %kevin.Recordings{2}.Right.Times = [28000000, 29200000];
-        kevin.AmplitudeScale = 13;
+        kevin.AmplitudeScale = 20;
         kevin.CorrelationThreshold = 0.9;
-        kevin.addrecording(1, Recording(eventsLaure(1), false));
-        kevin.addrecording(3, Recording(eventsLaure(3), false));
+        kevin.addrecording(1, Recording(outdoorEventsKevin(1), false));
+        kevin.addrecording(3, Recording(outdoorEventsKevin(3), false));
         outdoorSubjects(s) = kevin;
     elseif s == 3
+        disp('Francesco/1-filtered')
+        francesco = Subject(names{s});
+        francesco.addrecording(1, Recording(outdoorEventsFrancesco(1), true));
+        francesco.Recordings{1}.Center.Location = [136 137];
+        francesco.Recordings{1}.Left.Location = [47 135];
+        francesco.Recordings{1}.Right.Location = [255 138];
+        francesco.Recordings{1}.Center.Times = [8218000];%[1580000];
+        francesco.Recordings{1}.Left.Times = [21615000];
+        francesco.AmplitudeScale = 9;
+        francesco.addrecording(2, Recording(outdoorEventsFrancesco(2), false));
+        francesco.addrecording(3, Recording(outdoorEventsFrancesco(3), false));
+        outdoorSubjects(s) = francesco;
+    elseif s == 4
         disp('Gregor/test7-cour')
         gregor = Subject(names{s});
         gregor.addrecording(1, Recording(eventsGregor, true));
@@ -77,8 +90,10 @@ for s = 1:numel(names)
     
     %plot both average and variance for ON and OFF
     title(ax, names{s})
-    shadedErrorBar(1:length(m.AverageOn), m.AverageOn, m.VarianceOn, 'lineprops', '-b')
-    shadedErrorBar(1:length(m.AverageOff), m.AverageOff, m.VarianceOff, 'lineprops', '-r')
+    ax = shadedErrorBar(1:length(m.AverageOn), m.AverageOn, m.VarianceOn, 'lineprops', '-b');
+    ax.mainLine.LineWidth = 3;
+    ax = shadedErrorBar(1:length(m.AverageOff), m.AverageOff, m.VarianceOff, 'lineprops', '-r');
+    ax.mainLine.LineWidth = 3;
     
     clear(names{s}, 'r', 'm', 'ax', 's')
 end

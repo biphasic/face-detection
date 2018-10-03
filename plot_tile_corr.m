@@ -1,6 +1,6 @@
 subjects = outdoorSubjects;
-s = 1;
-r = 2;
+s = 3;
+r = 1;
 
 offGrid = 1;
 
@@ -21,14 +21,22 @@ end
 modelBlink = subjects(s).Modelblink;
 
 eye = quick_correlation(eye, modelBlink.AverageOn, modelBlink.AverageOff, subjects(s).AmplitudeScale, subjects(s).BlinkLength);
+timeScale = 10;
+continuum = shannonise(eye, timeScale);
 
 correlationThreshold = 0.88;
 
 figure 
-stem(eye.ts, eye.activityOn/subjects(s).AmplitudeScale);
-hold on;
-stem(eye.ts, -eye.activityOff/subjects(s).AmplitudeScale);
 plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
+hold on;
+
+if 1 == 2
+    stem(eye.ts, eye.activityOn/subjects(s).AmplitudeScale);
+    stem(eye.ts, -eye.activityOff/subjects(s).AmplitudeScale);
+else
+    plot(continuum.ts*timeScale, continuum.activityOn/subjects(s).AmplitudeScale);
+    plot(continuum.ts*timeScale, -continuum.activityOff/subjects(s).AmplitudeScale);
+end
 
 windows = eye.ts(~isnan(eye.patternCorrelation));
 disp(['Number of windows: ', num2str(length(windows))])
