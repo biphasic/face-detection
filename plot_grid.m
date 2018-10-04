@@ -14,8 +14,9 @@ for s = 1:length(subjects)
         corrThreshold = subjects(s).CorrelationThreshold;
         scatter3(grid1.x(grid1.patternCorrelation>corrThreshold), -grid1.ts(grid1.patternCorrelation>corrThreshold), grid1.y(grid1.patternCorrelation>corrThreshold))
         hold on
-        title(ax, subjects(s).Name);
-
+        if r == 2
+            title(ax, [subjects(s).Name, ', correlation threshold: 0.', int2str(subjects(s).CorrelationThreshold*100)]);
+        end
         grid2 = subjects(s).Recordings{r}.EventstreamGrid2;
         scatter3(grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
         set(gca, 'xtick', [0:19:304])

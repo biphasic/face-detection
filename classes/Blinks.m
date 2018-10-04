@@ -5,13 +5,14 @@ classdef Blinks
     properties
         Location
         Times
+        Parent
+        GrandParent
     end
     
     methods
-        function obj = Blinks()
-            %BLINKS Construct an instance of this class
-            %   Detailed explanation goes here
-            %obj.Property1 = inputArg1 + inputArg2;
+        function obj = Blinks()%parent, grandparent)
+            %obj.Parent = parent;
+            %obj.GrandParent = grandparent;
         end
         
         %return all the blinks for one location

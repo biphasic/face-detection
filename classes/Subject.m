@@ -19,12 +19,9 @@ classdef Subject < handle
             obj.BlinkLength = 300000;
         end
         
-        function obj = addrecording(obj, number, rec)
-            obj.Recordings{1,number} = rec;
+        function obj = addrecording(obj, number, eventStream, isTrainingRecording)
+            obj.Recordings{1,number} = Recording(eventStream, isTrainingRecording, obj);
         end
     end
     
 end
-
-
-

@@ -11,78 +11,80 @@ classdef Recording < handle
         Center
         Left
         Right
+        Parent
     end
     
     methods
-        function obj = Recording(name, isTrainingRecording)
+        function obj = Recording(eventStream, isTrainingRecording, parent)
             %RECORDING Construct all the objects
-            obj.Eventstream = name;
+            obj.Eventstream = eventStream;
             obj.IsTrainingRecording = isTrainingRecording;
             obj.Center = Blinks;
             obj.Left = Blinks;
             obj.Right = Blinks;
             obj.Grids = cell(1,2);
+            obj.Parent = parent;
         end
         
-        function [centerAverageOn, centerAverageOff] = getcenteraverages(obj, amplitudeScale, blinkLength)
-            [centerAverageOn, centerAverageOff] = obj.Center.getaverages(amplitudeScale, obj.Eventstream, blinkLength);
+        function [centerAverageOn, centerAverageOff] = getcenteraverages(obj)
+            [centerAverageOn, centerAverageOff] = obj.Center.getaverages(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
         end
         
-        function [blinksOn, blinksOff] = getcenterblinks(obj, amplitudeScale, blinkLength)
-            [blinksOn, blinksOff] = obj.Center.getblinks(amplitudeScale, obj.Eventstream, blinkLength);
+        function [blinksOn, blinksOff] = getcenterblinks(obj)
+            [blinksOn, blinksOff] = obj.Center.getblinks(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
         end
         
-        function [leftAverageOn, leftAverageOff] = getleftaverages(obj, amplitudeScale, blinkLength)
-            [leftAverageOn, leftAverageOff] = obj.Left.getaverages(amplitudeScale, obj.Eventstream, blinkLength);
+        function [leftAverageOn, leftAverageOff] = getleftaverages(obj)
+            [leftAverageOn, leftAverageOff] = obj.Left.getaverages(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
         end
         
-        function [blinksOn, blinksOff] = getleftblinks(obj, amplitudeScale, blinkLength)
-            [blinksOn, blinksOff] = obj.Left.getblinks(amplitudeScale, obj.Eventstream, blinkLength);
+        function [blinksOn, blinksOff] = getleftblinks(obj)
+            [blinksOn, blinksOff] = obj.Left.getblinks(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
         end
         
-        function [rightAverageOn, rightAverageOff] = getrightaverages(obj, amplitudeScale, blinkLength)
-            [rightAverageOn, rightAverageOff] = obj.Right.getaverages(amplitudeScale, obj.Eventstream, blinkLength);
+        function [rightAverageOn, rightAverageOff] = getrightaverages(obj)
+            [rightAverageOn, rightAverageOff] = obj.Right.getaverages(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
         end
         
-        function [blinksOn, blinksOff] = getrightblinks(obj, amplitudeScale, blinkLength)
-            [blinksOn, blinksOff] = obj.Right.getblinks(amplitudeScale, obj.Eventstream, blinkLength);
+        function [blinksOn, blinksOff] = getrightblinks(obj)
+            [blinksOn, blinksOff] = obj.Right.getblinks(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
         end
         
-        function [blinksOn, blinksOff] = getblinks(obj, amplitudeScale, blinkLength)
+        function [blinksOn, blinksOff] = getblinks(obj)
             if ~isempty(obj.Center.Location) && ~isempty(obj.Center.Times)
-                [blinksOn.Center, blinksOff.Center] = obj.getcenterblinks(amplitudeScale, blinkLength);
+                [blinksOn.Center, blinksOff.Center] = obj.getcenterblinks();
             end
             if ~isempty(obj.Left.Location) && ~isempty(obj.Left.Times)
-                [blinksOn.Left, blinksOff.Left] = obj.getleftblinks(amplitudeScale, blinkLength);
+                [blinksOn.Left, blinksOff.Left] = obj.getleftblinks();
             end
             if ~isempty(obj.Right.Location) && ~isempty(obj.Right.Times)
-                [blinksOn.Right, blinksOff.Right] = obj.getrightblinks(amplitudeScale, blinkLength);
+                [blinksOn.Right, blinksOff.Right] = obj.getrightblinks();
             end
             if isempty(blinksOn)
                 error('got no blinks')
             end
         end
         
-        function [filteredAverageOn, filteredAverageOff, filteredSigmaOn, filteredSigmaOff] = getmodelblink(obj, amplitudeScale, blinkLength, smoothingFactor)
+        function [filteredAverageOn, filteredAverageOff, filteredSigmaOn, filteredSigmaOff] = getmodelblink(obj, smoothingFactor)
             modelOn = zeros(1,3000);
             modelOff = zeros(1,3000);
             varianceOn = zeros(1,3000);
             varianceOff = zeros(1,3000);
             count = 0;
             if ~isempty(obj.Center.Location) && ~isempty(obj.Center.Times)
-                [centerOn, centerOff] = obj.getcenteraverages(amplitudeScale, blinkLength);
+                [centerOn, centerOff] = obj.getcenteraverages();
                 modelOn = modelOn + centerOn;
                 modelOff = modelOff + centerOff;
                 count = count + 1;
             end
             if ~isempty(obj.Left.Location) && ~isempty(obj.Left.Times)
-                [leftOn, leftOff] = obj.getleftaverages(amplitudeScale, blinkLength);
+                [leftOn, leftOff] = obj.getleftaverages();
                 modelOn = modelOn + leftOn;
                 modelOff = modelOff + leftOff;
                 count = count + 1;
             end
             if ~isempty(obj.Right.Location) && ~isempty(obj.Right.Times)
-                [rightOn, rightOff] = obj.getrightaverages(amplitudeScale, blinkLength);
+                [rightOn, rightOff] = obj.getrightaverages();
                 modelOn = modelOn + rightOn;
                 modelOff = modelOff + rightOff;
                 count = count + 1;
@@ -126,9 +128,9 @@ classdef Recording < handle
             filteredSigmaOff = filter(movingAverageWindow, 1, sqrt(varianceOff));
         end
         
-        function [] = calculatecorrelation(obj, amplitudeScale, blinkLength, modelBlink)
-            filterOn = modelBlink.AverageOn;
-            filterOff = modelBlink.AverageOff;
+        function [] = calculatecorrelation(obj)
+            filterOn = obj.Parent.Modelblink.AverageOn;
+            filterOff = obj.Parent.Modelblink.AverageOff;
             camera_width = 304;
             camera_height = 240;
             gridScale = 16;
@@ -149,7 +151,7 @@ classdef Recording < handle
                 for j = 1:gridScale
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
                     tile = activity(tile, 50000, true);
-                    tile = quick_correlation(tile, filterOn, filterOff, amplitudeScale, blinkLength);
+                    tile = quick_correlation(tile, filterOn, filterOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength);
                     c{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
                     x = horzcat(x, ones(1,length(tile.ts)).*((i+0.5) * tile_width));
@@ -176,7 +178,7 @@ classdef Recording < handle
                 for j = 1:(gridScale-1)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
                     tile = activity(tile, 50000, true);
-                    tile = quick_correlation(tile, filterOn, filterOff, amplitudeScale, blinkLength);
+                    tile = quick_correlation(tile, filterOn, filterOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength);
                     c2{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
                     x = horzcat(x, ones(1,length(tile.ts)).*(i * tile_width));
