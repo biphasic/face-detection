@@ -1,7 +1,4 @@
 classdef Recording < handle
-    %RECORDING Summary of this class goes here
-    %   Detailed explanation goes here
-    
     properties
         Eventstream
         EventstreamGrid1
@@ -16,49 +13,24 @@ classdef Recording < handle
     
     methods
         function obj = Recording(eventStream, isTrainingRecording, parent)
-            %RECORDING Construct all the objects
             obj.Eventstream = eventStream;
             obj.IsTrainingRecording = isTrainingRecording;
-            obj.Center = Blinks;
-            obj.Left = Blinks;
-            obj.Right = Blinks;
+            obj.Center = Blinks(obj, parent);
+            obj.Left = Blinks(obj, parent);
+            obj.Right = Blinks(obj, parent);
             obj.Grids = cell(1,2);
             obj.Parent = parent;
         end
         
-        function [centerAverageOn, centerAverageOff] = getcenteraverages(obj)
-            [centerAverageOn, centerAverageOff] = obj.Center.getaverages(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
-        end
-        
-        function [blinksOn, blinksOff] = getcenterblinks(obj)
-            [blinksOn, blinksOff] = obj.Center.getblinks(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
-        end
-        
-        function [leftAverageOn, leftAverageOff] = getleftaverages(obj)
-            [leftAverageOn, leftAverageOff] = obj.Left.getaverages(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
-        end
-        
-        function [blinksOn, blinksOff] = getleftblinks(obj)
-            [blinksOn, blinksOff] = obj.Left.getblinks(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
-        end
-        
-        function [rightAverageOn, rightAverageOff] = getrightaverages(obj)
-            [rightAverageOn, rightAverageOff] = obj.Right.getaverages(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
-        end
-        
-        function [blinksOn, blinksOff] = getrightblinks(obj)
-            [blinksOn, blinksOff] = obj.Right.getblinks(obj.Parent.AmplitudeScale, obj.Eventstream, obj.Parent.BlinkLength);
-        end
-        
-        function [blinksOn, blinksOff] = getblinks(obj)
+        function [blinksOn, blinksOff] = getallblinks(obj)
             if ~isempty(obj.Center.Location) && ~isempty(obj.Center.Times)
-                [blinksOn.Center, blinksOff.Center] = obj.getcenterblinks();
+                [blinksOn.Center, blinksOff.Center] = obj.Center.getblinks();
             end
             if ~isempty(obj.Left.Location) && ~isempty(obj.Left.Times)
-                [blinksOn.Left, blinksOff.Left] = obj.getleftblinks();
+                [blinksOn.Left, blinksOff.Left] = obj.Left.getblinks();
             end
             if ~isempty(obj.Right.Location) && ~isempty(obj.Right.Times)
-                [blinksOn.Right, blinksOff.Right] = obj.getrightblinks();
+                [blinksOn.Right, blinksOff.Right] = obj.Right.getblinks();
             end
             if isempty(blinksOn)
                 error('got no blinks')
@@ -72,19 +44,19 @@ classdef Recording < handle
             varianceOff = zeros(1,3000);
             count = 0;
             if ~isempty(obj.Center.Location) && ~isempty(obj.Center.Times)
-                [centerOn, centerOff] = obj.getcenteraverages();
+                [centerOn, centerOff] = obj.Center.getaverages();
                 modelOn = modelOn + centerOn;
                 modelOff = modelOff + centerOff;
                 count = count + 1;
             end
             if ~isempty(obj.Left.Location) && ~isempty(obj.Left.Times)
-                [leftOn, leftOff] = obj.getleftaverages();
+                [leftOn, leftOff] = obj.Left.getaverages();
                 modelOn = modelOn + leftOn;
                 modelOff = modelOff + leftOff;
                 count = count + 1;
             end
             if ~isempty(obj.Right.Location) && ~isempty(obj.Right.Times)
-                [rightOn, rightOff] = obj.getrightaverages();
+                [rightOn, rightOff] = obj.Right.getaverages();
                 modelOn = modelOn + rightOn;
                 modelOff = modelOff + rightOff;
                 count = count + 1;
