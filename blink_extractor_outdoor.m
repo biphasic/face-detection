@@ -81,6 +81,17 @@ for s = 1:3%numel(names)
         for j = 1:length(fields)
             for i = 1:size(blinksOn.(fields{j}),1)
                 a = plot(blinksOn.(fields{j})(i,:));
+                [xcOn, lagOn] = xcorr(blinksOn.(fields{j})(1,:), blinksOn.(fields{j})(i,:));
+                [~, indexOn] = max(abs(xcOn));
+                lagDiffOn = lagOn(indexOn);
+                [xcOff, lagOff] = xcorr(blinksOff.(fields{j})(1,:), blinksOff.(fields{j})(i,:));
+                [~, indexOff] = max(abs(xcOff));
+                lagDiffOff = lagOff(indexOff);
+                lagDiff = 0.6*lagDiffOn + 0.4*lagDiffOff;
+                if abs(lagDiff) > 1 %resembles accuracy of lagdiff * 100us
+                    timestamp = outdoorSubjects(s).Recordings{r}.(fields{j}).Times(i)-lagDiff*100;
+                    disp(['suggested timestamp for blink ', int2str(i), ' at ', fields{j}, ' is: ', int2str(timestamp)])
+                end
                 a.Color = 'blue';
                 b = plot(blinksOff.(fields{j})(i,:));
                 b.Color = 'red';
