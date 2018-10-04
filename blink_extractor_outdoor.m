@@ -96,6 +96,18 @@ for s = 1:3%numel(names)
                 b = plot(blinksOff.(fields{j})(i,:));
                 b.Color = 'red';
             end
+            [averageOnFirst, averageOffFirst] = outdoorSubjects(s).Recordings{r}.(fields{1}).getaverages();
+            [averageOn, averageOff] = outdoorSubjects(s).Recordings{r}.(fields{j}).getaverages();
+            [xcOn, lagOn] = xcorr(averageOnFirst, averageOn);
+            [~, indexOn] = max(abs(xcOn));
+            lagDiffOn = lagOn(indexOn);
+            [xcOff, lagOff] = xcorr(averageOffFirst, averageOff);
+            [~, indexOff] = max(abs(xcOff));
+            lagDiffOff = lagOff(indexOff);
+            lagDiff = (lagDiffOn + lagDiffOff)/2;
+            if abs(lagDiff) > 1
+                disp(['lag between ', fields{1}, ' and ', fields{j}, ' is ', int2str(lagDiff*100), ' us'])
+            end
         end
     end
     
