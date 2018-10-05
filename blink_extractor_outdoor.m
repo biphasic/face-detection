@@ -2,7 +2,7 @@ figure
 hold on
 names = {'laure', 'kevin', 'francesco'};
 
-for s = 2:2%1:numel(names)
+for s = 1:numel(names)
     if s == 1
         disp('Laure/1-filtered.es')
         laure = Subject(names{s});
