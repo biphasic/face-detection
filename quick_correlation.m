@@ -86,7 +86,7 @@ for i = skip:len
                 samplesOff = filteredAverageOff .* (bufOff>0);
                 resOn = xcorr(bufOn, samplesOn, 'coeff');
                 resOff = xcorr(bufOff, samplesOff, 'coeff');
-                eye.patternCorrelation(i) = resOn(bufferSize)*resOff(bufferSize);
+                eye.patternCorrelation(i) = 1.25*resOn(bufferSize) * 0.8*resOff(bufferSize);
                 lastPM = timestamp;
             end
         end
