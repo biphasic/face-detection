@@ -46,7 +46,56 @@ classdef Blinks
                 averageOff = sum(averageOff) / size(averageOff, 1);
             end
         end
+        
+        function [] = plotactivity(obj, varargin)
+            figure 
+            if nargin > 1
+                row = varargin{1};
+                column = varargin{2};
+                pos = varargin{3};
+                subplot(row, column, pos)
+            end
+            hold on;
+            tileWidth = 19;
+            tileHeight = 15;
+            eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
+            eye = activity(eye, 50000, true);
+            eye = quick_correlation(eye, obj.GrandParent.Modelblink.AverageOn, obj.GrandParent.Modelblink.AverageOff, obj.GrandParent.AmplitudeScale, obj.GrandParent.BlinkLength);
+            timeScale = 10;
+            continuum = shannonise(eye, timeScale);
+            correlationThreshold = obj.GrandParent.CorrelationThreshold;
+            %plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
+            %p = plot(continuum.ts*timeScale, continuum.activityOn/obj.GrandParent.AmplitudeScale);
+            %p.Color = [0    0.4470    0.7410];
+            %p = plot(continuum.ts*timeScale, continuum.activityOff/obj.GrandParent.AmplitudeScale);
+            %p.Color = [0.8500    0.3250    0.0980];
+            %title(ax, loc)
+            ylim([0 5])
+            xlim([0 obj.Times(end)+7000000])
+            opts1={'FaceAlpha', 0.7, 'FaceColor', [0    0.4470    0.7410]};%blau
+            opts2={'FaceAlpha', 0.7, 'FaceColor', [0.8500    0.3250    0.0980]};%rot
             
+            windows = eye.ts(~isnan(eye.patternCorrelation));
+            disp(['Number of windows: ', num2str(length(windows))])
+            for i=eye.ts(and(~isnan(eye.patternCorrelation), eye.ts<(obj.Times(end)+7000000)))
+                a = area([i-obj.GrandParent.BlinkLength i], [max(eye.patternCorrelation(eye.ts == i)) max(eye.patternCorrelation(eye.ts == i))]);
+                a.FaceAlpha = 0.1;
+                if eye.patternCorrelation(eye.ts == i) > correlationThreshold
+                    a.FaceColor = 'yellow';
+                    a.FaceAlpha = 0.5;
+                end
+            end
+            mask = and(continuum.ts > ((obj.Times(1)-7000000)/timeScale), continuum.ts < ((obj.Times(end)+7000000)/timeScale));
+            z = zeros(1, numel(continuum.activityOn(mask)));
+            x = continuum.ts(mask)*timeScale;
+            y1 = continuum.activityOff(mask)/obj.GrandParent.AmplitudeScale;
+            y2 = continuum.activityOn(mask)/obj.GrandParent.AmplitudeScale;
+            fill_between(x, y1, y2, y1 < y2, opts2{:});
+            fill_between(x, z, y1, y1 > z, opts1{:});
+            %sometimes it is desired to rather show the events 
+            %stem(eye.ts, eye.activityOn/subjects.(names{s}).AmplitudeScale);
+            %stem(eye.ts, -eye.activityOff/subjects.(names{s}).AmplitudeScale);
+        end
     end
 end
 

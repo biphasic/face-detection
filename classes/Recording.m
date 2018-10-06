@@ -22,15 +22,29 @@ classdef Recording < handle
             obj.Parent = parent;
         end
         
-        function [blinksOn, blinksOff] = getallblinks(obj)
+        function locations = getannotatedlocations(obj)
+            counter = 0;
             if ~isempty(obj.Center.Location) && ~isempty(obj.Center.Times)
-                [blinksOn.Center, blinksOff.Center] = obj.Center.getblinks();
+                counter = counter + 1;
+                locations{counter} = 'Center';
             end
             if ~isempty(obj.Left.Location) && ~isempty(obj.Left.Times)
-                [blinksOn.Left, blinksOff.Left] = obj.Left.getblinks();
+                counter = counter + 1;
+                locations{counter} = 'Left';
             end
             if ~isempty(obj.Right.Location) && ~isempty(obj.Right.Times)
-                [blinksOn.Right, blinksOff.Right] = obj.Right.getblinks();
+                counter = counter + 1;
+                locations{counter} = 'Right';
+            end
+            if counter == 0
+                error('No blinks have been annotated for this recording')
+            end
+        end
+        
+        function [blinksOn, blinksOff] = getallblinks(obj)
+            locs = obj.getannotatedlocations;
+            for l = 1:numel(locs)
+                [blinksOn.(locs{l}), blinksOff.(locs{l})] = obj.(locs{l}).getblinks();
             end
             if isempty(blinksOn)
                 error('got no blinks')
@@ -167,7 +181,45 @@ classdef Recording < handle
             
             obj.Grids{1,1} = c;
             obj.Grids{1,2} = c2;
-         end
+        end
+        
+        function [] = plottileactivity(obj, grid, x, y)
+            if isempty(obj.Grids{grid})
+                error('Grid is empty, have you run the correlation ?')
+            end
+            eye = obj.Grids{grid}{x,y};
+            eye = quick_correlation(eye, obj.Parent.Modelblink.AverageOn, obj.Parent.Modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength);
+            timeScale = 10;
+            continuum = shannonise(eye, timeScale);
+            correlationThreshold = obj.Parent.CorrelationThreshold;
+            figure 
+            %plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
+            hold on;
+            ylim([0 10])
+            xlim([0 eye.ts(end)])
+            opts1={'FaceAlpha', 0.7, 'FaceColor', [0    0.4470    0.7410]};%blau
+            opts2={'FaceAlpha', 0.7, 'FaceColor', [0.8500    0.3250    0.0980]};%rot
+            
+            windows = eye.ts(~isnan(eye.patternCorrelation));
+            disp(['Number of windows: ', num2str(length(windows))])
+            for i=eye.ts(~isnan(eye.patternCorrelation))
+                a = area([i-obj.Parent.BlinkLength i], [eye.patternCorrelation(eye.ts == i) eye.patternCorrelation(eye.ts == i)]);
+                a.FaceAlpha = 0.1;
+                if eye.patternCorrelation(eye.ts == i) > correlationThreshold
+                    a.FaceColor = 'yellow';
+                    a.FaceAlpha = 0.5;
+                end
+            end
+            z = zeros(1, numel(continuum.activityOn));
+            x = continuum.ts *timeScale;
+            y1 = continuum.activityOff / obj.Parent.AmplitudeScale;
+            y2 = continuum.activityOn / obj.Parent.AmplitudeScale;
+            fill_between(x, y1, y2, y1 < y2, opts2{:});
+            fill_between(x, z, y1, y1 > z, opts1{:});
+            %sometimes it is desired to rather show the events 
+            %stem(eye.ts, eye.activityOn/subjects.(names{s}).AmplitudeScale);
+            %stem(eye.ts, -eye.activityOff/subjects.(names{s}).AmplitudeScale);
+        end
 
     end
 
