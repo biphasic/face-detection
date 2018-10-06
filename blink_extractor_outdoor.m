@@ -2,6 +2,7 @@ figure
 hold on
 names = {'laure', 'kevin', 'francesco'};
 
+outdoorSubjects = Collection();
 for s = 1:numel(names)
     if s == 1
         disp('Laure/1-filtered.es')
@@ -17,6 +18,7 @@ for s = 1:numel(names)
         laure.CorrelationThreshold = 0.88;
         laure.addrecording(2, outdoorEventsLaure(2), false);
         laure.addrecording(3, outdoorEventsLaure(3), false);
+        addprop(outdoorSubjects, laure.Name);
         outdoorSubjects.(names{s}) = laure;
     elseif s == 2
         disp('Kevin/2.es')
@@ -32,6 +34,7 @@ for s = 1:numel(names)
         kevin.CorrelationThreshold = 0.90;
         kevin.addrecording(1, outdoorEventsKevin(1), false);
         kevin.addrecording(3, outdoorEventsKevin(3), false);
+        addprop(outdoorSubjects, kevin.Name);
         outdoorSubjects.(names{s}) = kevin;
     elseif s == 3
         disp('Francesco/1-filtered')
@@ -47,6 +50,7 @@ for s = 1:numel(names)
         francesco.CorrelationThreshold = 0.9;
         francesco.addrecording(2, outdoorEventsFrancesco(2), false);
         francesco.addrecording(3, outdoorEventsFrancesco(3), false);
+        addprop(outdoorSubjects, francesco.Name);
         outdoorSubjects.(names{s}) = francesco;
     elseif s == 4
         disp('Gregor/test7-cour')
