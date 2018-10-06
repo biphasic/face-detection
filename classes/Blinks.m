@@ -48,12 +48,14 @@ classdef Blinks
         end
         
         function [] = plotactivity(obj, varargin)
-            figure 
             if nargin > 1
                 row = varargin{1};
                 column = varargin{2};
                 pos = varargin{3};
                 subplot(row, column, pos)
+                title(varargin{4});
+            else
+                figure
             end
             hold on;
             tileWidth = 19;
@@ -70,14 +72,20 @@ classdef Blinks
             %p = plot(continuum.ts*timeScale, continuum.activityOff/obj.GrandParent.AmplitudeScale);
             %p.Color = [0.8500    0.3250    0.0980];
             %title(ax, loc)
-            ylim([0 5])
-            xlim([0 obj.Times(end)+7000000])
+            ylim([0 4])
+            xlim([0 obj.Times(end)+8000000])
+            xt=arrayfun(@num2str,get(gca,'xtick')*0.000001,'un',0);
+            set(gca,'xticklabel',xt)
             opts1={'FaceAlpha', 0.7, 'FaceColor', [0    0.4470    0.7410]};%blau
             opts2={'FaceAlpha', 0.7, 'FaceColor', [0.8500    0.3250    0.0980]};%rot
             
             windows = eye.ts(~isnan(eye.patternCorrelation));
-            disp(['Number of windows: ', num2str(length(windows))])
-            for i=eye.ts(and(~isnan(eye.patternCorrelation), eye.ts<(obj.Times(end)+7000000)))
+            if nargin > 3
+                disp(['Number of windows: ', num2str(length(windows)), ' for ', varargin{4}])
+            else
+                disp(['Number of windows: ', num2str(length(windows))])
+            end
+            for i=eye.ts(and(~isnan(eye.patternCorrelation), eye.ts<(obj.Times(end)+8000000)))
                 a = area([i-obj.GrandParent.BlinkLength i], [max(eye.patternCorrelation(eye.ts == i)) max(eye.patternCorrelation(eye.ts == i))]);
                 a.FaceAlpha = 0.1;
                 if eye.patternCorrelation(eye.ts == i) > correlationThreshold
@@ -85,7 +93,7 @@ classdef Blinks
                     a.FaceAlpha = 0.5;
                 end
             end
-            mask = and(continuum.ts > ((obj.Times(1)-7000000)/timeScale), continuum.ts < ((obj.Times(end)+7000000)/timeScale));
+            mask = and(continuum.ts > ((obj.Times(1)-8000000)/timeScale), continuum.ts < ((obj.Times(end)+8000000)/timeScale));
             z = zeros(1, numel(continuum.activityOn(mask)));
             x = continuum.ts(mask)*timeScale;
             y1 = continuum.activityOff(mask)/obj.GrandParent.AmplitudeScale;
