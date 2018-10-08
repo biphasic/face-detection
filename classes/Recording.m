@@ -51,7 +51,7 @@ classdef Recording < handle
             end
         end
         
-        function [filteredAverageOn, filteredAverageOff, filteredSigmaOn, filteredSigmaOff] = getmodelblink(obj, smoothingFactor)
+        function modelblink = getmodelblink(obj, smoothingFactor)
             modelOn = zeros(1,3000);
             modelOff = zeros(1,3000);
             varianceOn = zeros(1,3000);
@@ -108,10 +108,11 @@ classdef Recording < handle
             
             filterResolution = length(modelOn) / smoothingFactor;
             movingAverageWindow = ones(1, filterResolution)/filterResolution;
-            filteredAverageOn = filter(movingAverageWindow, 1, modelOn);
-            filteredSigmaOn = filter(movingAverageWindow, 1, sqrt(varianceOn));
-            filteredAverageOff = filter(movingAverageWindow, 1, modelOff);
-            filteredSigmaOff = filter(movingAverageWindow, 1, sqrt(varianceOff));
+            modelblink = Modelblink();
+            modelblink.AverageOn = filter(movingAverageWindow, 1, modelOn);
+            modelblink.VarianceOn = filter(movingAverageWindow, 1, sqrt(varianceOn));
+            modelblink.AverageOff = filter(movingAverageWindow, 1, modelOff);
+            modelblink.VarianceOff = filter(movingAverageWindow, 1, sqrt(varianceOff));
         end
         
         function [] = calculatecorrelation(obj)

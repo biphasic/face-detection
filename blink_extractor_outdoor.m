@@ -69,8 +69,7 @@ for s = 1:numel(names)
     r = outdoorSubjects.(names{s}).gettrainingrecordingindex;
     
     %retrieve smoothed Model and its variance
-    m = outdoorSubjects.(names{s}).Modelblink;
-    [m.AverageOn, m.AverageOff, m.VarianceOn, m.VarianceOff] = outdoorSubjects.(names{s}).Recordings{r}.getmodelblink(30);
+    m = outdoorSubjects.(names{s}).Recordings{r}.getmodelblink(30);
     outdoorSubjects.(names{s}).Modelblink = m;
     ax = subplot(1,numel(names),s);
     %ax = subplot(1,1,1);
