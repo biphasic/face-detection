@@ -28,8 +28,8 @@ classdef Collection < dynamicprops
             blink = blink / num;
         end
 
-        function plotaveragemodelblink(obj, smoothingFactor)
-            fig = figure;
+        function m = plotaveragemodelblink(obj, smoothingFactor)
+            figure;
             %title('averaged blink across all subjects')
             m = obj.getaveragemodelblink(smoothingFactor);
             ax = shadedErrorBar(1:length(m.AverageOn), m.AverageOn, m.VarianceOn, 'lineprops', '-b');
@@ -43,14 +43,8 @@ classdef Collection < dynamicprops
             %ax.patch.FaceColor = [0.8500    0.3250    0.0980];
             ax.mainLine.LineWidth = 3;
             ylim([0 inf])
-            set(gca,'xtick',[])
-            set(gca,'xticklabel',[])
-            set(gca,'ytick',[])
-            set(gca,'yticklabel',[])
-            iptsetpref('ImshowBorder','tight'); 
-            set(gca,'Color','None')
-            %saveas(gca, '/home/gregorlenz/PhD/cvpr2019/figures/averageModelBlink.png');
-            export_fig /home/gregorlenz/PhD/cvpr2019/figures/averageModelBlink.png
+            file = [1:1:length(test.AverageOn); m.AverageOn; m.AverageOff; m.VarianceOn; m.VarianceOff]';
+            csvwrite('/home/gregorlenz/Recordings/face-detection/printing-with-matplotlib/average-blink-model.csv', file)
         end
    end
 end
