@@ -116,6 +116,7 @@ classdef Recording < handle
         end
         
         function [] = calculatecorrelation(obj)
+            tic
             filterOn = obj.Parent.Modelblink.AverageOn;
             filterOff = obj.Parent.Modelblink.AverageOff;
             camera_width = 304;
@@ -182,6 +183,7 @@ classdef Recording < handle
             
             obj.Grids{1,1} = c;
             obj.Grids{1,2} = c2;
+            toc
         end
         
         function [] = plottileactivity(obj, grid, x, y)
@@ -204,7 +206,7 @@ classdef Recording < handle
             windows = eye.ts(~isnan(eye.patternCorrelation));
             disp(['Number of windows: ', num2str(length(windows))])
             for i=eye.ts(~isnan(eye.patternCorrelation))
-                a = area([i-obj.Parent.BlinkLength i], [eye.patternCorrelation(eye.ts == i) eye.patternCorrelation(eye.ts == i)]);
+                a = area([i-obj.Parent.BlinkLength i], [max(eye.patternCorrelation(eye.ts == i)) max(eye.patternCorrelation(eye.ts == i))]);
                 a.FaceAlpha = 0.1;
                 if eye.patternCorrelation(eye.ts == i) > correlationThreshold
                     a.FaceColor = 'yellow';

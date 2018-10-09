@@ -48,6 +48,9 @@ classdef Blinks
         end
         
         function [] = plotactivity(obj, varargin)
+            if isempty(obj.Times) || isempty(obj.Location)
+                error('No blinks annotated for this location.')
+            end
             if nargin > 1
                 row = varargin{1};
                 column = varargin{2};
@@ -74,8 +77,8 @@ classdef Blinks
             %title(ax, loc)
             ylim([0 4])
             xlim([0 obj.Times(end)+8000000])
-            xt=arrayfun(@num2str,get(gca,'xtick')*0.000001,'un',0);
-            set(gca,'xticklabel',xt)
+            %xt=arrayfun(@num2str,get(gca,'xtick')*0.000001, 'UniformOutput', false);
+            %set(gca,'xticklabel',xt)
             opts1={'FaceAlpha', 0.7, 'FaceColor', [0    0.4470    0.7410]};%blau
             opts2={'FaceAlpha', 0.7, 'FaceColor', [0.8500    0.3250    0.0980]};%rot
             
