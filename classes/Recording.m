@@ -128,14 +128,12 @@ classdef Recording < handle
             tile_height = camera_height/gridScale;
             c = cell(gridScale);
             c2 = cell(gridScale - 1);
+            
             ts=[];
             x=[];
             y=[];
             p=[];
             corr=[];
-            aOn=[];
-            aOff=[];
-
             disp('grid 1')
             for i = 1:gridScale
                 for j = 1:gridScale
@@ -144,8 +142,8 @@ classdef Recording < handle
                     tile = quick_correlation(tile, filterOn, filterOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength);
                     c{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
-                    x = horzcat(x, ones(1,length(tile.ts)).*((i+0.5) * tile_width));
-                    y = horzcat(y, ones(1,length(tile.ts)).*((j+0.5) * tile_height));
+                    x = horzcat(x, ones(1,length(tile.ts)).*((i-0.5) * (tile_width)));
+                    y = horzcat(y, ones(1,length(tile.ts)).*((j-0.5) * (tile_height)));
                     corr = horzcat(corr, tile.patternCorrelation);
                 end
             end
@@ -156,13 +154,10 @@ classdef Recording < handle
             obj.EventstreamGrid1.y = fusion(:,3)';
             obj.EventstreamGrid1.patternCorrelation = fusion(:,4)';
             
-
             ts=[];
             x=[];
             y=[];
             corr=[];
-            aOn=[];
-            aOff=[];
             disp('grid 2')
             for i = 1:(gridScale-1)
                 for j = 1:(gridScale-1)
@@ -218,7 +213,7 @@ classdef Recording < handle
                 x = (x1(1) + x2(1))/2;
                 y = grid1.y(grid1.ts == valid(e));
                 y = y(1);
-                if valid(e) > 1000000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid1.y(grid1.ts == valid(e)), grid1.y(grid1.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60
+                if valid(e) > 700000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid1.y(grid1.ts == valid(e)), grid1.y(grid1.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60
                     scatter3(ax, x, -valid(e), y, 'red', 'diamond', 'filled')
                 end
             end
@@ -231,10 +226,11 @@ classdef Recording < handle
                 x = (x1(1) + x2(1))/2;
                 y = grid2.y(grid2.ts == valid(e));
                 y = y(1);
-                if valid(e) > 1000000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid2.y(grid2.ts == valid(e)), grid2.y(grid2.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60
+                if valid(e) > 700000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid2.y(grid2.ts == valid(e)), grid2.y(grid2.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60
                     scatter3(ax, x, -valid(e), y, 'red', 'diamond', 'filled')
                 end
             end
+            
             title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100)])
         end
         
