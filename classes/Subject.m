@@ -17,7 +17,7 @@ classdef Subject < handle
         end
         
         function obj = addrecording(obj, number, eventStream, isTrainingRecording)
-            obj.Recordings{1,number} = Recording(eventStream, isTrainingRecording, obj);
+            obj.Recordings{1,number} = Recording(number, eventStream, isTrainingRecording, obj);
         end
         
         function index = gettrainingrecordingindex(obj)
@@ -51,13 +51,17 @@ classdef Subject < handle
         end
         
         function [] = plotallcorrelations(obj)
-            figure
-            for r = 1:numel(obj.Recordings)
-                if ~isempty(obj.Recordings{r})
-                    ax = subplot(1,length(obj.Recordings), r);
-                    obj.Recordings{r}.plotcorrelation(ax);
+            if isempty(obj.gettrainingrecording.EventstreamGrid1)
+                error('Run correlation first')
+            else
+                figure
+                for r = 1:numel(obj.Recordings)
+                    if ~isempty(obj.Recordings{r})
+                        ax = subplot(1,length(obj.Recordings), r);
+                        obj.Recordings{r}.plotcorrelation(ax);
+                    end
                 end
-            end            
+            end
         end
     end
     

@@ -1,7 +1,7 @@
 figure
 hold on
 names = {'laure', 'kevin', 'francesco'};
-
+close all;
 outdoorSubjects = Collection();
 for s = 1:numel(names)
     if s == 1

@@ -1,5 +1,6 @@
 classdef Recording < handle
     properties
+        Number
         Eventstream
         EventstreamGrid1
         EventstreamGrid2
@@ -12,7 +13,8 @@ classdef Recording < handle
     end
     
     methods
-        function obj = Recording(eventStream, isTrainingRecording, parent)
+        function obj = Recording(number, eventStream, isTrainingRecording, parent)
+            obj.Number = number;
             obj.Eventstream = eventStream;
             obj.IsTrainingRecording = isTrainingRecording;
             obj.Center = Blinks(obj, parent);
@@ -187,26 +189,26 @@ classdef Recording < handle
         end
         
         function [] = plotcorrelation(obj, varargin)
+            if isempty(obj.EventstreamGrid1)
+                error('No data present')
+            end
             if nargin > 1
                 ax = varargin{1};
-                %title(varargin{4});
             else
-                figure
+                figure;
                 ax = gca;
-                title([obj.Parent.Name, ', correlation threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100)])
             end
             grid1 = obj.EventstreamGrid1;
             corrThreshold = obj.Parent.CorrelationThreshold;
             scatter3(ax, grid1.x(grid1.patternCorrelation>corrThreshold), -grid1.ts(grid1.patternCorrelation>corrThreshold), grid1.y(grid1.patternCorrelation>corrThreshold))
-            hold on
             grid2 = obj.EventstreamGrid2;
+            hold on
             scatter3(ax, grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
             set(gca, 'xtick', [0:19:304])
             set(gca, 'ztick', [0:15:240])
             zlim([0 240])
             xlim([0 304])
 
-            %for e = grid1.ts(grid1.patternCorrelation>corrThreshold)
             maximumDifference = 50000;
             valid = grid1.ts(grid1.patternCorrelation>corrThreshold);
             for e = 2:length(valid)
@@ -233,6 +235,7 @@ classdef Recording < handle
                     scatter3(ax, x, -valid(e), y, 'red', 'diamond', 'filled')
                 end
             end
+            title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100)])
         end
         
         function [] = plottileactivity(obj, grid, x, y)

@@ -96,6 +96,11 @@ classdef Blinks
                     a.FaceAlpha = 0.5;
                 end
             end
+            for i = obj.Times
+                a = area([i i+obj.GrandParent.BlinkLength], [4 4]);
+                a.FaceAlpha = 0.1;
+                a.FaceColor = 'green';
+            end
             mask = and(continuum.ts > ((obj.Times(1)-8000000)/timeScale), continuum.ts < ((obj.Times(end)+8000000)/timeScale));
             z = zeros(1, numel(continuum.activityOn(mask)));
             x = continuum.ts(mask)*timeScale;
