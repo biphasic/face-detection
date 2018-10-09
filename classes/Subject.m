@@ -50,50 +50,12 @@ classdef Subject < handle
             end
         end
         
-        function [] = plotcorrelation(obj)
+        function [] = plotallcorrelations(obj)
             figure
             for r = 1:numel(obj.Recordings)
-                ax = subplot(1,length(obj.Recordings), r);
-                grid1 = obj.Recordings{r}.EventstreamGrid1;
-                corrThreshold = obj.CorrelationThreshold;
-                scatter3(grid1.x(grid1.patternCorrelation>corrThreshold), -grid1.ts(grid1.patternCorrelation>corrThreshold), grid1.y(grid1.patternCorrelation>corrThreshold))
-                hold on
-                if r == 2
-                    title(ax, [obj.Name, ', correlation threshold: 0.', int2str(obj.CorrelationThreshold*100)]);
-                end
-                grid2 = obj.Recordings{r}.EventstreamGrid2;
-                scatter3(grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
-                set(gca, 'xtick', [0:19:304])
-                set(gca, 'ztick', [0:15:240])
-                zlim([0 240])
-                xlim([0 304])
-
-                %for e = grid1.ts(grid1.patternCorrelation>corrThreshold)
-                maximumDifference = 50000;
-                valid = grid1.ts(grid1.patternCorrelation>corrThreshold);
-                for e = 2:length(valid)
-                    %x = abs(grid1.x(grid1.ts == valid(e)) - grid1.x(grid1.ts == valid(e-1)) )/2;
-                    x1 = grid1.x(grid1.ts == valid(e));
-                    x2 = grid1.x(grid1.ts == valid(e-1));
-                    x = (x1(1) + x2(1))/2;
-                    y = grid1.y(grid1.ts == valid(e));
-                    y = y(1);
-                    if valid(e) > 1000000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid1.y(grid1.ts == valid(e)), grid1.y(grid1.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60
-                        scatter3(ax, x, -valid(e), y, 'red', 'diamond', 'filled')
-                    end
-                end
-
-                valid = grid2.ts(grid2.patternCorrelation>corrThreshold);
-                for e = 2:length(valid)
-                    %x = abs(grid2.x(grid2.ts == valid(e)) - grid2.x(grid2.ts == valid(e-1)) )/2;
-                    x1 = grid2.x(grid2.ts == valid(e));
-                    x2 = grid2.x(grid2.ts == valid(e-1));
-                    x = (x1(1) + x2(1))/2;
-                    y = grid2.y(grid2.ts == valid(e));
-                    y = y(1);
-                    if valid(e) > 1000000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid2.y(grid2.ts == valid(e)), grid2.y(grid2.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60
-                        scatter3(ax, x, -valid(e), y, 'red', 'diamond', 'filled')
-                    end
+                if ~isempty(obj.Recordings{r})
+                    ax = subplot(1,length(obj.Recordings), r);
+                    obj.Recordings{r}.plotcorrelation(ax);
                 end
             end            
         end
