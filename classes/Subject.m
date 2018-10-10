@@ -120,6 +120,20 @@ classdef Subject < handle
             ax.mainLine.LineWidth = 3;
             ylim([0 inf])
         end
+        
+        function plotmodelblinkwithallblinks(obj)
+            locations = obj.gettrainingrecording.getannotatedlocations;
+            if numel(locations) > 0 
+                figure 
+                ax = gca;
+            else
+                error('not enough locations')
+            end
+            for l = 1:numel(locations)
+                obj.gettrainingrecording.(locations{l}).plotblinks(ax)
+            end
+            obj.plotmodelblink(ax)
+        end
     end
     
 end

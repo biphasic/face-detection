@@ -47,7 +47,22 @@ classdef Blinks
             end
         end
         
-        function [] = plotactivity(obj, varargin)
+        function plotblinks(obj, varargin)
+            if numel(varargin) > 0
+                ax = varargin{1};
+            else
+                figure
+                ax = gca;
+            end
+            hold on
+            [blinksOn, blinksOff] = obj.getblinks;
+            for n = 1:size(blinksOn, 1)
+                plot(ax, blinksOn(n, :), 'blue')
+                plot(ax, blinksOff(n, :), 'red')
+            end
+        end
+        
+        function plotactivity(obj, varargin)
             if isempty(obj.Times) || isempty(obj.Location)
                 error('No blinks annotated for this location.')
             end
