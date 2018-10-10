@@ -64,45 +64,85 @@ classdef Subject < handle
             end
         end
         
-        function adjustblinkmodel(obj)
+        function adjustmodelblink(obj)
             figure
             hold on
-            [blinksOn, blinksOff] = obj.gettrainingrecording.getallblinks();
-            fields = fieldnames(blinksOn);
-            for j = 1:length(fields)
-                for i = 1:size(blinksOn.(fields{j}),1)
-                    a = plot(blinksOn.(fields{j})(i,:));
-                    [xcOn, lagOn] = xcorr(blinksOn.(fields{j})(1,:), blinksOn.(fields{j})(i,:));
+            r = obj.gettrainingrecordingindex;
+
+            changedSomething = 0;
+            difference = 1;
+            iteration = 0;
+            while (difference > 0)
+                [blinksOn, blinksOff] = obj.Recordings{r}.getallblinks();
+                locations = fieldnames(blinksOn);
+                iteration = iteration + 1;
+                difference = 0;
+                for j = 1:length(locations)
+                    for i = 2:size(blinksOn.(locations{j}),1) % start to correlate the second annotated blink with the first one
+                        %a = plot(blinksOn.(locations{j})(i,:));
+                        [xcOn, lagOn] = xcorr(blinksOn.(locations{j})(1,:), blinksOn.(locations{j})(i,:));
+                        [~, indexOn] = max(abs(xcOn));
+                        lagDiffOn = lagOn(indexOn);
+                        [xcOff, lagOff] = xcorr(blinksOff.(locations{j})(1,:), blinksOff.(locations{j})(i,:));
+                        [~, indexOff] = max(abs(xcOff));
+                        lagDiffOff = lagOff(indexOff);
+                        lagDiff = 0.6*lagDiffOn + 0.4*lagDiffOff;
+                        if abs(lagDiff) > 1 %resembles accuracy of lagdiff * 100us
+                            timestamp = obj.gettrainingrecording.(locations{j}).Times(i)-lagDiff*100;
+                            obj.Recordings{r}.(locations{j}).Times(i) = timestamp;
+                            disp(['Adjusted timestamp for blink ', int2str(i), ' at ', locations{j}, ' is: ', int2str(timestamp)])
+                            difference = difference + 1;
+                            changedSomething = 1;
+                        end
+                        %a.Color = 'blue';
+                        %b = plot(blinksOff.(locations{j})(i,:));
+                        %b.Color = 'red';
+                    end
+                end
+                if changedSomething
+                    disp (['Iteration no. for locations: ', int2str(iteration)])
+                end
+            end
+                        
+            difference = 1; % no do...while loop in matlab exists
+            iteration = 0;
+            while (difference > 0)
+                difference = 0;
+                iteration = iteration + 1;
+                for j = 1:length(locations)
+                    [averageOnFirst, averageOffFirst] = obj.gettrainingrecording.(locations{1}).getaverages();
+                    [averageOn, averageOff] = obj.gettrainingrecording.(locations{j}).getaverages();
+                    [xcOn, lagOn] = xcorr(averageOnFirst, averageOn);
                     [~, indexOn] = max(abs(xcOn));
                     lagDiffOn = lagOn(indexOn);
-                    [xcOff, lagOff] = xcorr(blinksOff.(fields{j})(1,:), blinksOff.(fields{j})(i,:));
+                    [xcOff, lagOff] = xcorr(averageOffFirst, averageOff);
                     [~, indexOff] = max(abs(xcOff));
                     lagDiffOff = lagOff(indexOff);
-                    lagDiff = 0.6*lagDiffOn + 0.4*lagDiffOff;
-                    if abs(lagDiff) > 1 %resembles accuracy of lagdiff * 100us
-                        timestamp = obj.gettrainingrecording.(fields{j}).Times(i)-lagDiff*100;
-                        disp(['suggested timestamp for blink ', int2str(i), ' at ', fields{j}, ' is: ', int2str(timestamp)])
+                    lagDiff = (lagDiffOn + lagDiffOff)/2;
+                    if abs(lagDiff) > 1
+                        obj.Recordings{r}.(locations{j}).Times = obj.Recordings{r}.(locations{j}).Times - (lagDiff*100)/10;
+                        disp(['lag between ', locations{1}, ' and ', locations{j}, ' is ', int2str(lagDiff*100), ' us'])
+                        difference = difference + 1;
+                        changedSomething = 1;
                     end
-                    a.Color = 'blue';
-                    b = plot(blinksOff.(fields{j})(i,:));
-                    b.Color = 'red';
                 end
-                [averageOnFirst, averageOffFirst] = obj.gettrainingrecording.(fields{1}).getaverages();
-                [averageOn, averageOff] = obj.gettrainingrecording.(fields{j}).getaverages();
-                [xcOn, lagOn] = xcorr(averageOnFirst, averageOn);
-                [~, indexOn] = max(abs(xcOn));
-                lagDiffOn = lagOn(indexOn);
-                [xcOff, lagOff] = xcorr(averageOffFirst, averageOff);
-                [~, indexOff] = max(abs(xcOff));
-                lagDiffOff = lagOff(indexOff);
-                lagDiff = (lagDiffOn + lagDiffOff)/2;
-                if abs(lagDiff) > 1
-                    disp(['lag between ', fields{1}, ' and ', fields{j}, ' is ', int2str(lagDiff*100), ' us'])
+                if changedSomething
+                    disp (['Iteration no. between blinks: ', int2str(iteration)])
                 end
+            end
+            ax = gca;
+            obj.plotmodelblink(ax)
+            if changedSomething
+                for l = 1:length(locations)
+                    disp(['New times for ', locations{l}, ':'])
+                    obj.gettrainingrecording.(locations{l}).Times
+                end
+            else
+                disp('Single blinks of the model seem to correlate well.')
             end
         end
         
-        function plotblinkmodel(obj, varargin)
+        function plotmodelblink(obj, varargin)
             if isempty(obj.gettrainingrecording.getannotatedlocations())
                 error('Blinks annotated')
             end

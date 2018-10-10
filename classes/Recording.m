@@ -117,7 +117,7 @@ classdef Recording < handle
             modelblink.VarianceOff = filter(movingAverageWindow, 1, sqrt(varianceOff));
         end
         
-        function [] = calculatecorrelation(obj)
+        function calculatecorrelation(obj)
             tic
             filterOn = obj.Parent.Modelblink.AverageOn;
             filterOff = obj.Parent.Modelblink.AverageOff;
@@ -182,7 +182,7 @@ classdef Recording < handle
             toc
         end
         
-        function [] = plotcorrelation(obj, varargin)
+        function plotcorrelation(obj, varargin)
             if isempty(obj.EventstreamGrid1)
                 error('No data present')
             end
@@ -233,7 +233,7 @@ classdef Recording < handle
             title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100)])
         end
         
-        function [] = plottileactivity(obj, grid, x, y)
+        function plottileactivity(obj, grid, x, y)
             if isempty(obj.Grids{grid})
                 error('Grid is empty, have you run the correlation ?')
             end

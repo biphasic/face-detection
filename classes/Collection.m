@@ -43,7 +43,7 @@ classdef Collection < dynamicprops
             %ax.patch.FaceColor = [0.8500    0.3250    0.0980];
             ax.mainLine.LineWidth = 3;
             ylim([0 inf])
-            file = [1:1:length(test.AverageOn); m.AverageOn; m.AverageOff; m.VarianceOn; m.VarianceOff]';
+            file = [1:1:length(m.AverageOn); m.AverageOn; m.AverageOff; m.VarianceOn; m.VarianceOff]';
             csvwrite('/home/gregorlenz/Recordings/face-detection/printing-with-matplotlib/average-blink-model.csv', file)
         end
         
@@ -51,7 +51,7 @@ classdef Collection < dynamicprops
             subjects = fieldnames(obj);
             for s = 1:numel(subjects)
                 ax = subplot(1,numel(subjects),s);
-                obj.(subjects{s}).plotblinkmodel(ax)
+                obj.(subjects{s}).plotmodelblink(ax)
             end
         end
    end
