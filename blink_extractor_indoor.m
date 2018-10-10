@@ -8,9 +8,9 @@ for s = 1:numel(names)
         fede.Recordings{1}.Center.Location = [152 131];
         fede.Recordings{1}.Left.Location = [ 62 125];
         fede.Recordings{1}.Right.Location =  [228 132];
-        fede.Recordings{1}.Center.Times = [2442000, 5139000, 6777000, 9031000, 10920000];
-        fede.Recordings{1}.Left.Times = [16210000, 17050000, 19360000, 20350000];
-        fede.Recordings{1}.Right.Times = [31290000, 36140000];
+        fede.Recordings{1}.Center.Times = [2432000     5125600     6771680     9025140    10915620];
+        fede.Recordings{1}.Left.Times = [16210115    17043535    19352235    20343515];
+        fede.Recordings{1}.Right.Times = [31274790    36131610];
         fede.AmplitudeScale = 64;
         fede.CorrelationThreshold = 0.88;
         fede.addrecording(2, indoorEventsFede(2), false);
@@ -24,9 +24,9 @@ for s = 1:numel(names)
         alex.Recordings{1}.Center.Location = [152 167];
         alex.Recordings{1}.Left.Location =   [ 82 144];
         alex.Recordings{1}.Right.Location =  [223 146];
-        alex.Recordings{1}.Center.Times = [1012000, 2010000, 6195000];
-        alex.Recordings{1}.Left.Times = [13560000, 14770000];
-        alex.Recordings{1}.Right.Times = [30240000, 32740000, 34730000];
+        alex.Recordings{1}.Center.Times = [1012000     2016300     6191880];
+        alex.Recordings{1}.Left.Times = [13546240    14769500];
+        alex.Recordings{1}.Right.Times = [30229640    32723700    34745280];
         alex.AmplitudeScale = 54;
         alex.CorrelationThreshold = 0.88;
         alex.addrecording(2, indoorEventsAlex(2), false);
@@ -37,12 +37,12 @@ for s = 1:numel(names)
         disp('Laure/run3.es')
         laure = Subject(names{s});
         laure.addrecording(3, indoorEventsLaure(3), true);
-        laure.Recordings{3}.Center.Location = [153 121]; %Mitte des Auges
+        laure.Recordings{3}.Center.Location = [153 121];
         laure.Recordings{3}.Left.Location =   [102 114];
         laure.Recordings{3}.Right.Location =  [203 119];
-        laure.Recordings{3}.Center.Times = [2940000, 6922000];
-        laure.Recordings{3}.Left.Times = [15470000, 17780000];
-        laure.Recordings{3}.Right.Times = [28000000, 29200000];
+        laure.Recordings{3}.Center.Times = [2940000     6918660];
+        laure.Recordings{3}.Left.Times = [15462420    17777200];
+        laure.Recordings{3}.Right.Times = [28000295    29189715];
         laure.AmplitudeScale = 73;
         laure.CorrelationThreshold = 0.9;
         laure.addrecording(1, indoorEventsLaure(1), false);
