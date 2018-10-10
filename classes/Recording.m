@@ -132,7 +132,6 @@ classdef Recording < handle
             ts=[];
             x=[];
             y=[];
-            p=[];
             corr=[];
             disp('grid 1')
             for i = 1:gridScale
@@ -199,8 +198,8 @@ classdef Recording < handle
             grid2 = obj.EventstreamGrid2;
             hold on
             scatter3(ax, grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
-            set(gca, 'xtick', [0:19:304])
-            set(gca, 'ztick', [0:15:240])
+            set(gca, 'xtick', 0:19:304)
+            set(gca, 'ztick', 0:15:240)
             zlim([0 240])
             xlim([0 304])
 

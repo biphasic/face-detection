@@ -7,7 +7,7 @@ classdef Collection < dynamicprops
         function obj = Collection()
         end
 
-        function [] = computeallcorrelations(obj)
+        function [] = calculateallcorrelations(obj)
            subjects = fieldnames(obj);
            for s = 1:numel(subjects)
                disp(['calculating correlations for ', subjects{s}])
