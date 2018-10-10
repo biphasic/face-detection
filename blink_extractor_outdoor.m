@@ -60,7 +60,7 @@ for s = 1:numel(names)
         gregor.Recordings{1}.Right.Location = [223 148];
         gregor.Recordings{1}.Left.Location = [81 158];
         gregor.Recordings{1}.Center.Times = 7640000; %, 8570000
-        gregor.Recordings{1}.Left.Times = [13640000,14888000 ]; %
+        gregor.Recordings{1}.Left.Times = [13640000,14888000 ];
         gregor.AmplitudeScale = 25;
         outdoorsubjects.(s) = gregor;
     else
@@ -68,56 +68,9 @@ for s = 1:numel(names)
     
     r = outdoorSubjects.(names{s}).gettrainingrecordingindex;
     
-    %retrieve smoothed Model and its variance
-    m = outdoorSubjects.(names{s}).Recordings{r}.getmodelblink(30);
-    outdoorSubjects.(names{s}).Modelblink = m;
-    ax = subplot(1,numel(names),s);
-    %ax = subplot(1,1,1);
-    hold on
+    outdoorSubjects.(names{s}).Modelblink = outdoorSubjects.(names{s}).Recordings{r}.getmodelblink(30);
     
-    if 1 == 2
-        [blinksOn, blinksOff] = outdoorSubjects.(names{s}).Recordings{r}.getallblinks();
-        fields = fieldnames(blinksOn);
-        for j = 3:length(fields)
-            for i = 1:size(blinksOn.(fields{j}),1)
-                a = plot(blinksOn.(fields{j})(i,:));
-                [xcOn, lagOn] = xcorr(blinksOn.(fields{j})(1,:), blinksOn.(fields{j})(i,:));
-                [~, indexOn] = max(abs(xcOn));
-                lagDiffOn = lagOn(indexOn);
-                [xcOff, lagOff] = xcorr(blinksOff.(fields{j})(1,:), blinksOff.(fields{j})(i,:));
-                [~, indexOff] = max(abs(xcOff));
-                lagDiffOff = lagOff(indexOff);
-                lagDiff = 0.6*lagDiffOn + 0.4*lagDiffOff;
-                if abs(lagDiff) > 1 %resembles accuracy of lagdiff * 100us
-                    timestamp = outdoorSubjects.(names{s}).Recordings{r}.(fields{j}).Times(i)-lagDiff*100;
-                    disp(['suggested timestamp for blink ', int2str(i), ' at ', fields{j}, ' is: ', int2str(timestamp)])
-                end
-                a.Color = 'blue';
-                b = plot(blinksOff.(fields{j})(i,:));
-                b.Color = 'red';
-            end
-            [averageOnFirst, averageOffFirst] = outdoorSubjects.(names{s}).Recordings{r}.(fields{1}).getaverages();
-            [averageOn, averageOff] = outdoorSubjects.(names{s}).Recordings{r}.(fields{j}).getaverages();
-            [xcOn, lagOn] = xcorr(averageOnFirst, averageOn);
-            [~, indexOn] = max(abs(xcOn));
-            lagDiffOn = lagOn(indexOn);
-            [xcOff, lagOff] = xcorr(averageOffFirst, averageOff);
-            [~, indexOff] = max(abs(xcOff));
-            lagDiffOff = lagOff(indexOff);
-            lagDiff = (lagDiffOn + lagDiffOff)/2;
-            if abs(lagDiff) > 1
-                disp(['lag between ', fields{1}, ' and ', fields{j}, ' is ', int2str(lagDiff*100), ' us'])
-            end
-        end
-    end
-    
-    %plot both average and variance for ON and OFF
-    title(ax, names{s})
-    ax = shadedErrorBar(1:length(m.AverageOn), m.AverageOn, m.VarianceOn, 'lineprops', '-b');
-    ax.mainLine.LineWidth = 3;
-    ax = shadedErrorBar(1:length(m.AverageOff), m.AverageOff, m.VarianceOff, 'lineprops', '-r');
-    ax.mainLine.LineWidth = 3;
-    ylim([0 inf])
+    outdoorSubjects.ploteachmodelblink;
     
     clear(names{s}, 'r', 'm', 'ax', 's')
 end

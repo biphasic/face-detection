@@ -7,7 +7,7 @@ classdef Collection < dynamicprops
         function obj = Collection()
         end
 
-        function [] = calculateallcorrelations(obj)
+        function calculateallcorrelations(obj)
            subjects = fieldnames(obj);
            for s = 1:numel(subjects)
                disp(['calculating correlations for ', subjects{s}])
@@ -45,6 +45,14 @@ classdef Collection < dynamicprops
             ylim([0 inf])
             file = [1:1:length(test.AverageOn); m.AverageOn; m.AverageOff; m.VarianceOn; m.VarianceOff]';
             csvwrite('/home/gregorlenz/Recordings/face-detection/printing-with-matplotlib/average-blink-model.csv', file)
+        end
+        
+        function ploteachmodelblink(obj)
+            subjects = fieldnames(obj);
+            for s = 1:numel(subjects)
+                ax = subplot(1,numel(subjects),s);
+                obj.(subjects{s}).plotblinkmodel(ax)
+            end
         end
    end
 end
