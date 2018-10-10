@@ -8,7 +8,7 @@ allActivityOff = eye.activityOff;
 len = length(allTimestamps);
 eye.patternCorrelation = nan(1, len);
 
-minimumDifference = slidingWindowWidth/6;
+minimumDifference = slidingWindowWidth/10;
 corrBufferScale = 100;
 bufferSize = slidingWindowWidth/corrBufferScale;
 
@@ -29,7 +29,6 @@ bufferOffStart = skip;
 lastPM = 0;
 %columns = 0;
 
-%tic
 %loop over all events
 for i = skip:len
     timestamp = allTimestamps(i);
@@ -57,12 +56,11 @@ for i = skip:len
         end
     end
  
-    %tic
     if timestamp - lastPM >= minimumDifference
         nOn = nnz(bufferOn(bufferOnStart:i));
         if nOn > amplitudeScale/2 && nOn < 10*amplitudeScale/2
             nOff = nnz(bufferOff(bufferOffStart:i));
-            if  nOff > amplitudeScale/3 && nOff < 10*amplitudeScale/3
+            if  nOff > amplitudeScale/3 && nOff < 10*amplitudeScale/2
                 bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
                 bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
                 divisor = timestamp - slidingWindowWidth;
@@ -74,6 +72,10 @@ for i = skip:len
                         index = 1;
                     end
                     bufOn(index) = allActivityOn(k)/amplitudeScale;
+                end
+                m = max(bufOn(1:1000));
+                if m < 0.6 || m > 1.6
+                    continue
                 end
                 for k=find(bufferOff == 1)
                     index = ceil(mod(allTimestamps(k), divisor)/corrBufferScale);
@@ -91,8 +93,6 @@ for i = skip:len
             end
         end
     end
-    %t = t+toc;
 end
-%toc
 
 end
