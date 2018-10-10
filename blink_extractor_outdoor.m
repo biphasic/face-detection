@@ -1,5 +1,3 @@
-figure
-hold on
 names = {'laure', 'kevin', 'francesco'};
 close all;
 outdoorSubjects = Collection();

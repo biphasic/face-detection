@@ -1,14 +1,11 @@
-figure
-hold on
 names = {'fede', 'alex', 'laure'};
-close all
 indoorSubjects = Collection();
 for s = 1:numel(names)
     if s == 1
         disp('Fede/run1.es')
         fede = Subject(names{s});
         fede.addrecording(1, indoorEventsFede(1), true);
-        fede.Recordings{1}.Center.Location = [152 131]; %mitte des auges
+        fede.Recordings{1}.Center.Location = [152 131];
         fede.Recordings{1}.Left.Location = [ 62 125];
         fede.Recordings{1}.Right.Location =  [228 132];
         fede.Recordings{1}.Center.Times = [2442000, 5139000, 6777000, 9031000, 10920000];
@@ -24,8 +21,7 @@ for s = 1:numel(names)
         disp('Alex/run1.es')
         alex = Subject(names{s});
         alex.addrecording(1, indoorEventsAlex(1), true);
-        %alex.Recordings{1}.blinkCoordinates = [142 159; 102 138; 213 138];
-        alex.Recordings{1}.Center.Location = [152 167]; %Mitte des Auges
+        alex.Recordings{1}.Center.Location = [152 167];
         alex.Recordings{1}.Left.Location =   [ 82 144];
         alex.Recordings{1}.Right.Location =  [223 146];
         alex.Recordings{1}.Center.Times = [1012000, 2010000, 6195000];
@@ -59,7 +55,7 @@ for s = 1:numel(names)
     
     indoorSubjects.(names{s}).Modelblink = indoorSubjects.(names{s}).Recordings{r}.getmodelblink(30);
     
-    indoorSubjects.ploteachmodelblink;
+    indoorSubjects.(names{s}).plotmodelblink
     
     clear(names{s}, 'r', 'm', 'ax', 's')
 end
