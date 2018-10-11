@@ -28,7 +28,7 @@ classdef Collection < dynamicprops
             blink = blink / num;
         end
 
-        function m = plotaveragemodelblink(obj, smoothingFactor)
+        function plotaveragemodelblink(obj, smoothingFactor)
             figure;
             %title('averaged blink across all subjects')
             m = obj.getaveragemodelblink(smoothingFactor);

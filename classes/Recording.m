@@ -58,56 +58,17 @@ classdef Recording < handle
             modelOff = zeros(1,3000);
             varianceOn = zeros(1,3000);
             varianceOff = zeros(1,3000);
-            count = 0;
-            if ~isempty(obj.Center.Location) && ~isempty(obj.Center.Times)
-                [centerOn, centerOff] = obj.Center.getaverages();
-                modelOn = modelOn + centerOn;
-                modelOff = modelOff + centerOff;
-                count = count + 1;
+            locs = obj.getannotatedlocations;
+            for l = 1:numel(locs)
+                [averageOn, averageOff] = obj.(locs{l}).getaverages();
+                modelOn = modelOn + averageOn/numel(locs);
+                modelOff = modelOff + averageOff/numel(locs);
             end
-            if ~isempty(obj.Left.Location) && ~isempty(obj.Left.Times)
-                [leftOn, leftOff] = obj.Left.getaverages();
-                modelOn = modelOn + leftOn;
-                modelOff = modelOff + leftOff;
-                count = count + 1;
+            for l = 1:numel(locs)
+                [averageOn, averageOff] = obj.(locs{l}).getaverages();
+                varianceOn = varianceOn + (averageOn - modelOn).^2/numel(locs);
+                varianceOff = varianceOff + (averageOff - modelOff).^2/numel(locs);
             end
-            if ~isempty(obj.Right.Location) && ~isempty(obj.Right.Times)
-                [rightOn, rightOff] = obj.Right.getaverages();
-                modelOn = modelOn + rightOn;
-                modelOff = modelOff + rightOff;
-                count = count + 1;
-            end
-            if count == 0
-                err = MException('MATLAB:UndefinedFunction', "No blink locations set I'm afraid");
-                throw(err)
-            end
-            modelOn = modelOn / count;
-            modelOff = modelOff / count;
-            count = 0;
-            if ~isempty(obj.Center.Location) && ~isempty(obj.Center.Times)
-                centerVarianceOn = (centerOn - modelOn).^2;
-                varianceOn = varianceOn + centerVarianceOn;
-                centerVarianceOff = (centerOff - modelOff).^2;
-                varianceOff = varianceOff + centerVarianceOff;
-                count = count + 1;
-            end
-            if ~isempty(obj.Left.Location) && ~isempty(obj.Left.Times)
-                leftVarianceOn = (leftOn - modelOn).^2;
-                varianceOn = varianceOn + leftVarianceOn;
-                leftVarianceOff = (leftOff - modelOff).^2;
-                varianceOff = varianceOff + leftVarianceOff;
-                count = count + 1;
-            end
-            if ~isempty(obj.Right.Location) && ~isempty(obj.Right.Times)
-                rightVarianceOn = (rightOn - modelOn).^2;
-                varianceOn = varianceOn + rightVarianceOn;
-                rightVarianceOff = (rightOff - modelOff).^2;
-                varianceOff = varianceOff + rightVarianceOff;
-                count = count + 1;
-            end
-            varianceOn = varianceOn / count;
-            varianceOff = varianceOff / count;
-            
             filterResolution = length(modelOn) / smoothingFactor;
             movingAverageWindow = ones(1, filterResolution)/filterResolution;
             modelblink = Modelblink();
