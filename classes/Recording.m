@@ -212,7 +212,7 @@ classdef Recording < handle
                 x = (x1(1) + x2(1))/2;
                 y = grid1.y(grid1.ts == valid(e));
                 y = y(1);
-                if valid(e) > 700000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid1.y(grid1.ts == valid(e)), grid1.y(grid1.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60
+                if valid(e) > 700000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid1.y(grid1.ts == valid(e)), grid1.y(grid1.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60 && x1(1) ~= x2(1)
                     scatter3(ax, x, -valid(e), y, 'red', 'diamond', 'filled')
                 end
             end
@@ -225,7 +225,7 @@ classdef Recording < handle
                 x = (x1(1) + x2(1))/2;
                 y = grid2.y(grid2.ts == valid(e));
                 y = y(1);
-                if valid(e) > 700000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid2.y(grid2.ts == valid(e)), grid2.y(grid2.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60
+                if valid(e) > 700000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid2.y(grid2.ts == valid(e)), grid2.y(grid2.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60 && x1(1) ~= x2(1)
                     scatter3(ax, x, -valid(e), y, 'red', 'diamond', 'filled')
                 end
             end
