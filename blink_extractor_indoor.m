@@ -55,7 +55,7 @@ for s = 1:numel(names)
     
     indoorSubjects.(names{s}).Modelblink = indoorSubjects.(names{s}).Recordings{r}.getmodelblink(30);
     
-    indoorSubjects.(names{s}).plotmodelblink
+    %indoorSubjects.(names{s}).plotmodelblink
     
     clear(names{s}, 'r', 'm', 'ax', 's')
 end

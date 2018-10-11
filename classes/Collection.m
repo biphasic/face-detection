@@ -54,5 +54,22 @@ classdef Collection < dynamicprops
                 obj.(subjects{s}).plotmodelblink(ax)
             end
         end
+        
+        function plotallcorrelations(obj)
+            subjects = fieldnames(obj);
+            figure
+            for s = 1:numel(subjects)
+                if isempty(obj.(subjects{s}).gettrainingrecording.EventstreamGrid1)
+                    error('Run correlation first')
+                else
+                    for r = 1:numel(obj.(subjects{s}).Recordings)
+                        if ~isempty(obj.(subjects{s}).Recordings{r})
+                            ax = subplot(numel(subjects),length(obj.(subjects{s}).Recordings), (s-1) * length(obj.(subjects{s}).Recordings) + r);
+                            obj.(subjects{s}).Recordings{r}.plotcorrelation(ax);
+                        end
+                    end
+                end
+            end
+        end
    end
 end
