@@ -96,6 +96,7 @@ classdef Recording < handle
             corr=[];
             disp('grid 1')
             for i = 1:gridScale
+                i
                 for j = 1:gridScale
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
                     tile = activity(tile, 50000, true);
@@ -120,6 +121,7 @@ classdef Recording < handle
             corr=[];
             disp('grid 2')
             for i = 1:(gridScale-1)
+                i
                 for j = 1:(gridScale-1)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
                     tile = activity(tile, 50000, true);
@@ -161,6 +163,10 @@ classdef Recording < handle
             scatter3(ax, grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
             set(gca, 'xtick', 0:19:304)
             set(gca, 'ztick', 0:15:240)
+            xt=arrayfun(@num2str,get(gca,'xtick')/19, 'UniformOutput', false);
+            zt=arrayfun(@num2str,get(gca,'ztick')/15, 'UniformOutput', false);
+            set(gca,'xticklabel',xt)
+            set(gca,'zticklabel',zt)
             zlim([0 240])
             xlim([0 304])
 
