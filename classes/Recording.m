@@ -54,10 +54,10 @@ classdef Recording < handle
         end
         
         function modelblink = getmodelblink(obj, smoothingFactor)
-            modelOn = zeros(1,3000);
-            modelOff = zeros(1,3000);
-            varianceOn = zeros(1,3000);
-            varianceOff = zeros(1,3000);
+            modelOn = zeros(1, obj.Parent.BlinkLength/100);
+            modelOff = zeros(1, obj.Parent.BlinkLength/100);
+            varianceOn = zeros(1, obj.Parent.BlinkLength/100);
+            varianceOff = zeros(1, obj.Parent.BlinkLength/100);
             locs = obj.getannotatedlocations;
             for l = 1:numel(locs)
                 [averageOn, averageOff] = obj.(locs{l}).getaverages();
@@ -69,7 +69,7 @@ classdef Recording < handle
                 varianceOn = varianceOn + (averageOn - modelOn).^2/numel(locs);
                 varianceOff = varianceOff + (averageOff - modelOff).^2/numel(locs);
             end
-            filterResolution = length(modelOn) / smoothingFactor;
+            filterResolution = floor(length(modelOn) / smoothingFactor);
             movingAverageWindow = ones(1, filterResolution)/filterResolution;
             modelblink = Modelblink();
             modelblink.AverageOn = filter(movingAverageWindow, 1, modelOn);
@@ -227,7 +227,7 @@ classdef Recording < handle
                     a.FaceAlpha = 0.5;
                 end
             end
-            z = zeros(1, numel(continuum.activityOn));
+            z = zeros(1, length(continuum.activityOn));
             x = continuum.ts *timeScale;
             y1 = continuum.activityOff / obj.Parent.AmplitudeScale;
             y2 = continuum.activityOn / obj.Parent.AmplitudeScale;
