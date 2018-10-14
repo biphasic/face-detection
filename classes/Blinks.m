@@ -57,8 +57,8 @@ classdef Blinks
             hold on
             [blinksOn, blinksOff] = obj.getblinks;
             for n = 1:size(blinksOn, 1)
-                plot(ax, blinksOn(n, :), 'blue')
-                plot(ax, blinksOff(n, :), 'red')
+                plot(ax, blinksOn(n, :), 'red')
+                plot(ax, blinksOff(n, :), 'blue')
             end
         end
         

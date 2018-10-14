@@ -154,9 +154,9 @@ classdef Subject < handle
             end
              %plot both average and variance for ON and OFF
             title(ax, obj.Name)
-            ax = shadedErrorBar(1:length(obj.Modelblink.AverageOn), obj.Modelblink.AverageOn, obj.Modelblink.VarianceOn, 'lineprops', '-b');
+            ax = shadedErrorBar(1:length(obj.Modelblink.AverageOn), obj.Modelblink.AverageOn, obj.Modelblink.VarianceOn, 'lineprops', '-r');
             ax.mainLine.LineWidth = 3;
-            ax = shadedErrorBar(1:length(obj.Modelblink.AverageOff), obj.Modelblink.AverageOff, obj.Modelblink.VarianceOff, 'lineprops', '-r');
+            ax = shadedErrorBar(1:length(obj.Modelblink.AverageOff), obj.Modelblink.AverageOff, obj.Modelblink.VarianceOff, 'lineprops', '-b');
             ax.mainLine.LineWidth = 3;
             ylim([0 inf])
         end
