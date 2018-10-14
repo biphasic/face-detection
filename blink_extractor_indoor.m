@@ -1,3 +1,6 @@
+if ~exist('indoorEventsAlex', 'var')
+    load('recordingsIndoor.mat')
+end
 names = {'fede', 'alex', 'laure'};
 indoorSubjects = Collection();
 for s = 1:numel(names)

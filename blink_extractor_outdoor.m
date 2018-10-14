@@ -1,3 +1,6 @@
+if ~exist('outdoorEventsLaure', 'var')
+    load('recordingsOutdoor.mat')
+end
 names = {'laure', 'kevin', 'francesco'};
 close all;
 outdoorSubjects = Collection();
