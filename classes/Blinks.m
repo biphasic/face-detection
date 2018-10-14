@@ -94,9 +94,6 @@ classdef Blinks
             xlim([0 obj.Times(end)+8000000])
             %xt=arrayfun(@num2str,get(gca,'xtick')*0.000001, 'UniformOutput', false);
             %set(gca,'xticklabel',xt)
-            opts1={'FaceAlpha', 0.7, 'FaceColor', [0    0.4470    0.7410]};%blau
-            opts2={'FaceAlpha', 0.7, 'FaceColor', [0.8500    0.3250    0.0980]};%rot
-            
             windows = eye.ts(~isnan(eye.patternCorrelation));
             if nargin > 3
                 disp(['Number of windows: ', num2str(length(windows)), ' for ', varargin{4}])
@@ -117,10 +114,19 @@ classdef Blinks
                 a.FaceColor = 'green';
             end
             mask = and(continuum.ts > ((obj.Times(1)-8000000)/timeScale), continuum.ts < ((obj.Times(end)+8000000)/timeScale));
-            z = zeros(1, numel(continuum.activityOn(mask)));
+            z = zeros(1, length(continuum.activityOn(mask)));
             x = continuum.ts(mask)*timeScale;
             y1 = continuum.activityOff(mask)/obj.GrandParent.AmplitudeScale;
             y2 = continuum.activityOn(mask)/obj.GrandParent.AmplitudeScale;
+            fxOff = [x, fliplr(x)];
+            foff = [z, fliplr(y1)];
+            mask = y2 > y1;
+            fxOn = [x(mask), fliplr(x(mask))];
+            fOn = [y1(mask), fliplr(y2(mask))];
+            opts1={'FaceAlpha', 0.7, 'FaceColor', [0    0.4470    0.7410]};%blau
+            opts2={'FaceAlpha', 0.7, 'FaceColor', [0.8500    0.3250    0.0980]};%rot
+            %fill(fxOff, foff, [0    0.4470    0.7410], 'FaceAlpha', 0.7); % blue
+            %fill(fxOn, fOn, [0.8500    0.3250    0.0980], 'FaceAlpha', 0.7); % red
             fill_between(x, y1, y2, y1 < y2, opts2{:});
             fill_between(x, z, y1, y1 > z, opts1{:});
             %sometimes it is desired to rather show the events 
