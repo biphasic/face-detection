@@ -1,4 +1,4 @@
-function eye = quick_correlation(eye, onFilter, offFilter, amplitudeScale, slidingWindowWidth)
+function eye = quick_correlation(eye, filterOn, filterOff, amplitudeScale, slidingWindowWidth)
 % apply sliding window on eventstream and store correlation results in
 % substructure
 
@@ -9,11 +9,13 @@ len = length(allTimestamps);
 eye.patternCorrelation = nan(1, len);
 
 minimumDifference = slidingWindowWidth/10;
-corrBufferScale = 100;
+corrBufferScale = 10000;
 bufferSize = slidingWindowWidth/corrBufferScale;
 
-filteredAverageOn = onFilter;
-filteredAverageOff = offFilter;
+filterOn = resample(filterOn, 1, 100);
+filterOff = resample(filterOff, 1, 100);
+sumFilterOn = sum(filterOn);
+sumFilterOff = sum(filterOff);
 
 bufferOn = zeros(1, length(allActivityOn));
 bufferOff = zeros(1, length(allActivityOn));
@@ -27,7 +29,6 @@ end
 bufferOnStart = skip;
 bufferOffStart = skip;
 lastPM = 0;
-%columns = 0;
 
 %loop over all events
 for i = skip:len
@@ -55,39 +56,39 @@ for i = skip:len
             break;
         end
     end
- 
+
     if timestamp - lastPM >= minimumDifference
         nOn = nnz(bufferOn(bufferOnStart:i));
         if nOn > amplitudeScale/2 && nOn < 10*amplitudeScale/2
             nOff = nnz(bufferOff(bufferOffStart:i));
             if  nOff > amplitudeScale/3 && nOff < 10*amplitudeScale/2
-                bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
-                bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
-                divisor = timestamp - slidingWindowWidth;
                 % generate a 'time representation' rather than simply the events
                 % and downscale to smaller buffer size
-                for k=find(bufferOn == 1)
-                    index = ceil(mod(allTimestamps(k), divisor)/corrBufferScale);
-                    if index == 0
-                        index = 1;
-                    end
-                    bufOn(index) = allActivityOn(k)/amplitudeScale;
-                end
-                m = max(bufOn(1:1000));
-                if m < 0.6 || m > 1.6
+                start = max(bufferOnStart, bufferOffStart)-1;
+                mask = start:i;
+                %[~, aOn, aOff] = quick_shannonise(eye.ts(mask), eye.p(mask), eye.activityOn(mask), eye.activityOff(mask), corrBufferScale);
+                blink.ts = eye.ts(mask);
+                blink.p = eye.p(mask);
+                blink.activityOn = eye.activityOn(mask);
+                blink.activityOff = eye.activityOff(mask);
+                blink = shannonise(blink, 50000, 10000);
+                try
+                    %activityOn = aOn(end-bufferSize:end)/amplitudeScale;
+                    %activityOff = aOff(end-bufferSize:end)/amplitudeScale;
+                    activityOn = blink.activityOn(end-(bufferSize-1):end)/amplitudeScale;
+                    activityOff = blink.activityOff(end-(bufferSize-1):end)/amplitudeScale;
+                catch
+                    disp('ups')
                     continue
                 end
-                for k=find(bufferOff == 1)
-                    index = ceil(mod(allTimestamps(k), divisor)/corrBufferScale);
-                    if index == 0
-                        index = 1;
-                    end
-                    bufOff(index) = allActivityOff(k)/amplitudeScale;
+                sumActivityOn = sum(activityOn);
+                sumActivityOff = sum(activityOff);
+                if sumActivityOn < sumFilterOn * 0.75 || sumActivityOn > sumFilterOn * 1.25 || sumActivityOff < sumFilterOff * 0.8 || sumActivityOff > sumFilterOff * 1.2
+                    continue
                 end
-                samplesOn = filteredAverageOn .* (bufOn>0);
-                samplesOff = filteredAverageOff .* (bufOff>0);
-                resOn = xcorr(bufOn, samplesOn, 'coeff');
-                resOff = xcorr(bufOff, samplesOff, 'coeff');
+                    
+                resOn = xcorr(activityOn, filterOn, 'coeff');
+                resOff = xcorr(activityOff, filterOff, 'coeff');
                 eye.patternCorrelation(i) = 1.25*resOn(bufferSize) * 0.8*resOff(bufferSize);
                 lastPM = timestamp;
             end
