@@ -99,7 +99,7 @@ classdef Recording < handle
                 i
                 for j = 1:gridScale
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
-                    tile = activity(tile, 50000, true);
+                    tile = activity(tile, obj.Parent.ActivityDecayConstant, true);
                     tile = quick_correlation(tile, filterOn, filterOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength);
                     c{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
@@ -124,7 +124,7 @@ classdef Recording < handle
                 i
                 for j = 1:(gridScale-1)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
-                    tile = activity(tile, 50000, true);
+                    tile = activity(tile, obj.Parent.ActivityDecayConstant, true);
                     tile = quick_correlation(tile, filterOn, filterOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength);
                     c2{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
@@ -206,10 +206,9 @@ classdef Recording < handle
             end
             eye = obj.Grids{grid}{x,y};
             eye = quick_correlation(eye, obj.Parent.Modelblink.AverageOn, obj.Parent.Modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength);
-            timeScale = 10;
-            continuum = shannonise(eye, timeScale);
+            continuum = shannonise(eye, obj.Parent.ModelSubsamplingRate);
             correlationThreshold = obj.Parent.CorrelationThreshold;
-            figure 
+            figure
             %plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
             hold on;
             ylim([0 10])
@@ -228,7 +227,7 @@ classdef Recording < handle
                 end
             end
             z = zeros(1, length(continuum.activityOn));
-            x = continuum.ts *timeScale;
+            x = continuum.ts;
             y1 = continuum.activityOff / obj.Parent.AmplitudeScale;
             y2 = continuum.activityOn / obj.Parent.AmplitudeScale;
             fill_between(x, y1, y2, y1 < y2, opts2{:});

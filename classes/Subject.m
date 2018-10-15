@@ -6,6 +6,8 @@ classdef Subject < handle
         Modelblink
         AmplitudeScale
         BlinkLength
+        ModelSubsamplingRate
+        ActivityDecayConstant
     end
         
     methods
@@ -13,7 +15,9 @@ classdef Subject < handle
             obj.Name = name;
             obj.CorrelationThreshold = 0.88;
             obj.Modelblink = Modelblink();
-            obj.BlinkLength = 300000;
+            obj.BlinkLength = 250000;
+            obj.ModelSubsamplingRate = 100;
+            obj.ActivityDecayConstant = 50000;
         end
         
         function obj = addrecording(obj, number, eventStream, isTrainingRecording)
