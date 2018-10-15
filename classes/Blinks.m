@@ -19,7 +19,7 @@ classdef Blinks
                 tileHeight = 15;
                 eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
                 eye = activity(eye, obj.GrandParent.ActivityDecayConstant, true);
-                eye = shannonise(eye, obj.GrandParent.ModelSubsamplingRate);
+                eye = shannonise(eye, obj.GrandParent.ActivityDecayConstant, obj.GrandParent.ModelSubsamplingRate);
                 blinkRow = obj.Times;
                 blinklength = obj.GrandParent.BlinkLength;
                 blinksOn = zeros(nnz(obj.Times), blinklength/obj.GrandParent.ModelSubsamplingRate);
@@ -77,7 +77,7 @@ classdef Blinks
             eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
             eye = activity(eye, obj.GrandParent.ActivityDecayConstant, true);
             eye = quick_correlation(eye, obj.GrandParent.Modelblink.AverageOn, obj.GrandParent.Modelblink.AverageOff, obj.GrandParent.AmplitudeScale, obj.GrandParent.BlinkLength);
-            continuum = shannonise(eye, obj.GrandParent.ModelSubsamplingRate);
+            continuum = shannonise(eye, obj.GrandParent.ActivityDecayConstant, obj.GrandParent.ModelSubsamplingRate);
             correlationThreshold = obj.GrandParent.CorrelationThreshold;
             %plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
             %p = plot(continuum.ts, continuum.activityOn/obj.GrandParent.AmplitudeScale);

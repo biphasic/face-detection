@@ -206,7 +206,7 @@ classdef Recording < handle
             end
             eye = obj.Grids{grid}{x,y};
             eye = quick_correlation(eye, obj.Parent.Modelblink.AverageOn, obj.Parent.Modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength);
-            continuum = shannonise(eye, obj.Parent.ModelSubsamplingRate);
+            continuum = shannonise(eye, obj.Parent.ActivityDecayConstant, obj.Parent.ModelSubsamplingRate);
             correlationThreshold = obj.Parent.CorrelationThreshold;
             figure
             %plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
