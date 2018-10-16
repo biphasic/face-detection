@@ -1,4 +1,4 @@
-function eye = quick_correlation(eye, onFilter, offFilter, amplitudeScale, slidingWindowWidth)
+function eye = quick_correlation(eye, filterOn, filterOff, amplitudeScale, slidingWindowWidth)
 % apply sliding window on eventstream and store correlation results in
 % substructure
 
@@ -12,9 +12,6 @@ minimumDifference = slidingWindowWidth/10;
 corrBufferScale = 100;
 bufferSize = slidingWindowWidth/corrBufferScale;
 
-filteredAverageOn = onFilter;
-filteredAverageOff = offFilter;
-
 bufferOn = zeros(1, length(allActivityOn));
 bufferOff = zeros(1, length(allActivityOn));
 skip = find(allTimestamps > 500000);
@@ -27,7 +24,6 @@ end
 bufferOnStart = skip;
 bufferOffStart = skip;
 lastPM = 0;
-%columns = 0;
 
 %loop over all events
 for i = skip:len
@@ -84,8 +80,8 @@ for i = skip:len
                     end
                     bufOff(index) = allActivityOff(k)/amplitudeScale;
                 end
-                samplesOn = filteredAverageOn .* (bufOn>0);
-                samplesOff = filteredAverageOff .* (bufOff>0);
+                samplesOn = filterOn .* (bufOn>0);
+                samplesOff = filterOff .* (bufOff>0);
                 resOn = xcorr(bufOn, samplesOn, 'coeff');
                 resOff = xcorr(bufOff, samplesOff, 'coeff');
                 eye.patternCorrelation(i) = 1.25*resOn(bufferSize) * 0.8*resOff(bufferSize);
