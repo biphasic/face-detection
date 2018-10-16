@@ -83,7 +83,7 @@ for i = skip:len
                 end
                 sumActivityOn = sum(activityOn);
                 sumActivityOff = sum(activityOff);
-                if sumActivityOn < sumFilterOn * 0.75 || sumActivityOn > sumFilterOn * 1.25 || sumActivityOff < sumFilterOff * 0.8 || sumActivityOff > sumFilterOff * 1.2
+                if sumActivityOn < sumFilterOn * 0.6 || sumActivityOn > sumFilterOn * 1.5 || sumActivityOff < sumFilterOff * 0.5 || sumActivityOff > sumFilterOff * 1.7
                     continue
                 end
                     
