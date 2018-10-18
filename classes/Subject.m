@@ -8,18 +8,20 @@ classdef Subject < handle
         BlinkLength
         ModelSubsamplingRate
         ActivityDecayConstant
+        DatasetType
     end
-        
+
     methods
-        function obj = Subject(name)
+        function obj = Subject(name, type)
             obj.Name = name;
             obj.CorrelationThreshold = 0.88;
             obj.Modelblink = Modelblink();
             obj.BlinkLength = 250000;
             obj.ModelSubsamplingRate = 100;
             obj.ActivityDecayConstant = 50000;
+            obj.DatasetType = type;
         end
-        
+
         function obj = addrecording(obj, number, eventStream, isTrainingRecording)
             obj.Recordings{1,number} = Recording(number, eventStream, isTrainingRecording, obj);
         end
@@ -43,6 +45,12 @@ classdef Subject < handle
                     obj.Recordings{r}.calculatecorrelation();
                 end
             end
+        end
+        
+        function exportmodelblink(obj)
+            path = ['/home/gregorlenz/Recordings/face-detection/', obj.DatasetType, '/', obj.Name, '/modelblink.csv'];
+            m = [obj.Modelblink.AverageOn; obj.Modelblink.AverageOff]';
+            csvwrite(path, m);
         end
         
         function ploteyeactivitiesfortraining(obj)

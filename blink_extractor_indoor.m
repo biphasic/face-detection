@@ -2,11 +2,11 @@ if ~exist('indoorEventsAlex', 'var')
     load('recordingsIndoor.mat')
 end
 names = {'fede', 'alex', 'laure'};
-indoorSubjects = Collection();
+indoor = Collection();
 for s = 1:numel(names)
     if s == 1
         disp('Fede/run1.es')
-        fede = Subject(names{s});
+        fede = Subject(names{s}, 'indoor');
         fede.addrecording(1, indoorEventsFede(1), true);
         fede.Recordings{1}.Center.Location = [152 131];
         fede.Recordings{1}.Left.Location = [ 62 125];
@@ -18,11 +18,11 @@ for s = 1:numel(names)
         fede.CorrelationThreshold = 0.88;
         fede.addrecording(2, indoorEventsFede(2), false);
         fede.addrecording(3, indoorEventsFede(3), false);
-        addprop(indoorSubjects, fede.Name);
-        indoorSubjects.(names{s}) = fede;
+        addprop(indoor, fede.Name);
+        indoor.(names{s}) = fede;
     elseif s == 2
         disp('Alex/run1.es')
-        alex = Subject(names{s});
+        alex = Subject(names{s}, 'indoor');
         alex.addrecording(1, indoorEventsAlex(1), true);
         alex.Recordings{1}.Center.Location = [152 167];
         alex.Recordings{1}.Left.Location =   [ 82 144];
@@ -34,11 +34,11 @@ for s = 1:numel(names)
         alex.CorrelationThreshold = 0.88;
         alex.addrecording(2, indoorEventsAlex(2), false);
         alex.addrecording(3, indoorEventsAlex(3), false);
-        addprop(indoorSubjects, alex.Name);
-        indoorSubjects.(names{s}) = alex;
+        addprop(indoor, alex.Name);
+        indoor.(names{s}) = alex;
     elseif s == 3
         disp('Laure/run3.es')
-        laure = Subject(names{s});
+        laure = Subject(names{s}, 'indoor');
         laure.addrecording(3, indoorEventsLaure(3), true);
         laure.Recordings{3}.Center.Location = [153 121];
         laure.Recordings{3}.Left.Location =   [102 114];
@@ -50,15 +50,13 @@ for s = 1:numel(names)
         laure.CorrelationThreshold = 0.9;
         laure.addrecording(1, indoorEventsLaure(1), false);
         laure.addrecording(2, indoorEventsLaure(2), false);
-        addprop(indoorSubjects, laure.Name);
-        indoorSubjects.(names{s}) = laure;
+        addprop(indoor, laure.Name);
+        indoor.(names{s}) = laure;
     end
     
-    r = indoorSubjects.(names{s}).gettrainingrecordingindex;
+    r = indoor.(names{s}).gettrainingrecordingindex;
     
-    indoorSubjects.(names{s}).Modelblink = indoorSubjects.(names{s}).Recordings{r}.getmodelblink(30);
-    
-    %indoorSubjects.(names{s}).plotmodelblink
-    
+    indoor.(names{s}).Modelblink = indoor.(names{s}).Recordings{r}.getmodelblink(30);
+        
     clear(names{s}, 'r', 'm', 'ax', 's')
 end

@@ -2,12 +2,11 @@ if ~exist('outdoorEventsLaure', 'var')
     load('recordingsOutdoor.mat')
 end
 names = {'laure', 'kevin', 'francesco'};
-close all;
-outdoorSubjects = Collection();
+outdoor = Collection();
 for s = 1:numel(names)
     if s == 1
         disp('Laure/1-filtered.es')
-        laure = Subject(names{s});
+        laure = Subject(names{s}, 'outdoor');
         laure.addrecording(1, outdoorEventsLaure(1), true);
         laure.Recordings{1}.Center.Location = [139 152];
         laure.Recordings{1}.Left.Location =   [ 11 146];
@@ -19,11 +18,11 @@ for s = 1:numel(names)
         laure.CorrelationThreshold = 0.88;
         laure.addrecording(2, outdoorEventsLaure(2), false);
         laure.addrecording(3, outdoorEventsLaure(3), false);
-        addprop(outdoorSubjects, laure.Name);
-        outdoorSubjects.(names{s}) = laure;
+        addprop(outdoor, laure.Name);
+        outdoor.(names{s}) = laure;
     elseif s == 2
         disp('Kevin/2.es')
-        kevin = Subject(names{s});
+        kevin = Subject(names{s}, 'outdoor');
         kevin.addrecording(2, outdoorEventsKevin(2), true);
         kevin.Recordings{2}.Center.Location = [136 137];
         kevin.Recordings{2}.Left.Location =   [ 89 132];
@@ -35,11 +34,11 @@ for s = 1:numel(names)
         kevin.CorrelationThreshold = 0.90;
         kevin.addrecording(1, outdoorEventsKevin(1), false);
         kevin.addrecording(3, outdoorEventsKevin(3), false);
-        addprop(outdoorSubjects, kevin.Name);
-        outdoorSubjects.(names{s}) = kevin;
+        addprop(outdoor, kevin.Name);
+        outdoor.(names{s}) = kevin;
     elseif s == 3
         disp('Francesco/1-filtered')
-        francesco = Subject(names{s});
+        francesco = Subject(names{s}, 'outdoor');
         francesco.addrecording(1, outdoorEventsFrancesco(1), true);
         francesco.Recordings{1}.Center.Location = [136 137];
         francesco.Recordings{1}.Left.Location = [47 135];
@@ -51,8 +50,8 @@ for s = 1:numel(names)
         francesco.CorrelationThreshold = 0.9;
         francesco.addrecording(2, outdoorEventsFrancesco(2), false);
         francesco.addrecording(3, outdoorEventsFrancesco(3), false);
-        addprop(outdoorSubjects, francesco.Name);
-        outdoorSubjects.(names{s}) = francesco;
+        addprop(outdoor, francesco.Name);
+        outdoor.(names{s}) = francesco;
     elseif s == 4
         disp('Gregor/test7-cour')
         gregor = Subject(names{s});
@@ -67,11 +66,9 @@ for s = 1:numel(names)
     else
     end
     
-    r = outdoorSubjects.(names{s}).gettrainingrecordingindex;
+    r = outdoor.(names{s}).gettrainingrecordingindex;
     
-    outdoorSubjects.(names{s}).Modelblink = outdoorSubjects.(names{s}).Recordings{r}.getmodelblink(30);
-    
-    outdoorSubjects.ploteachmodelblink;
+    outdoor.(names{s}).Modelblink = outdoor.(names{s}).Recordings{r}.getmodelblink(30);
     
     clear(names{s}, 'r', 'm', 'ax', 's')
 end
