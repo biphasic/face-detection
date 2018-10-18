@@ -91,8 +91,8 @@ classdef Subject < handle
                         [~, indexOff] = max(abs(xcOff));
                         lagDiffOff = lagOff(indexOff);
                         lagDiff = 0.6*lagDiffOn + 0.4*lagDiffOff;
-                        if abs(lagDiff) > 1 %resembles accuracy of lagdiff * 100us
-                            timestamp = obj.gettrainingrecording.(locations{j}).Times(i)-lagDiff*100;
+                        if abs(lagDiff) > 1 %resembles accuracy of lagdiff * obj.ModelSubsamplingRate us
+                            timestamp = obj.gettrainingrecording.(locations{j}).Times(i)-lagDiff*obj.ModelSubsamplingRate;
                             obj.Recordings{r}.(locations{j}).Times(i) = timestamp;
                             disp(['Adjusted timestamp for blink ', int2str(i), ' at ', locations{j}, ' is: ', int2str(timestamp)])
                             difference = difference + 1;
@@ -124,8 +124,8 @@ classdef Subject < handle
                     lagDiffOff = lagOff(indexOff);
                     lagDiff = (lagDiffOn + lagDiffOff)/2;
                     if abs(lagDiff) > 1
-                        obj.Recordings{r}.(locations{j}).Times = obj.Recordings{r}.(locations{j}).Times - (lagDiff*100)/10;
-                        disp(['lag between ', locations{1}, ' and ', locations{j}, ' is ', int2str(lagDiff*100), ' us'])
+                        obj.Recordings{r}.(locations{j}).Times = obj.Recordings{r}.(locations{j}).Times - (lagDiff * obj.ModelSubsamplingRate)/10;
+                        disp(['lag between ', locations{1}, ' and ', locations{j}, ' is ', int2str(lagDiff*obj.ModelSubsamplingRate), ' us'])
                         difference = difference + 1;
                         changedSomething = 1;
                     end

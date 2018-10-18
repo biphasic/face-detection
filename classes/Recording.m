@@ -54,10 +54,11 @@ classdef Recording < handle
         end
         
         function modelblink = getmodelblink(obj, smoothingFactor)
-            modelOn = zeros(1, obj.Parent.BlinkLength/100);
-            modelOff = zeros(1, obj.Parent.BlinkLength/100);
-            varianceOn = zeros(1, obj.Parent.BlinkLength/100);
-            varianceOff = zeros(1, obj.Parent.BlinkLength/100);
+            size = obj.Parent.BlinkLength/obj.Parent.ModelSubsamplingRate;
+            modelOn = zeros(1, size);
+            modelOff = zeros(1, size);
+            varianceOn = zeros(1, size);
+            varianceOff = zeros(1, size);
             locs = obj.getannotatedlocations;
             for l = 1:numel(locs)
                 [averageOn, averageOff] = obj.(locs{l}).getaverages();
@@ -100,7 +101,7 @@ classdef Recording < handle
                 for j = 1:gridScale
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
                     tile = activity(tile, obj.Parent.ActivityDecayConstant, true);
-                    tile = quick_correlation(tile, filterOn, filterOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength);
+                    tile = quick_correlation(tile, filterOn, filterOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
                     c{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
                     x = horzcat(x, ones(1,length(tile.ts)).*((i-0.5) * (tile_width)));
@@ -125,7 +126,7 @@ classdef Recording < handle
                 for j = 1:(gridScale-1)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
                     tile = activity(tile, obj.Parent.ActivityDecayConstant, true);
-                    tile = quick_correlation(tile, filterOn, filterOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength);
+                    tile = quick_correlation(tile, filterOn, filterOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
                     c2{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
                     x = horzcat(x, ones(1,length(tile.ts)).*(i * tile_width));
@@ -197,7 +198,7 @@ classdef Recording < handle
                 end
             end
             
-            title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100)])
+            title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', model temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us'])
         end
         
         function plottileactivity(obj, grid, x, y)
@@ -205,7 +206,7 @@ classdef Recording < handle
                 error('Grid is empty, have you run the correlation ?')
             end
             eye = obj.Grids{grid}{x,y};
-            eye = quick_correlation(eye, obj.Parent.Modelblink.AverageOn, obj.Parent.Modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength);
+            eye = quick_correlation(eye, obj.Parent.Modelblink.AverageOn, obj.Parent.Modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
             continuum = shannonise(eye, obj.Parent.ActivityDecayConstant, obj.Parent.ModelSubsamplingRate);
             correlationThreshold = obj.Parent.CorrelationThreshold;
             figure

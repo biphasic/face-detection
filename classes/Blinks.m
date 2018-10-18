@@ -76,7 +76,7 @@ classdef Blinks
             tileHeight = 15;
             eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
             eye = activity(eye, obj.GrandParent.ActivityDecayConstant, true);
-            eye = quick_correlation(eye, obj.GrandParent.Modelblink.AverageOn, obj.GrandParent.Modelblink.AverageOff, obj.GrandParent.AmplitudeScale, obj.GrandParent.BlinkLength);
+            eye = quick_correlation(eye, obj.GrandParent.Modelblink.AverageOn, obj.GrandParent.Modelblink.AverageOff, obj.GrandParent.AmplitudeScale, obj.GrandParent.BlinkLength, obj.GrandParent.ModelSubsamplingRate);
             continuum = shannonise(eye, obj.GrandParent.ActivityDecayConstant, obj.GrandParent.ModelSubsamplingRate);
             correlationThreshold = obj.GrandParent.CorrelationThreshold;
             %plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
@@ -113,15 +113,15 @@ classdef Blinks
             x = continuum.ts(mask);
             y1 = continuum.activityOff(mask)/obj.GrandParent.AmplitudeScale;
             y2 = continuum.activityOn(mask)/obj.GrandParent.AmplitudeScale;
-            fxOff = [x, fliplr(x)];
-            foff = [z, fliplr(y1)];
-            mask = y2 > y1;
-            fxOn = [x(mask), fliplr(x(mask))];
-            fOn = [y1(mask), fliplr(y2(mask))];
-            opts1={'FaceAlpha', 0.7, 'FaceColor', [0    0.4470    0.7410]};%blau
-            opts2={'FaceAlpha', 0.7, 'FaceColor', [0.8500    0.3250    0.0980]};%rot
+            %fxOff = [x, fliplr(x)];
+            %foff = [z, fliplr(y1)];
+            %mask = y2 > y1;
+            %fxOn = [x(mask), fliplr(x(mask))];
+            %fOn = [y1(mask), fliplr(y2(mask))];
             %fill(fxOff, foff, [0    0.4470    0.7410], 'FaceAlpha', 0.7); % blue
             %fill(fxOn, fOn, [0.8500    0.3250    0.0980], 'FaceAlpha', 0.7); % red
+            opts1={'FaceAlpha', 0.7, 'FaceColor', [0    0.4470    0.7410]};%blau
+            opts2={'FaceAlpha', 0.7, 'FaceColor', [0.8500    0.3250    0.0980]};%rot
             fill_between(x, y1, y2, y1 < y2, opts2{:});
             fill_between(x, z, y1, y1 > z, opts1{:});
             %sometimes it is desired to rather show the events 

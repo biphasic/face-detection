@@ -14,6 +14,13 @@ classdef Collection < dynamicprops
                obj.(subjects{s}).calculateallcorrelations;
            end
         end
+        
+        function calculatealltrainingcorrelations(obj)
+            subjects = fieldnames(obj);
+            for s = 1:numel(subjects)
+                obj.(subjects{s}).gettrainingrecording.calculatecorrelation;
+            end
+        end
 
         function blink = getaveragemodelblink(obj, smoothingFactor)
             if ~exist('smoothingFactor','var')
