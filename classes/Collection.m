@@ -15,20 +15,26 @@ classdef Collection < dynamicprops
            end
         end
 
-        function blink = getaveragemodelblink(obj, smoothingfactor)
+        function blink = getaveragemodelblink(obj, smoothingFactor)
+            if ~exist('smoothingFactor','var')
+                error('You have to supply a smoothing factor');
+            end
             subjects = fieldnames(obj);
             num = numel(subjects);
             for s = 1:numel(subjects)
                if s == 1
-                   blink = obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingfactor);
+                   blink = obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingFactor);
                else
-                   blink = blink + obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingfactor);
+                   blink = blink + obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingFactor);
                end
             end
             blink = blink / num;
         end
 
         function plotaveragemodelblink(obj, smoothingFactor)
+            if ~exist('smoothingFactor','var')
+                error('You have to supply a smoothing factor');
+            end
             figure;
             %title('averaged blink across all subjects')
             m = obj.getaveragemodelblink(smoothingFactor);
