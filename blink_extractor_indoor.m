@@ -14,7 +14,6 @@ for s = 1:numel(names)
         fede.Recordings{1}.Center.Times = [2432000     5125600     6771680     9025140    10915620];
         fede.Recordings{1}.Left.Times = [16210115    17043535    19352235    20343515];
         fede.Recordings{1}.Right.Times = [31274790    36131610];
-        fede.AmplitudeScale = 64;
         fede.CorrelationThreshold = 0.88;
         fede.addrecording(2, indoorEventsFede(2), false);
         fede.addrecording(3, indoorEventsFede(3), false);
@@ -30,7 +29,6 @@ for s = 1:numel(names)
         alex.Recordings{1}.Center.Times = [1012000     2016300     6191880];
         alex.Recordings{1}.Left.Times = [13546240    14769500];
         alex.Recordings{1}.Right.Times = [30229640    32723700    34745280];
-        alex.AmplitudeScale = 54;
         alex.CorrelationThreshold = 0.88;
         alex.addrecording(2, indoorEventsAlex(2), false);
         alex.addrecording(3, indoorEventsAlex(3), false);
@@ -46,7 +44,6 @@ for s = 1:numel(names)
         laure.Recordings{3}.Center.Times = [2940000     6918660];
         laure.Recordings{3}.Left.Times = [15462420    17777200];
         laure.Recordings{3}.Right.Times = [28000295    29189715];
-        laure.AmplitudeScale = 73;
         laure.CorrelationThreshold = 0.9;
         laure.addrecording(1, indoorEventsLaure(1), false);
         laure.addrecording(2, indoorEventsLaure(2), false);

@@ -73,10 +73,15 @@ classdef Recording < handle
             filterResolution = floor(length(modelOn) / smoothingFactor);
             movingAverageWindow = ones(1, filterResolution)/filterResolution;
             modelblink = Modelblink();
-            modelblink.AverageOn = filter(movingAverageWindow, 1, modelOn);
-            modelblink.VarianceOn = filter(movingAverageWindow, 1, sqrt(varianceOn));
-            modelblink.AverageOff = filter(movingAverageWindow, 1, modelOff);
-            modelblink.VarianceOff = filter(movingAverageWindow, 1, sqrt(varianceOff));
+            amplitudescale = floor(max(filter(movingAverageWindow, 1, modelOn)));
+            if obj.Parent.AmplitudeScale ~= amplitudescale
+                obj.Parent.AmplitudeScale = amplitudescale;
+                disp(['Amplitude scale: ', int2str(amplitudescale)])
+            end
+            modelblink.AverageOn = filter(movingAverageWindow/amplitudescale, 1, modelOn);
+            modelblink.VarianceOn = filter(movingAverageWindow/amplitudescale, 1, sqrt(varianceOn));
+            modelblink.AverageOff = filter(movingAverageWindow/amplitudescale, 1, modelOff);
+            modelblink.VarianceOff = filter(movingAverageWindow/amplitudescale, 1, sqrt(varianceOff));
         end
         
         function calculatecorrelation(obj)

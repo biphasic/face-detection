@@ -16,6 +16,7 @@ classdef Subject < handle
             obj.Name = name;
             obj.CorrelationThreshold = 0.88;
             obj.Modelblink = Modelblink();
+            obj.AmplitudeScale = 1;
             obj.BlinkLength = 250000;
             obj.ModelSubsamplingRate = 100;
             obj.ActivityDecayConstant = 50000;

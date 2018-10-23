@@ -26,8 +26,8 @@ classdef Blinks
                 blinksOff = blinksOn;
                 for i = 1:nnz(blinkRow)
                     indexes = eye.ts >= blinkRow(i) & eye.ts < (blinkRow(i)+blinklength);
-                    blinksOn(i,:) = eye.activityOn(indexes) / obj.GrandParent.AmplitudeScale;
-                    blinksOff(i,:) = eye.activityOff(indexes) / obj.GrandParent.AmplitudeScale;
+                    blinksOn(i,:) = eye.activityOn(indexes);
+                    blinksOff(i,:) = eye.activityOff(indexes);
                 end
             else
                 error('no blinks saved for this location');
@@ -53,8 +53,8 @@ classdef Blinks
             hold on
             [blinksOn, blinksOff] = obj.getblinks;
             for n = 1:size(blinksOn, 1)
-                plot(ax, blinksOn(n, :), 'red')
-                plot(ax, blinksOff(n, :), 'blue')
+                plot(ax, blinksOn(n, :)/obj.GrandParent.AmplitudeScale, 'red')
+                plot(ax, blinksOff(n, :)/obj.GrandParent.AmplitudeScale, 'blue')
             end
         end
         
