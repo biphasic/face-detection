@@ -100,27 +100,21 @@ classdef Recording < handle
         
         function calculatecorrelation(obj)
             tic
-            filterOn = obj.Parent.Modelblink.AverageOn;
-            filterOff = obj.Parent.Modelblink.AverageOff;
-            camera_width = 304;
-            camera_height = 240;
-            gridScale = 16;
-            tile_width = camera_width/gridScale;
-            tile_height = camera_height/gridScale;
-            c = cell(gridScale);
-            c2 = cell(gridScale - 1);
+            tile_width = obj.TileSizes(1);
+            tile_height = obj.TileSizes(2);
+            c = cell(obj.GridSizes(1), obj.GridSizes(2));
+            c2 = cell(obj.GridSizes(1)-1, obj.GridSizes(2)-1);
             
             ts=[];
             x=[];
             y=[];
             corr=[];
             disp('grid 1')
-            for i = 1:gridScale
-                i
-                for j = 1:gridScale
+            for i = 1:obj.GridSizes(1)
+                for j = 1:obj.GridSizes(2)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
                     tile = activity(tile, obj.Parent.ActivityDecayConstant, true);
-                    tile = quick_correlation(tile, filterOn, filterOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                    tile = quick_correlation(tile, obj.Parent.Modelblink.AverageOn, obj.Parent.Modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
                     c{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
                     x = horzcat(x, ones(1,length(tile.ts)).*((i-0.5) * (tile_width)));
@@ -140,12 +134,11 @@ classdef Recording < handle
             y=[];
             corr=[];
             disp('grid 2')
-            for i = 1:(gridScale-1)
-                i
-                for j = 1:(gridScale-1)
+            for i = 1:(obj.GridSizes(1)-1)
+                for j = 1:(obj.GridSizes(2)-1)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
                     tile = activity(tile, obj.Parent.ActivityDecayConstant, true);
-                    tile = quick_correlation(tile, filterOn, filterOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                    tile = quick_correlation(tile, obj.Parent.Modelblink.AverageOn, obj.Parent.Modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
                     c2{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
                     x = horzcat(x, ones(1,length(tile.ts)).*(i * tile_width));
