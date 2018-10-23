@@ -49,7 +49,7 @@ classdef Subject < handle
         
         function exportmodelblink(obj)
             path = ['/home/gregorlenz/Recordings/face-detection/', obj.DatasetType, '/', obj.Name, '/modelblink.csv'];
-            m = [obj.Modelblink.AverageOn; obj.Modelblink.AverageOff]';
+            m = [obj.Modelblink.AverageOn; obj.Modelblink.AverageOff];
             csvwrite(path, m);
         end
         
