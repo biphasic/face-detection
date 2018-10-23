@@ -4,12 +4,17 @@ classdef Recording < handle
         Eventstream
         EventstreamGrid1
         EventstreamGrid2
-        Grids
+        Grids = cell(1,2)
         IsTrainingRecording
         Center
         Left
         Right
+        Dimensions = [304, 240]
+        GridSizes = [16, 16]
         Parent
+    end
+    properties (Dependent)
+        TileSizes
     end
     
     methods
@@ -20,8 +25,17 @@ classdef Recording < handle
             obj.Center = Blinks(obj, parent);
             obj.Left = Blinks(obj, parent);
             obj.Right = Blinks(obj, parent);
-            obj.Grids = cell(1,2);
             obj.Parent = parent;
+        end
+        
+        function tilesizes = get.TileSizes(obj)
+            tilesizes = obj.Dimensions ./ obj.GridSizes;
+        end
+        function set.GridSizes(obj, sizes)
+            if mod(obj.Dimensions, sizes) ~= 0
+                error('grid size does not align well with dimensions of the recording')
+            end
+            obj.GridSizes = sizes;
         end
         
         function locations = getannotatedlocations(obj)
@@ -167,14 +181,14 @@ classdef Recording < handle
             grid2 = obj.EventstreamGrid2;
             hold on
             scatter3(ax, grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
-            set(gca, 'xtick', 0:19:304)
-            set(gca, 'ztick', 0:15:240)
+            set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
+            set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
             xt=arrayfun(@num2str,get(gca,'xtick')/19, 'UniformOutput', false);
             zt=arrayfun(@num2str,get(gca,'ztick')/15, 'UniformOutput', false);
             set(gca,'xticklabel',xt)
             set(gca,'zticklabel',zt)
-            zlim([0 240])
-            xlim([0 304])
+            zlim([0 obj.Dimensions(2)])
+            xlim([0 obj.Dimensions(1)])
 
             maximumDifference = 50000;
             valid = grid1.ts(grid1.patternCorrelation>corrThreshold);
