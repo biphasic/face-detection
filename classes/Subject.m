@@ -2,24 +2,19 @@ classdef Subject < handle
     properties
         Name
         Recordings
-        CorrelationThreshold
+        CorrelationThreshold = 0.88
         Modelblink
-        AmplitudeScale
-        BlinkLength
-        ModelSubsamplingRate
-        ActivityDecayConstant
+        AmplitudeScale = 1
+        BlinkLength = 250000
+        ModelSubsamplingRate = 100
+        ActivityDecayConstant = 50000
         DatasetType
     end
 
     methods
         function obj = Subject(name, type)
             obj.Name = name;
-            obj.CorrelationThreshold = 0.88;
             obj.Modelblink = Modelblink();
-            obj.AmplitudeScale = 1;
-            obj.BlinkLength = 250000;
-            obj.ModelSubsamplingRate = 100;
-            obj.ActivityDecayConstant = 50000;
             obj.DatasetType = type;
         end
 
