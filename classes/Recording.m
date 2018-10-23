@@ -176,8 +176,8 @@ classdef Recording < handle
             scatter3(ax, grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
             set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
             set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
-            xt=arrayfun(@num2str,get(gca,'xtick')/19, 'UniformOutput', false);
-            zt=arrayfun(@num2str,get(gca,'ztick')/15, 'UniformOutput', false);
+            xt=arrayfun(@num2str,get(gca,'xtick')/obj.TileSizes(1), 'UniformOutput', false);
+            zt=arrayfun(@num2str,get(gca,'ztick')/obj.TileSizes(2), 'UniformOutput', false);
             set(gca,'xticklabel',xt)
             set(gca,'zticklabel',zt)
             zlim([0 obj.Dimensions(2)])

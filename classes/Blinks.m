@@ -15,8 +15,8 @@ classdef Blinks
         %return all the blinks for one location
         function [blinksOn, blinksOff] = getblinks(obj)
             if ~isempty(obj.Location) && ~isempty(obj.Times)
-                tileWidth = 19;
-                tileHeight = 15;
+                tileWidth = obj.Parent.TileSizes(1);
+                tileHeight = obj.Parent.TileSizes(2);
                 eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
                 eye = activity(eye, obj.GrandParent.ActivityDecayConstant, true);
                 eye = shannonise(eye, obj.GrandParent.ActivityDecayConstant, obj.GrandParent.ModelSubsamplingRate);
@@ -72,8 +72,8 @@ classdef Blinks
                 figure
             end
             hold on;
-            tileWidth = 19;
-            tileHeight = 15;
+            tileWidth = obj.Parent.TileSizes(1);
+            tileHeight = obj.Parent.TileSizes(2);
             eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
             eye = activity(eye, obj.GrandParent.ActivityDecayConstant, true);
             eye = quick_correlation(eye, obj.GrandParent.Modelblink.AverageOn, obj.GrandParent.Modelblink.AverageOff, obj.GrandParent.AmplitudeScale, obj.GrandParent.BlinkLength, obj.GrandParent.ModelSubsamplingRate);
