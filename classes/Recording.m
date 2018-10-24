@@ -2,6 +2,7 @@ classdef Recording < handle
     properties
         Number
         Eventstream
+        Blinks = []
         EventstreamGrid1
         EventstreamGrid2
         Grids = cell(1,2)
@@ -158,30 +159,20 @@ classdef Recording < handle
             toc
         end
         
-        function plotcorrelation(obj, varargin)
+        function calculatetracking(obj)
+            for i = 1:length(obj.Eventstream)
+
+            end
+        end
+        
+        function detectblinks(obj)
             if isempty(obj.EventstreamGrid1)
                 error('No data present')
             end
-            if nargin > 1
-                ax = varargin{1};
-            else
-                figure;
-                ax = gca;
-            end
+            obj.Blinks = Blink(1,1,1,1,1);
+            blinkIndex = 1;
             combinedGrid = merge_streams(obj.EventstreamGrid1, obj.EventstreamGrid2);
             mask = combinedGrid.patternCorrelation>obj.Parent.CorrelationThreshold;
-            scatter3(ax, combinedGrid.x(mask), -combinedGrid.ts(mask), combinedGrid.y(mask))
-            hold on
-            set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
-            set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
-            zlim([0 obj.Dimensions(2)])
-            xlim([0 obj.Dimensions(1)])
-            ylabel('time [s]')
-            xlabel('input frame x direction')
-            zlabel('input frame y direction')
-            yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
-            set(gca, 'yticklabel', yt);
-            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
             
             maximumDifference = 50000;
             tileWidth = obj.TileSizes(1);
@@ -204,12 +195,11 @@ classdef Recording < handle
                         rightMean = (quadruplet(4,:) + quadruplet(3,:))/2;
                         diff = (rightMean - leftMean);
                         if leftDelta(1) < tileWidth && leftDelta(2) < tileHeight && right(1) < tileWidth && right(2) < tileHeight && diff(1) > tileWidth && diff(1) < 50 && diff(2) < tileHeight
-                            scatter3(ax, leftMean(1), -combinedGrid.ts(indices(i)), leftMean(2), 'red', 'diamond', 'filled')
-                            scatter3(ax, rightMean(1), -combinedGrid.ts(indices(i)), rightMean(2), 'green', 'diamond', 'filled')
+                            obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
+                            blinkIndex = blinkIndex + 1;
                             continue;
                         end
                     end
-                    
                     %last three events, either two on the left or two on
                     %the right
                     for row = 1:3
@@ -220,22 +210,49 @@ classdef Recording < handle
                     leftDiff = abs(triplet(2,:) - triplet(1,:));
                     leftMean = ((triplet(2,:) + triplet(1,:))/2);
                     if  leftDiff(1) < tileWidth && leftDiff(2) < tileHeight && triplet(3,1) - leftMean(1) > tileWidth && triplet(3,1) - leftMean(1) < 50 && abs(triplet(3,2) - leftMean(2)) < tileHeight
-                        scatter3(ax, leftMean(1), -combinedGrid.ts(indices(i)), leftMean(2), 'red', 'diamond', 'filled')
-                        scatter3(ax, triplet(3,1), -combinedGrid.ts(indices(i)), leftMean(2), 'green', 'diamond', 'filled')
+                        obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), triplet(3,1), leftMean(2), combinedGrid.ts(indices(i)));
+                        blinkIndex = blinkIndex + 1;
                     end
                     %two on the right
                     rightDiff = abs(triplet(3,:) - triplet(2,:));
                     rightMean = ((triplet(3,:) + triplet(2,:))/2);
                     if  rightDiff(1) < tileWidth && rightDiff(2) < tileHeight && rightMean(1) - triplet(1,1) > tileWidth && rightMean(1) - triplet(1,1) < 50 && abs(triplet(1,2) - rightMean(2)) < tileHeight
-                        scatter3(ax, triplet(1,1), -combinedGrid.ts(indices(i)), rightMean(2), 'red', 'diamond', 'filled')
-                        scatter3(ax, rightMean(1), -combinedGrid.ts(indices(i)), rightMean(2), 'green', 'diamond', 'filled')
+                        obj.Blinks(blinkIndex) = Blink(triplet(1,1), rightMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
+                        blinkIndex = blinkIndex + 1;
                     end
                 end
             end
+        end
+        
+        function plotblinks(obj, varargin)
+            if isempty(obj.EventstreamGrid1)
+                error('No data present')
+            end
+            if nargin > 1
+                ax = varargin{1};
+            else
+                figure;
+                ax = gca;
+            end
+            for i = 1:length(obj.Blinks)
+                scatter3(ax, obj.Blinks(i).LeftEyeX, -obj.Blinks(i).Timestamp, obj.Blinks(i).LeftEyeY, 'red', 'diamond', 'filled')
+                hold on
+                scatter3(ax, obj.Blinks(i).RightEyeX, -obj.Blinks(i).Timestamp, obj.Blinks(i).RightEyeY, 'green', 'diamond', 'filled')
+            end
+            set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
+            set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
+            zlim([0 obj.Dimensions(2)])
+            xlim([0 obj.Dimensions(1)])
+            ylabel('time [s]')
+            xlabel('input frame x direction')
+            zlabel('input frame y direction')
+            yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
+            set(gca, 'yticklabel', yt);
+            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
             title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', model temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us'])
         end
         
-        function plotbothgridcorrelations(obj, varargin)
+        function plotcorrelation(obj, varargin)
             if isempty(obj.EventstreamGrid1)
                 error('No data present')
             end
