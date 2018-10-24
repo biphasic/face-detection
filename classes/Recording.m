@@ -159,12 +159,6 @@ classdef Recording < handle
             toc
         end
         
-        function calculatetracking(obj)
-            for i = 1:length(obj.Eventstream)
-
-            end
-        end
-        
         function detectblinks(obj)
             if isempty(obj.EventstreamGrid1)
                 error('No data present')
@@ -229,8 +223,27 @@ classdef Recording < handle
                 end
             end
         end
+                
+        function calculatetracking(obj)
+            rec = obj.Eventstream;
+            rec.leftTracker = nan(1, length(rec.ts));
+            rec.rightTracker = nan(1, length(rec.ts));
+            blinkIndex = 1;
+            blobIndex = 1;
+            start = find(rec.ts == obj.Blinks(1).ts);
+            for i = start:length(rec.ts)
+                if rec.ts(i) >= obj.Blinks(blinkIndex).ts
+                    blobs(blobIndex) = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 200, 0, 200);
+                else
+                    for b = 1:length(blobs)
+                        blobs(b).update(rec.ts(i), rec.x(i), rec.y(i));
+                    end
+                end
+            end
+        end
         
         function plotblinks(obj, varargin)
+            obj.detectblinks;
             if isempty(obj.EventstreamGrid1)
                 error('No data present')
             end
