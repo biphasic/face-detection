@@ -1,19 +1,19 @@
 classdef Blink    
     properties
-        LeftEyeX
-        LeftEyeY
-        RightEyeX
-        RightEyeY
-        Timestamp
+        x1
+        y1
+        x2
+        y2
+        ts
     end
     
     methods
         function obj = Blink(x1, y1, x2, y2, t)
-            obj.LeftEyeX = x1;
-            obj.LeftEyeY = y1;
-            obj.RightEyeX = x2;
-            obj.RightEyeY = y2;
-            obj.Timestamp = t;
+            obj.x1 = x1;
+            obj.y1 = y1;
+            obj.x2 = x2;
+            obj.y2 = y2;
+            obj.ts = t;
         end
     end
 end

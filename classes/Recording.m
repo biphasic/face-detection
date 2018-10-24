@@ -235,9 +235,9 @@ classdef Recording < handle
                 ax = gca;
             end
             for i = 1:length(obj.Blinks)
-                scatter3(ax, obj.Blinks(i).LeftEyeX, -obj.Blinks(i).Timestamp, obj.Blinks(i).LeftEyeY, 'red', 'diamond', 'filled')
+                scatter3(ax, obj.Blinks(i).x1, -obj.Blinks(i).ts, obj.Blinks(i).y1, 'red', 'diamond', 'filled')
                 hold on
-                scatter3(ax, obj.Blinks(i).RightEyeX, -obj.Blinks(i).Timestamp, obj.Blinks(i).RightEyeY, 'green', 'diamond', 'filled')
+                scatter3(ax, obj.Blinks(i).x2, -obj.Blinks(i).ts, obj.Blinks(i).y2, 'green', 'diamond', 'filled')
             end
             set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
             set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
