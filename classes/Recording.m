@@ -255,38 +255,17 @@ classdef Recording < handle
             set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
             xt=arrayfun(@num2str,get(gca,'xtick')/obj.TileSizes(1), 'UniformOutput', false);
             zt=arrayfun(@num2str,get(gca,'ztick')/obj.TileSizes(2), 'UniformOutput', false);
-            set(gca,'xticklabel',xt)
-            set(gca,'zticklabel',zt)
+            set(gca, 'xticklabel', xt)
+            set(gca, 'zticklabel', zt)
             zlim([0 obj.Dimensions(2)])
             xlim([0 obj.Dimensions(1)])
+            ylabel('time [s]')
+            xlabel('input frame x direction')
+            zlabel('input frame y direction')
+            yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
+            set(gca, 'yticklabel', yt);
+            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
 
-            maximumDifference = 50000;
-            valid = grid1.ts(grid1.patternCorrelation>corrThreshold);
-            for e = 2:length(valid)
-                %x = abs(grid1.x(grid1.ts == valid(e)) - grid1.x(grid1.ts == valid(e-1)) )/2;
-                x1 = grid1.x(grid1.ts == valid(e));
-                x2 = grid1.x(grid1.ts == valid(e-1));
-                x = (x1(1) + x2(1))/2;
-                y = grid1.y(grid1.ts == valid(e));
-                y = y(1);
-                if valid(e) > 700000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid1.y(grid1.ts == valid(e)), grid1.y(grid1.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60 && x1(1) ~= x2(1)
-                    scatter3(ax, x, -valid(e), y, 'red', 'diamond', 'filled')
-                end
-            end
-
-            valid = grid2.ts(grid2.patternCorrelation>corrThreshold);
-            for e = 2:length(valid)
-                %x = abs(grid2.x(grid2.ts == valid(e)) - grid2.x(grid2.ts == valid(e-1)) )/2;
-                x1 = grid2.x(grid2.ts == valid(e));
-                x2 = grid2.x(grid2.ts == valid(e-1));
-                x = (x1(1) + x2(1))/2;
-                y = grid2.y(grid2.ts == valid(e));
-                y = y(1);
-                if valid(e) > 700000 && (valid(e) - valid(e-1)) < maximumDifference && isequal(grid2.y(grid2.ts == valid(e)), grid2.y(grid2.ts == valid(e-1))) && abs(x1(1) - x2(1)) < 60 && x1(1) ~= x2(1)
-                    scatter3(ax, x, -valid(e), y, 'red', 'diamond', 'filled')
-                end
-            end
-            
             title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', model temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us'])
         end
         
