@@ -168,6 +168,83 @@ classdef Recording < handle
                 figure;
                 ax = gca;
             end
+            combinedGrid = merge_streams(obj.EventstreamGrid1, obj.EventstreamGrid2);
+            mask = combinedGrid.patternCorrelation>obj.Parent.CorrelationThreshold;
+            scatter3(ax, combinedGrid.x(mask), -combinedGrid.ts(mask), combinedGrid.y(mask))
+            hold on
+            set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
+            set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
+            zlim([0 obj.Dimensions(2)])
+            xlim([0 obj.Dimensions(1)])
+            ylabel('time [s]')
+            xlabel('input frame x direction')
+            zlabel('input frame y direction')
+            yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
+            set(gca, 'yticklabel', yt);
+            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
+            
+            maximumDifference = 50000;
+            tileWidth = obj.TileSizes(1);
+            tileHeight = obj.TileSizes(2);
+            indices = find(mask);
+            for i = 4:length(indices)
+                %last three events are close enough in time and do not have
+                %the same x value
+                if combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
+                    %last 4 events are close enough in time and have the
+                    %same x value
+                    if combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-3)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-3))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-3))) && ~isequal(combinedGrid.x(indices(i-2)), combinedGrid.x(indices(i-3)) )
+                        for row = 1:4
+                            quadruplet(row,:) = [combinedGrid.x(indices(i-(row-1))), combinedGrid.y(indices(i-(row-1)))];
+                        end
+                        quadruplet = sortrows(quadruplet);
+                        leftDelta = abs(quadruplet(2,:) - quadruplet(1,:));
+                        leftMean = (quadruplet(2,:) + quadruplet(1,:))/2;
+                        right = abs(quadruplet(4,:) - quadruplet(3,:));
+                        rightMean = (quadruplet(4,:) + quadruplet(3,:))/2;
+                        diff = (rightMean - leftMean);
+                        if leftDelta(1) < tileWidth && leftDelta(2) < tileHeight && right(1) < tileWidth && right(2) < tileHeight && diff(1) > tileWidth && diff(1) < 50 && diff(2) < tileHeight
+                            scatter3(ax, leftMean(1), -combinedGrid.ts(indices(i)), leftMean(2), 'red', 'diamond', 'filled')
+                            scatter3(ax, rightMean(1), -combinedGrid.ts(indices(i)), rightMean(2), 'green', 'diamond', 'filled')
+                            continue;
+                        end
+                    end
+                    
+                    %last three events, either two on the left or two on
+                    %the right
+                    for row = 1:3
+                        triplet(row,:) = [combinedGrid.x(indices(i-(row-1))), combinedGrid.y(indices(i-(row-1)))];
+                    end
+                    triplet = sortrows(triplet);
+                    %two on the left
+                    leftDiff = abs(triplet(2,:) - triplet(1,:));
+                    leftMean = ((triplet(2,:) + triplet(1,:))/2);
+                    if  leftDiff(1) < tileWidth && leftDiff(2) < tileHeight && triplet(3,1) - leftMean(1) > tileWidth && triplet(3,1) - leftMean(1) < 50 && abs(triplet(3,2) - leftMean(2)) < tileHeight
+                        scatter3(ax, leftMean(1), -combinedGrid.ts(indices(i)), leftMean(2), 'red', 'diamond', 'filled')
+                        scatter3(ax, triplet(3,1), -combinedGrid.ts(indices(i)), leftMean(2), 'green', 'diamond', 'filled')
+                    end
+                    %two on the right
+                    rightDiff = abs(triplet(3,:) - triplet(2,:));
+                    rightMean = ((triplet(3,:) + triplet(2,:))/2);
+                    if  rightDiff(1) < tileWidth && rightDiff(2) < tileHeight && rightMean(1) - triplet(1,1) > tileWidth && rightMean(1) - triplet(1,1) < 50 && abs(triplet(1,2) - rightMean(2)) < tileHeight
+                        scatter3(ax, triplet(1,1), -combinedGrid.ts(indices(i)), rightMean(2), 'red', 'diamond', 'filled')
+                        scatter3(ax, rightMean(1), -combinedGrid.ts(indices(i)), rightMean(2), 'green', 'diamond', 'filled')
+                    end
+                end
+            end
+            title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', model temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us'])
+        end
+        
+        function plotbothgridcorrelations(obj, varargin)
+            if isempty(obj.EventstreamGrid1)
+                error('No data present')
+            end
+            if nargin > 1
+                ax = varargin{1};
+            else
+                figure;
+                ax = gca;
+            end            
             grid1 = obj.EventstreamGrid1;
             corrThreshold = obj.Parent.CorrelationThreshold;
             scatter3(ax, grid1.x(grid1.patternCorrelation>corrThreshold), -grid1.ts(grid1.patternCorrelation>corrThreshold), grid1.y(grid1.patternCorrelation>corrThreshold))
