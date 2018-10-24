@@ -178,15 +178,20 @@ classdef Recording < handle
             tileWidth = obj.TileSizes(1);
             tileHeight = obj.TileSizes(2);
             indices = find(mask);
-            for i = 4:length(indices)
+            skip = 0;
+            for i = 3:length(indices)
+                if skip > 0
+                    skip = skip - 1;
+                    continue
+                end
                 %last three events are close enough in time and do not have
                 %the same x value
                 if combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
                     %last 4 events are close enough in time and have the
                     %same x value
-                    if combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-3)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-3))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-3))) && ~isequal(combinedGrid.x(indices(i-2)), combinedGrid.x(indices(i-3)) )
+                    if i ~= length(indices) && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i+1)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-2)), combinedGrid.x(indices(i+1)) )
                         for row = 1:4
-                            quadruplet(row,:) = [combinedGrid.x(indices(i-(row-1))), combinedGrid.y(indices(i-(row-1)))];
+                            quadruplet(row,:) = [combinedGrid.x(indices(i+2-row)), combinedGrid.y(indices(i+2-row))];
                         end
                         quadruplet = sortrows(quadruplet);
                         leftDelta = abs(quadruplet(2,:) - quadruplet(1,:));
@@ -197,6 +202,7 @@ classdef Recording < handle
                         if leftDelta(1) < tileWidth && leftDelta(2) < tileHeight && right(1) < tileWidth && right(2) < tileHeight && diff(1) > tileWidth && diff(1) < 50 && diff(2) < tileHeight
                             obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
                             blinkIndex = blinkIndex + 1;
+                            skip = 2;
                             continue;
                         end
                     end
@@ -242,6 +248,7 @@ classdef Recording < handle
             set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
             set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
             zlim([0 obj.Dimensions(2)])
+            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
             xlim([0 obj.Dimensions(1)])
             ylabel('time [s]')
             xlabel('input frame x direction')
@@ -275,6 +282,7 @@ classdef Recording < handle
             set(gca, 'xticklabel', xt)
             set(gca, 'zticklabel', zt)
             zlim([0 obj.Dimensions(2)])
+            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
             xlim([0 obj.Dimensions(1)])
             ylabel('time [s]')
             xlabel('input frame x direction')
