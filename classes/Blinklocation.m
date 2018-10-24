@@ -1,4 +1,4 @@
-classdef Blinks
+classdef Blinklocation
     properties
         Location
         Times
@@ -7,7 +7,7 @@ classdef Blinks
     end
     
     methods
-        function obj = Blinks(parent, grandparent)
+        function obj = Blinklocation(parent, grandparent)
             obj.Parent = parent;
             obj.GrandParent = grandparent;
         end
