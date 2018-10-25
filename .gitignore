@@ -3,6 +3,6 @@
 *.mat
 Recordings-alias
 backups
-testfile.m
+testfile*
 tools
 codegen

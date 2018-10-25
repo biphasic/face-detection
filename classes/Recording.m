@@ -161,7 +161,8 @@ classdef Recording < handle
         
         function detectblinks(obj)
             if isempty(obj.EventstreamGrid1)
-                error('No data present')
+                disp('No correlation data present, starting computation...')
+                obj.calculatecorrelation;
             end
             obj.Blinks = Blink(1,1,1,1,1);
             blinkIndex = 1;
@@ -225,6 +226,10 @@ classdef Recording < handle
         end
                 
         function calculatetracking(obj)
+            if isempty(obj.Blinks)
+               disp('No blinks detected yet which are necessary to calcute tracking')
+               obj.detectblinks
+            end
             rec = obj.Eventstream;
             rec.leftTracker = nan(length(rec.ts), 2);
             rec.rightTracker = nan(length(rec.ts), 2);
@@ -232,7 +237,7 @@ classdef Recording < handle
             blinkIndex = 1;
             blinkCount = length(obj.Blinks);
             start = find(rec.ts == obj.Blinks(1).ts);
-            stop = length(rec.ts)/2;
+            stop = length(rec.ts);
             for i = start:stop
                 if blinkIndex <= blinkCount && rec.ts(i) >= obj.Blinks(blinkIndex).ts
                     blobs = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 5, 0, 3);
@@ -251,47 +256,6 @@ classdef Recording < handle
             obj.Eventstream = rec;
         end
         
-        function plottracking(obj)
-            %obj.calculatetracking;
-            scatter3(obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red')
-            hold on 
-            scatter3(obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green')
-            hold off
-            zlim([0 obj.Dimensions(2)])
-            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
-            xlim([0 obj.Dimensions(1)])
-        end
-        
-        function plotblinks(obj, varargin)
-            obj.detectblinks;
-            if isempty(obj.EventstreamGrid1)
-                error('No data present')
-            end
-            if nargin > 1
-                ax = varargin{1};
-            else
-                figure;
-                ax = gca;
-            end
-            for i = 1:length(obj.Blinks)
-                scatter3(ax, obj.Blinks(i).x1, -obj.Blinks(i).ts, obj.Blinks(i).y1, 'red', 'diamond', 'filled')
-                hold on
-                scatter3(ax, obj.Blinks(i).x2, -obj.Blinks(i).ts, obj.Blinks(i).y2, 'green', 'diamond', 'filled')
-            end
-            set(gca, 'xtick', 0:obj.TileSizes(1)*2:obj.Dimensions(1))
-            set(gca, 'ztick', 0:obj.TileSizes(2)*2:obj.Dimensions(2))
-            zlim([0 obj.Dimensions(2)])
-            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
-            xlim([0 obj.Dimensions(1)])
-            ylabel('time [s]')
-            xlabel('input frame x direction')
-            zlabel('input frame y direction')
-            yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
-            set(gca, 'yticklabel', yt);
-            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
-            title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', model temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us'])
-        end
-        
         function plotcorrelation(obj, varargin)
             if isempty(obj.EventstreamGrid1)
                 error('No data present')
@@ -308,23 +272,78 @@ classdef Recording < handle
             grid2 = obj.EventstreamGrid2;
             hold on
             scatter3(ax, grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
-            set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
-            set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
-            xt=arrayfun(@num2str,get(gca,'xtick')/obj.TileSizes(1), 'UniformOutput', false);
-            zt=arrayfun(@num2str,get(gca,'ztick')/obj.TileSizes(2), 'UniformOutput', false);
-            set(gca, 'xticklabel', xt)
-            set(gca, 'zticklabel', zt)
-            zlim([0 obj.Dimensions(2)])
-            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
+            title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', model temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us'])
+            %x/z
+            xlabel('tile number x direction')
             xlim([0 obj.Dimensions(1)])
+            set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
+            xt=arrayfun(@num2str,get(gca,'xtick')/obj.TileSizes(1), 'UniformOutput', false);
+            set(gca, 'xticklabel', xt)
+            zlabel('tile number y direction')
+            zlim([0 obj.Dimensions(2)])
+            set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
+            zt=arrayfun(@num2str,get(gca,'ztick')/obj.TileSizes(2), 'UniformOutput', false);
+            set(gca, 'zticklabel', zt)
+            %y
             ylabel('time [s]')
-            xlabel('input frame x direction')
+            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
+            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
+            yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
+            set(gca, 'yticklabel', yt);
+        end
+
+        function plotblinks(obj, varargin)
+            if isempty(obj.Blinks)
+                disp('Cannot plot blinks because none have been detected yet, starting detectblinks...')
+                obj.detectblinks;
+            end
+            if nargin > 1
+                ax = varargin{1};
+            else
+                figure;
+                ax = gca;
+            end
+            for i = 1:length(obj.Blinks)
+                scatter3(ax, obj.Blinks(i).x1, -obj.Blinks(i).ts, obj.Blinks(i).y1, 'red', 'diamond', 'filled')
+                hold on
+                scatter3(ax, obj.Blinks(i).x2, -obj.Blinks(i).ts, obj.Blinks(i).y2, 'green', 'diamond', 'filled')
+            end
+            title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', model temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us'])
+            % x/z
+            xlabel('input frame x direction');
+            xlim([0 obj.Dimensions(1)])
+            set(gca, 'xtick', 0:obj.TileSizes(1)*2:obj.Dimensions(1))
+            set(gca, 'xticklabels', 0:obj.TileSizes(1)*2:obj.Dimensions(1))
             zlabel('input frame y direction')
+            zlim([0 obj.Dimensions(2)])
+            set(gca, 'ztick', 0:obj.TileSizes(2)*2:obj.Dimensions(2))
+            set(gca, 'zticklabels', 0:obj.TileSizes(2)*2:obj.Dimensions(2))
+            % y
+            ylabel('time [s]')
+            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
             yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
             set(gca, 'yticklabel', yt);
             set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
-
-            title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', model temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us'])
+        end
+                
+        function plottracking(obj, varargin)
+            if ~isfield(obj.Eventstream, 'leftTracker')
+               disp('No tracking data present, starting computation...')
+               obj.calculatetracking
+            end
+            if nargin > 1
+                ax = varargin{1};
+            else
+                figure;
+                ax = gca;
+            end
+            scatter3(ax, obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red')
+            hold on 
+            scatter3(ax, obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green')
+            hold off
+            xlim([0 obj.Dimensions(1)])
+            zlim([0 obj.Dimensions(2)])
+            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
         end
         
         function plottileactivity(obj, grid, x, y)
