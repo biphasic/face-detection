@@ -226,20 +226,30 @@ classdef Recording < handle
                 
         function calculatetracking(obj)
             rec = obj.Eventstream;
-            rec.leftTracker = nan(1, length(rec.ts));
-            rec.rightTracker = nan(1, length(rec.ts));
+            rec.leftTracker = nan(length(rec.ts), 2);
+            rec.rightTracker = nan(length(rec.ts), 2);
+            blobs = Blob(1,1,1,1,1);
             blinkIndex = 1;
-            blobIndex = 1;
+            blinkCount = length(obj.Blinks);
             start = find(rec.ts == obj.Blinks(1).ts);
             for i = start:length(rec.ts)
-                if rec.ts(i) >= obj.Blinks(blinkIndex).ts
-                    blobs(blobIndex) = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 200, 0, 200);
+                if blinkIndex <= blinkCount && rec.ts(i) >= obj.Blinks(blinkIndex).ts
+                    blobs = Blob(1,1,1,1,1);
+                    blobs(1) = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 200, 0, 200);
+                    blobs(2) = Blob(obj.Blinks(blinkIndex).x2, obj.Blinks(blinkIndex).y2, 200, 0, 200);
+                    blinkIndex = blinkIndex + 1;
                 else
                     for b = 1:length(blobs)
-                        blobs(b).update(rec.ts(i), rec.x(i), rec.y(i));
+                        blobs(b).updatebyevent(rec.x(i), rec.y(i));
                     end
+                    rec.leftTracker(i,1) = blobs(1).x;
+                    rec.leftTracker(i,2) = blobs(1).y;
+                    rec.rightTracker(i,1) = blobs(2).x;
+                    rec.rightTracker(i,2) = blobs(2).y;    
                 end
             end
+            obj.Eventstream = rec;
+            scatter3(rec.leftTracker(:,1), -rec.ts, rec.leftTracker(:,2))
         end
         
         function plotblinks(obj, varargin)
