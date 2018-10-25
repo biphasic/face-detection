@@ -232,11 +232,11 @@ classdef Recording < handle
             blinkIndex = 1;
             blinkCount = length(obj.Blinks);
             start = find(rec.ts == obj.Blinks(1).ts);
-            for i = start:length(rec.ts)
+            stop = length(rec.ts)/2;
+            for i = start:stop
                 if blinkIndex <= blinkCount && rec.ts(i) >= obj.Blinks(blinkIndex).ts
-                    blobs = Blob(1,1,1,1,1);
-                    blobs(1) = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 200, 0, 200);
-                    blobs(2) = Blob(obj.Blinks(blinkIndex).x2, obj.Blinks(blinkIndex).y2, 200, 0, 200);
+                    blobs = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 5, 0, 3);
+                    blobs(2) = Blob(obj.Blinks(blinkIndex).x2, obj.Blinks(blinkIndex).y2, 5, 0, 3);
                     blinkIndex = blinkIndex + 1;
                 else
                     for b = 1:length(blobs)
@@ -249,7 +249,17 @@ classdef Recording < handle
                 end
             end
             obj.Eventstream = rec;
-            scatter3(rec.leftTracker(:,1), -rec.ts, rec.leftTracker(:,2))
+        end
+        
+        function plottracking(obj)
+            %obj.calculatetracking;
+            scatter3(obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red')
+            hold on 
+            scatter3(obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green')
+            hold off
+            zlim([0 obj.Dimensions(2)])
+            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
+            xlim([0 obj.Dimensions(1)])
         end
         
         function plotblinks(obj, varargin)

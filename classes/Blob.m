@@ -5,8 +5,8 @@ classdef Blob < handle
         sigmaX
         sigmaXY
         sigmaY
-        positionInertia = 0.99
-        varianceInertia = 0.999
+        positionInertia = 0.99999
+        varianceInertia = 0.9999
     end
     
     methods
@@ -19,13 +19,13 @@ classdef Blob < handle
         end
         
         function updatebyevent(obj, x, y)
-            xDelta = x - obj.x;
-            yDelta = y - obj.y;
+            %xDelta = x - obj.x;
+            %yDelta = y - obj.y;
             obj.x = obj.positionInertia * obj.x + (1 - obj.positionInertia) * x;
             obj.y = obj.positionInertia * obj.y + (1 - obj.positionInertia) * y;
-            obj.sigmaX = obj.varianceInertia * obj.sigmaX + (1 - obj.varianceInertia) * xDelta * xDelta;
-            obj.sigmaXY = obj.varianceInertia * obj.sigmaXY + (1 - obj.varianceInertia) * xDelta * yDelta;
-            obj.sigmaY = obj.varianceInertia * obj.sigmaY + (1 - obj.varianceInertia) * yDelta * yDelta;
+            %obj.sigmaX = obj.varianceInertia * obj.sigmaX + (1 - obj.varianceInertia) * xDelta * xDelta;
+            %obj.sigmaXY = obj.varianceInertia * obj.sigmaXY + (1 - obj.varianceInertia) * xDelta * yDelta;
+            %obj.sigmaY = obj.varianceInertia * obj.sigmaY + (1 - obj.varianceInertia) * yDelta * yDelta;
         end
     end
 end
