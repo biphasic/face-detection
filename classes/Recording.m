@@ -278,8 +278,8 @@ classdef Recording < handle
                 hold on
                 scatter3(ax, obj.Blinks(i).x2, -obj.Blinks(i).ts, obj.Blinks(i).y2, 'green', 'diamond', 'filled')
             end
-            set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
-            set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
+            set(gca, 'xtick', 0:obj.TileSizes(1)*2:obj.Dimensions(1))
+            set(gca, 'ztick', 0:obj.TileSizes(2)*2:obj.Dimensions(2))
             zlim([0 obj.Dimensions(2)])
             ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
             xlim([0 obj.Dimensions(1)])
