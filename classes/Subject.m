@@ -59,15 +59,22 @@ classdef Subject < handle
         end
         
         function plotallcorrelations(obj)
-            if isempty(obj.gettrainingrecording.EventstreamGrid1)
-                error('Run correlation first')
-            else
-                figure
-                for r = 1:numel(obj.Recordings)
-                    if ~isempty(obj.Recordings{r})
-                        ax = subplot(1,length(obj.Recordings), r);
-                        obj.Recordings{r}.plotcorrelation(ax);
-                    end
+            figure
+            for r = 1:numel(obj.Recordings)
+                if ~isempty(obj.Recordings{r})
+                    ax = subplot(1,length(obj.Recordings), r);
+                    obj.Recordings{r}.plotcorrelation(ax);
+                end
+            end
+        end
+        
+        function plotalltrackings(obj)
+            figure
+            for r = 1:numel(obj.Recordings)
+                if ~isempty(obj.Recordings{r})
+                    ax = subplot(1,length(obj.Recordings), r);
+                    obj.Recordings{r}.plotblinks(ax);
+                    obj.Recordings{r}.plottracking(ax);
                 end
             end
         end
