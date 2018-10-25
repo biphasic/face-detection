@@ -258,7 +258,8 @@ classdef Recording < handle
         
         function plotcorrelation(obj, varargin)
             if isempty(obj.EventstreamGrid1)
-                error('No data present')
+                disp("You haven't run the correlation yet, computing now...")
+                obj.calculatecorrelation
             end
             if nargin > 1
                 ax = varargin{1};
@@ -272,7 +273,7 @@ classdef Recording < handle
             grid2 = obj.EventstreamGrid2;
             hold on
             scatter3(ax, grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
-            title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', model temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us'])
+            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us']))
             %x/z
             xlabel('tile number x direction')
             xlim([0 obj.Dimensions(1)])
@@ -308,7 +309,7 @@ classdef Recording < handle
                 hold on
                 scatter3(ax, obj.Blinks(i).x2, -obj.Blinks(i).ts, obj.Blinks(i).y2, 'green', 'diamond', 'filled')
             end
-            title([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', model temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us'])
+            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us']))
             % x/z
             xlabel('input frame x direction');
             xlim([0 obj.Dimensions(1)])
@@ -340,7 +341,7 @@ classdef Recording < handle
             scatter3(ax, obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red')
             hold on 
             scatter3(ax, obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green')
-            hold off
+            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us']))
             xlim([0 obj.Dimensions(1)])
             zlim([0 obj.Dimensions(2)])
             ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
