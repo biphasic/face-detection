@@ -2,11 +2,11 @@ if ~exist('indoorEventsAlex', 'var')
     load('recordingsIndoor.mat')
 end
 names = {'fede', 'alex', 'laure'};
-indoor = Collection();
+indoor = Collection('indoor');
 for s = 1:numel(names)
     if s == 1
         disp('Fede/run1.es')
-        fede = Subject(names{s}, 'indoor');
+        fede = Subject(names{s}, indoor);
         fede.addrecording(1, indoorEventsFede(1), true);
         fede.Recordings{1}.Center.Location = [152 131];
         fede.Recordings{1}.Left.Location = [ 62 125];
@@ -21,7 +21,7 @@ for s = 1:numel(names)
         indoor.(names{s}) = fede;
     elseif s == 2
         disp('Alex/run1.es')
-        alex = Subject(names{s}, 'indoor');
+        alex = Subject(names{s}, indoor);
         alex.addrecording(1, indoorEventsAlex(1), true);
         alex.Recordings{1}.Center.Location = [152 167];
         alex.Recordings{1}.Left.Location =   [ 82 144];
@@ -36,7 +36,7 @@ for s = 1:numel(names)
         indoor.(names{s}) = alex;
     elseif s == 3
         disp('Laure/run3.es')
-        laure = Subject(names{s}, 'indoor');
+        laure = Subject(names{s}, indoor);
         laure.addrecording(3, indoorEventsLaure(3), true);
         laure.Recordings{3}.Center.Location = [153 121];
         laure.Recordings{3}.Left.Location =   [102 114];

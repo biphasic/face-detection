@@ -8,14 +8,14 @@ classdef Subject < handle
         BlinkLength = 250000
         ModelSubsamplingRate = 100
         ActivityDecayConstant = 50000
-        DatasetType
+        Parent
     end
 
     methods
-        function obj = Subject(name, type)
+        function obj = Subject(name, parent)
             obj.Name = name;
             obj.Modelblink = Modelblink();
-            obj.DatasetType = type;
+            obj.Parent = parent;
         end
 
         function obj = addrecording(obj, number, eventStream, isTrainingRecording)
@@ -44,7 +44,7 @@ classdef Subject < handle
         end
         
         function exportmodelblink(obj)
-            path = ['/home/gregorlenz/Recordings/face-detection/', obj.DatasetType, '/', obj.Name, '/modelblink.csv'];
+            path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.DatasetType, '/', obj.Name, '/modelblink.csv'];
             m = [obj.Modelblink.AverageOn; obj.Modelblink.AverageOff];
             csvwrite(path, m);
         end
@@ -73,7 +73,6 @@ classdef Subject < handle
             for r = 1:numel(obj.Recordings)
                 if ~isempty(obj.Recordings{r})
                     ax = subplot(1,length(obj.Recordings), r);
-                    obj.Recordings{r}.plotblinks(ax);
                     obj.Recordings{r}.plottracking(ax);
                 end
             end

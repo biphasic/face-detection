@@ -1,22 +1,36 @@
 classdef Collection < dynamicprops
    properties
-       %only subjects
+       DatasetType
+       % rest are subjects
+   end
+   properties (Dependent = true)
+       Supermodel
    end
    
    methods
-        function obj = Collection()
+        function obj = Collection(type)
+            obj.DatasetType = type;
+        end
+        
+        function obj = get.Supermodel(obj)
+            obj = obj.getaveragemodelblink(40);
+        end
+        
+        function list = getsubjects(obj)
+            list = fieldnames(obj);
+            list = list(3:end);
         end
 
         function calculateallcorrelations(obj)
-           subjects = fieldnames(obj);
-           for s = 1:numel(subjects)
+            subjects = obj.getsubjects;
+            for s = 1:numel(subjects)
                disp(['calculating correlations for ', subjects{s}])
                obj.(subjects{s}).calculateallcorrelations;
-           end
+            end
         end
         
         function calculatealltrainingcorrelations(obj)
-            subjects = fieldnames(obj);
+            subjects = obj.getsubjects;
             for s = 1:numel(subjects)
                 obj.(subjects{s}).gettrainingrecording.calculatecorrelation;
             end
@@ -26,7 +40,7 @@ classdef Collection < dynamicprops
             if ~exist('smoothingFactor','var')
                 error('You have to supply a smoothing factor');
             end
-            subjects = fieldnames(obj);
+            subjects = obj.getsubjects;
             num = numel(subjects);
             for s = 1:numel(subjects)
                if s == 1
@@ -61,7 +75,7 @@ classdef Collection < dynamicprops
         end
         
         function ploteachmodelblink(obj)
-            subjects = fieldnames(obj);
+            subjects = obj.getsubjects;
             for s = 1:numel(subjects)
                 ax = subplot(1,numel(subjects),s);
                 obj.(subjects{s}).plotmodelblink(ax)
@@ -69,7 +83,7 @@ classdef Collection < dynamicprops
         end
         
         function plotallcorrelations(obj)
-            subjects = fieldnames(obj);
+            subjects = obj.getsubjects;
             figure
             for s = 1:numel(subjects)
                 if isempty(obj.(subjects{s}).gettrainingrecording.EventstreamGrid1)
