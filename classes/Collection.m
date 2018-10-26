@@ -57,7 +57,7 @@ classdef Collection < dynamicprops
                 error('You have to supply a smoothing factor');
             end
             figure;
-            %title('averaged blink across all subjects')
+            title(['averaged blink across all ', obj.DatasetType, ' subjects'])
             m = obj.getaveragemodelblink(smoothingFactor);
             ax = shadedErrorBar(1:length(m.AverageOn), m.AverageOn, m.VarianceOn, 'lineprops', '-b');
             ax.mainLine.LineWidth = 3;
@@ -71,11 +71,12 @@ classdef Collection < dynamicprops
             ax.mainLine.LineWidth = 3;
             ylim([0 inf])
             file = [1:1:length(m.AverageOn); m.AverageOn; m.AverageOff; m.VarianceOn; m.VarianceOff]';
-            csvwrite('/home/gregorlenz/Recordings/face-detection/printing-with-matplotlib/average-blink-model.csv', file)
+            csvwrite('/home/gregorlenz/Recordings/face-detection/indoor/printing-with-matplotlib/average-blink-model.csv', file)
         end
         
         function ploteachmodelblink(obj)
             subjects = obj.getsubjects;
+            figure
             for s = 1:numel(subjects)
                 ax = subplot(1,numel(subjects),s);
                 obj.(subjects{s}).plotmodelblink(ax)
@@ -86,14 +87,10 @@ classdef Collection < dynamicprops
             subjects = obj.getsubjects;
             figure
             for s = 1:numel(subjects)
-                if isempty(obj.(subjects{s}).gettrainingrecording.EventstreamGrid1)
-                    error('Run correlation first')
-                else
-                    for r = 1:numel(obj.(subjects{s}).Recordings)
-                        if ~isempty(obj.(subjects{s}).Recordings{r})
-                            ax = subplot(numel(subjects),length(obj.(subjects{s}).Recordings), (s-1) * length(obj.(subjects{s}).Recordings) + r);
-                            obj.(subjects{s}).Recordings{r}.plotcorrelation(ax);
-                        end
+                for r = 1:numel(obj.(subjects{s}).Recordings)
+                    if ~isempty(obj.(subjects{s}).Recordings{r})
+                        ax = subplot(numel(subjects),length(obj.(subjects{s}).Recordings), (s-1) * length(obj.(subjects{s}).Recordings) + r);
+                        obj.(subjects{s}).Recordings{r}.plotcorrelation(ax);
                     end
                 end
             end
