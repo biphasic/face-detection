@@ -305,11 +305,11 @@ classdef Recording < handle
                 ax = gca;
             end
             for i = 1:length(obj.Blinks)
-                scatter3(ax, obj.Blinks(i).x1, -obj.Blinks(i).ts, obj.Blinks(i).y1, 200, 'red', 'diamond')
+                leftEye = scatter3(ax, obj.Blinks(i).x1, -obj.Blinks(i).ts, obj.Blinks(i).y1, 200, 'black', 'diamond', 'Displayname', 'left blink detected');
                 hold on
-                scatter3(ax, obj.Blinks(i).x2, -obj.Blinks(i).ts, obj.Blinks(i).y2, 200, 'green', 'diamond')
+                rightEye = scatter3(ax, obj.Blinks(i).x2, -obj.Blinks(i).ts, obj.Blinks(i).y2, 200, 'black', 'diamond', 'Displayname', 'right blink detected');
             end
-            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
+            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
             % x/z
             xlabel('input frame x direction');
             xlim([0 obj.Dimensions(1)])
@@ -325,6 +325,7 @@ classdef Recording < handle
             yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
             set(gca, 'yticklabel', yt);
             set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
+            legend(ax, 'left eye detected', 'right eye detected', 'Location', 'best')
         end
 
         function plottracking(obj, varargin)
@@ -338,13 +339,21 @@ classdef Recording < handle
                 figure;
                 ax = gca;
             end
-            scatter3(ax, obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red')
+            obj.plotblinks(ax)
+            leftEye = scatter3(ax, obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red',  'Displayname', 'left eye tracker');
             hold on 
-            scatter3(ax, obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green')
-            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
+            rightEye = scatter3(ax, obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green', 'Displayname', 'right eye tracker');
+            X = [0 obj.Dimensions(1); 0 obj.Dimensions(1)];
+            Y = -[obj.Blinks(1).ts obj.Blinks(1).ts; obj.Blinks(1).ts obj.Blinks(1).ts];
+            Z = [obj.Dimensions(2) obj.Dimensions(2); 0 0];
+            im = imread('/home/gregorlenz/Téléchargements/frames/1.png');
+            surface(X, Y, Z, im, 'facecolor', 'texturemap', 'edgecolor', 'none');
+            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
             xlim([0 obj.Dimensions(1)])
             zlim([0 obj.Dimensions(2)])
             ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
+            a = legend('show');
+            a.String(end) = '';
         end
         
         function plottileactivity(obj, grid, x, y)
