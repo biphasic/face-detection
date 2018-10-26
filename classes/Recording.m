@@ -23,9 +23,9 @@ classdef Recording < handle
             obj.Number = number;
             obj.Eventstream = eventStream;
             obj.IsTrainingRecording = isTrainingRecording;
-            obj.Center = Blinklocation(obj, parent);
-            obj.Left = Blinklocation(obj, parent);
-            obj.Right = Blinklocation(obj, parent);
+            obj.Center = Blinklocation(obj);
+            obj.Left = Blinklocation(obj);
+            obj.Right = Blinklocation(obj);
             obj.Parent = parent;
         end
         

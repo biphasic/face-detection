@@ -3,13 +3,11 @@ classdef Blinklocation
         Location
         Times
         Parent
-        GrandParent
     end
     
     methods
-        function obj = Blinklocation(parent, grandparent)
+        function obj = Blinklocation(parent)
             obj.Parent = parent;
-            obj.GrandParent = grandparent;
         end
         
         %return all the blinks for one location
@@ -18,11 +16,11 @@ classdef Blinklocation
                 tileWidth = obj.Parent.TileSizes(1);
                 tileHeight = obj.Parent.TileSizes(2);
                 eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
-                eye = activity(eye, obj.GrandParent.ActivityDecayConstant, true);
-                eye = shannonise(eye, obj.GrandParent.ActivityDecayConstant, obj.GrandParent.ModelSubsamplingRate);
+                eye = activity(eye, obj.Parent.Parent.ActivityDecayConstant, true);
+                eye = shannonise(eye, obj.Parent.Parent.ActivityDecayConstant, obj.Parent.Parent.ModelSubsamplingRate);
                 blinkRow = obj.Times;
-                blinklength = obj.GrandParent.BlinkLength;
-                blinksOn = zeros(nnz(obj.Times), blinklength/obj.GrandParent.ModelSubsamplingRate);
+                blinklength = obj.Parent.Parent.BlinkLength;
+                blinksOn = zeros(nnz(obj.Times), blinklength/obj.Parent.Parent.ModelSubsamplingRate);
                 blinksOff = blinksOn;
                 for i = 1:nnz(blinkRow)
                     indexes = eye.ts >= blinkRow(i) & eye.ts < (blinkRow(i)+blinklength);
@@ -53,8 +51,8 @@ classdef Blinklocation
             hold on
             [blinksOn, blinksOff] = obj.getblinks;
             for n = 1:size(blinksOn, 1)
-                plot(ax, blinksOn(n, :)/obj.GrandParent.AmplitudeScale, 'red')
-                plot(ax, blinksOff(n, :)/obj.GrandParent.AmplitudeScale, 'blue')
+                plot(ax, blinksOn(n, :)/obj.Parent.Parent.AmplitudeScale, 'red')
+                plot(ax, blinksOff(n, :)/obj.Parent.Parent.AmplitudeScale, 'blue')
             end
         end
         
@@ -75,14 +73,14 @@ classdef Blinklocation
             tileWidth = obj.Parent.TileSizes(1);
             tileHeight = obj.Parent.TileSizes(2);
             eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
-            eye = activity(eye, obj.GrandParent.ActivityDecayConstant, true);
-            eye = quick_correlation(eye, obj.GrandParent.Modelblink.AverageOn, obj.GrandParent.Modelblink.AverageOff, obj.GrandParent.AmplitudeScale, obj.GrandParent.BlinkLength, obj.GrandParent.ModelSubsamplingRate);
-            continuum = shannonise(eye, obj.GrandParent.ActivityDecayConstant, obj.GrandParent.ModelSubsamplingRate);
-            correlationThreshold = obj.GrandParent.CorrelationThreshold;
+            eye = activity(eye, obj.Parent.Parent.ActivityDecayConstant, true);
+            eye = quick_correlation(eye, obj.Parent.Parent.Modelblink.AverageOn, obj.Parent.Parent.Modelblink.AverageOff, obj.Parent.Parent.AmplitudeScale, obj.Parent.Parent.BlinkLength, obj.Parent.Parent.ModelSubsamplingRate);
+            continuum = shannonise(eye, obj.Parent.Parent.ActivityDecayConstant, obj.Parent.Parent.ModelSubsamplingRate);
+            correlationThreshold = obj.Parent.Parent.CorrelationThreshold;
             %plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
-            %p = plot(continuum.ts, continuum.activityOn/obj.GrandParent.AmplitudeScale);
+            %p = plot(continuum.ts, continuum.activityOn/obj.Parent.Parent.AmplitudeScale);
             %p.Color = [0    0.4470    0.7410];
-            %p = plot(continuum.ts, continuum.activityOff/obj.GrandParent.AmplitudeScale);
+            %p = plot(continuum.ts, continuum.activityOff/obj.Parent.Parent.AmplitudeScale);
             %p.Color = [0.8500    0.3250    0.0980];
             %title(ax, loc)
             ylim([0 4])
@@ -96,7 +94,7 @@ classdef Blinklocation
                 disp(['Number of windows: ', num2str(length(windows))])
             end
             for i=eye.ts(and(~isnan(eye.patternCorrelation), eye.ts<(obj.Times(end)+8000000)))
-                a = area([i-obj.GrandParent.BlinkLength i], [max(eye.patternCorrelation(eye.ts == i)) max(eye.patternCorrelation(eye.ts == i))]);
+                a = area([i-obj.Parent.Parent.BlinkLength i], [max(eye.patternCorrelation(eye.ts == i)) max(eye.patternCorrelation(eye.ts == i))]);
                 a.FaceAlpha = 0.1;
                 if eye.patternCorrelation(eye.ts == i) > correlationThreshold
                     a.FaceColor = 'yellow';
@@ -104,15 +102,15 @@ classdef Blinklocation
                 end
             end
             for i = obj.Times
-                a = area([i i+obj.GrandParent.BlinkLength], [4 4]);
+                a = area([i i+obj.Parent.Parent.BlinkLength], [4 4]);
                 a.FaceAlpha = 0.1;
                 a.FaceColor = 'green';
             end
             mask = and(continuum.ts > ((obj.Times(1)-8000000)), continuum.ts < ((obj.Times(end)+8000000)));
             z = zeros(1, length(continuum.activityOn(mask)));
             x = continuum.ts(mask);
-            y1 = continuum.activityOff(mask)/obj.GrandParent.AmplitudeScale;
-            y2 = continuum.activityOn(mask)/obj.GrandParent.AmplitudeScale;
+            y1 = continuum.activityOff(mask)/obj.Parent.Parent.AmplitudeScale;
+            y2 = continuum.activityOn(mask)/obj.Parent.Parent.AmplitudeScale;
             %fxOff = [x, fliplr(x)];
             %foff = [z, fliplr(y1)];
             %mask = y2 > y1;
