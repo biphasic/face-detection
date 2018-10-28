@@ -303,6 +303,28 @@ classdef Recording < handle
             yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
             set(gca, 'yticklabel', yt);
         end
+        
+        function [] = continuous_detection(obj)
+        % continuous detection and scaling according to distance between trackers
+
+        rec = obj.Eventstream;
+        addConstant = obj.Parent.AmplitudeScale;
+        grid(obj.GridSizes) = Tile(obj.Parent.ActivityDecayConstant, addConstant, length(rec));
+        allTimestamps = eye.ts;
+        tileSizes = obj.TileSizes;
+        
+        for i = 1:length(rec)
+            row = floor(rec.y(i) / tileSizes(2));
+            col = floor(rec.x(i) / tileSizes(1));
+            currentts = rec.ts(i);
+            
+            % update activity
+            grid(row, col).updateactivity(rec.ts(i), rec.p(i), addConstant);
+            
+            % update buffers
+            grid(row, col).updatebuffer()
+        end
+        end
 
         function plotblinks(obj, varargin)
             if isempty(obj.Blinks)
