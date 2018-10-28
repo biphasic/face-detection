@@ -13,14 +13,10 @@ for s = 1:numel(names)
         gregor.Recordings{6}.Center.Times = [1529000     3231200];
         gregor.Recordings{6}.Left.Location = [103 165];
         gregor.Recordings{6}.Left.Times = [24576445];
-        gregor.Recordings{6}.Left.ActivityDecayConstant = 50000;
         gregor.Recordings{6}.Left.AddConstant = 0.2;
         gregor.Recordings{6}.Right.Location =  [202 123];
         gregor.Recordings{6}.Right.Times = [42568445];
-        gregor.Recordings{6}.Right.ActivityDecayConstant = 50000;
         gregor.Recordings{6}.Right.AddConstant = 2;
-        %gregor.Recordings{6}.Left.TileSizes = gregor.Recordings{6}.TileSizes * 2;
-        %gregor.Recordings{6}.Right.TileSizes = gregor.Recordings{6}.TileSizes * 2 / 3;
         gregor.CorrelationThreshold = 0.88;
         gregor.addrecording(2, indoorEventsFede(2), false);
         gregor.addrecording(3, indoorEventsFede(3), false);
