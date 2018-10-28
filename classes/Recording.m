@@ -23,9 +23,9 @@ classdef Recording < handle
             obj.Number = number;
             obj.Eventstream = eventStream;
             obj.IsTrainingRecording = isTrainingRecording;
-            obj.Center = Blinklocation(obj);
-            obj.Left = Blinklocation(obj);
-            obj.Right = Blinklocation(obj);
+            obj.Center = Blinklocation(obj, parent);
+            obj.Left = Blinklocation(obj, parent);
+            obj.Right = Blinklocation(obj, parent);
             obj.Parent = parent;
         end
         
@@ -99,7 +99,14 @@ classdef Recording < handle
             modelblink.VarianceOff = filter(movingAverageWindow/amplitudescale, 1, sqrt(varianceOff));
         end
         
-        function calculatecorrelation(obj)
+        function calculatecorrelation(obj, varargin)
+            if nargin > 1 && isa(varargin{1}, 'Modelblink')
+                disp('inserted new Modelblink for correlation')
+                modelblink = varargin{1};
+            else
+                disp('Using subject-specific Modelblink')
+                modelblink = obj.Parent.Modelblink;
+            end
             tic
             tile_width = obj.TileSizes(1);
             tile_height = obj.TileSizes(2);
@@ -115,7 +122,7 @@ classdef Recording < handle
                 for j = 1:obj.GridSizes(2)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
                     tile = activity(tile, obj.Parent.ActivityDecayConstant, true);
-                    tile = quick_correlation(tile, obj.Parent.Modelblink.AverageOn, obj.Parent.Modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                    tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
                     c{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
                     x = horzcat(x, ones(1,length(tile.ts)).*((i-0.5) * (tile_width)));
@@ -139,7 +146,7 @@ classdef Recording < handle
                 for j = 1:(obj.GridSizes(2)-1)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
                     tile = activity(tile, obj.Parent.ActivityDecayConstant, true);
-                    tile = quick_correlation(tile, obj.Parent.Modelblink.AverageOn, obj.Parent.Modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                    tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
                     c2{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
                     x = horzcat(x, ones(1,length(tile.ts)).*(i * tile_width));
@@ -157,6 +164,10 @@ classdef Recording < handle
             obj.Grids{1,1} = c;
             obj.Grids{1,2} = c2;
             toc
+        end
+        
+        function calculatecorrelationwithsuperblink(obj)
+            obj.calculatecorrelation(obj.Parent.Parent.Supermodel)
         end
         
         function detectblinks(obj)

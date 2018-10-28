@@ -3,21 +3,26 @@ classdef Blinklocation
         Location
         Times
         Parent
+        TileSizes
+        ActivityDecayConstant
+        AddConstant = 1
     end
     
     methods
-        function obj = Blinklocation(parent)
+        function obj = Blinklocation(parent, grandparent)
             obj.Parent = parent;
+            obj.TileSizes = parent.TileSizes;
+            obj.ActivityDecayConstant = grandparent.ActivityDecayConstant;
         end
         
         %return all the blinks for one location
         function [blinksOn, blinksOff] = getblinks(obj)
             if ~isempty(obj.Location) && ~isempty(obj.Times)
-                tileWidth = obj.Parent.TileSizes(1);
-                tileHeight = obj.Parent.TileSizes(2);
+                tileWidth = obj.TileSizes(1);
+                tileHeight = obj.TileSizes(2);
                 eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
-                eye = activity(eye, obj.Parent.Parent.ActivityDecayConstant, true);
-                eye = shannonise(eye, obj.Parent.Parent.ActivityDecayConstant, obj.Parent.Parent.ModelSubsamplingRate);
+                eye = activity(eye, obj.ActivityDecayConstant, obj.AddConstant);
+                eye = shannonise(eye, obj.ActivityDecayConstant, obj.Parent.Parent.ModelSubsamplingRate);
                 blinkRow = obj.Times;
                 blinklength = obj.Parent.Parent.BlinkLength;
                 blinksOn = zeros(nnz(obj.Times), blinklength/obj.Parent.Parent.ModelSubsamplingRate);
@@ -85,12 +90,12 @@ classdef Blinklocation
                 figure
             end
             hold on;
-            tileWidth = obj.Parent.TileSizes(1);
-            tileHeight = obj.Parent.TileSizes(2);
+            tileWidth = obj.TileSizes(1);
+            tileHeight = obj.TileSizes(2);
             eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
-            eye = activity(eye, obj.Parent.Parent.ActivityDecayConstant, true);
+            eye = activity(eye, obj.ActivityDecayConstant, obj.AddConstant);
             eye = quick_correlation(eye, obj.Parent.Parent.Modelblink.AverageOn, obj.Parent.Parent.Modelblink.AverageOff, obj.Parent.Parent.AmplitudeScale, obj.Parent.Parent.BlinkLength, obj.Parent.Parent.ModelSubsamplingRate);
-            continuum = shannonise(eye, obj.Parent.Parent.ActivityDecayConstant, obj.Parent.Parent.ModelSubsamplingRate);
+            continuum = shannonise(eye, obj.ActivityDecayConstant, obj.Parent.Parent.ModelSubsamplingRate);
             correlationThreshold = obj.Parent.Parent.CorrelationThreshold;
             %plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
             %p = plot(continuum.ts, continuum.activityOn/obj.Parent.Parent.AmplitudeScale);
