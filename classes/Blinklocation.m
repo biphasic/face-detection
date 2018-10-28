@@ -31,6 +31,21 @@ classdef Blinklocation
                 error('no blinks saved for this location');
             end
         end
+        
+        function blinks = getblinkevents(obj)
+            tileWidth = obj.TileSizes(1);
+            tileHeight = obj.TileSizes(2);
+            eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
+            blinkRow = obj.Times;
+            %blinks = nan(1, nnz(blinkRow));
+            for i = 1:nnz(blinkRow)
+                indexes = eye.ts >= blinkRow(i) & eye.ts < (blinkRow(i)+obj.Parent.Parent.BlinkLength);
+                blinks(i).ts = eye.ts(indexes);
+                blinks(i).x = eye.x(indexes);
+                blinks(i).y = eye.y(indexes);
+                blinks(i).p = eye.p(indexes);
+            end
+        end
                 
         %return an average model blink for one location
         function [averageOn, averageOff] = getaverages(obj)
