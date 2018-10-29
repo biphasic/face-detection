@@ -18,8 +18,6 @@ for s = 1:numel(names)
         gregor.Recordings{6}.Right.Times = [42568445];
         gregor.Recordings{6}.Right.AddConstant = 2;
         gregor.CorrelationThreshold = 0.88;
-        gregor.addrecording(2, indoorEventsFede(2), false);
-        gregor.addrecording(3, indoorEventsFede(3), false);
         addprop(scale, gregor.Name);
         scale.(names{s}) = gregor;
     end

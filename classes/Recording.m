@@ -277,7 +277,7 @@ classdef Recording < handle
             else
                 figure;
                 ax = gca;
-            end            
+            end
             grid1 = obj.EventstreamGrid1;
             corrThreshold = obj.Parent.CorrelationThreshold;
             scatter3(ax, grid1.x(grid1.patternCorrelation>corrThreshold), -grid1.ts(grid1.patternCorrelation>corrThreshold), grid1.y(grid1.patternCorrelation>corrThreshold))
@@ -304,26 +304,40 @@ classdef Recording < handle
             set(gca, 'yticklabel', yt);
         end
         
-        function [] = continuous_detection(obj)
+        function continuousdetection(obj)
         % continuous detection and scaling according to distance between trackers
+            rec = obj.Eventstream;
+            growConstant = obj.Parent.AmplitudeScale;
+            allTimestamps = rec.ts;
+            grid(obj.GridSizes(1), obj.GridSizes(2)) = Tile();
+            for i = 1:obj.GridSizes(1)
+                for j = 1:obj.GridSizes(2)
+                    grid(i, j).initialise(obj.Parent.ActivityDecayConstant, growConstant, allTimestamps, obj.Parent.BlinkLength);
+                end
+            end
+            tileSizes = obj.TileSizes;
 
-        rec = obj.Eventstream;
-        addConstant = obj.Parent.AmplitudeScale;
-        grid(obj.GridSizes) = Tile(obj.Parent.ActivityDecayConstant, addConstant, length(rec));
-        allTimestamps = eye.ts;
-        tileSizes = obj.TileSizes;
-        
-        for i = 1:length(rec)
-            row = floor(rec.y(i) / tileSizes(2));
-            col = floor(rec.x(i) / tileSizes(1));
-            currentts = rec.ts(i);
-            
-            % update activity
-            grid(row, col).updateactivity(rec.ts(i), rec.p(i), addConstant);
-            
-            % update buffers
-            grid(row, col).updatebuffer()
-        end
+            for i = 1:length(rec.ts)/8
+                row = ceil(rec.y(i) / tileSizes(2));
+                col = ceil(rec.x(i) / tileSizes(1));
+                currentts = allTimestamps(i);
+                if row == 0
+                    row = 1;
+                end
+                if col == 0
+                    col = 1;
+                end
+
+                % update activity
+                grid(row, col).updateactivity(currentts, rec.p(i), growConstant);
+
+                % update buffers
+                [numOn, numOff] = grid(row, col).updatebuffer(i, currentts, rec.p(i));
+                if numOn > obj.Parent.AmplitudeScale/3 numOff > 0
+    
+                end
+            end
+            delete(grid)
         end
 
         function plotblinks(obj, varargin)
