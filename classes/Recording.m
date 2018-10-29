@@ -196,6 +196,7 @@ classdef Recording < handle
                     %last 4 events are close enough in time and have the
                     %same x value
                     if i ~= length(indices) && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i+1)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-2)), combinedGrid.x(indices(i+1)) )
+                        quadruplet = zeros(4, 2);
                         for row = 1:4
                             quadruplet(row,:) = [combinedGrid.x(indices(i+2-row)), combinedGrid.y(indices(i+2-row))];
                         end
@@ -214,6 +215,7 @@ classdef Recording < handle
                     end
                     %last three events, either two on the left or two on
                     %the right
+                    triplet = zeros(3, 2);
                     for row = 1:3
                         triplet(row,:) = [combinedGrid.x(indices(i-(row-1))), combinedGrid.y(indices(i-(row-1)))];
                     end
@@ -352,9 +354,9 @@ classdef Recording < handle
                 ax = gca;
             end
             for i = 1:length(obj.Blinks)
-                leftEye = scatter3(ax, obj.Blinks(i).x1, -obj.Blinks(i).ts, obj.Blinks(i).y1, 200, 'black', 'diamond', 'Displayname', 'left blink detected');
+                scatter3(ax, obj.Blinks(i).x1, -obj.Blinks(i).ts, obj.Blinks(i).y1, 200, 'black', 'diamond', 'Displayname', 'left blink detected');
                 hold on
-                rightEye = scatter3(ax, obj.Blinks(i).x2, -obj.Blinks(i).ts, obj.Blinks(i).y2, 200, 'black', 'diamond', 'Displayname', 'right blink detected');
+                scatter3(ax, obj.Blinks(i).x2, -obj.Blinks(i).ts, obj.Blinks(i).y2, 200, 'black', 'diamond', 'Displayname', 'right blink detected');
             end
             title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
             % x/z
@@ -387,9 +389,9 @@ classdef Recording < handle
                 ax = gca;
             end
             obj.plotblinks(ax)
-            leftEye = scatter3(ax, obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red',  'Displayname', 'left eye tracker');
+            scatter3(ax, obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red',  'Displayname', 'left eye tracker');
             hold on 
-            rightEye = scatter3(ax, obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green', 'Displayname', 'right eye tracker');
+            scatter3(ax, obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green', 'Displayname', 'right eye tracker');
             X = [0 obj.Dimensions(1); 0 obj.Dimensions(1)];
             Y = -[obj.Blinks(1).ts obj.Blinks(1).ts; obj.Blinks(1).ts obj.Blinks(1).ts];
             Z = [obj.Dimensions(2) obj.Dimensions(2); 0 0];
