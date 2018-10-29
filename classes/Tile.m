@@ -40,7 +40,7 @@ classdef Tile < handle
             end
         end
         
-        function [numOn, numOff] = updatebuffer(obj, i, timestamp, polarity)
+        function [numOff] = updatebuffer(obj, i, timestamp, polarity, growconst)
             if polarity == 1
                 obj.BufferOn(i) = 1;
             else
@@ -62,12 +62,46 @@ classdef Tile < handle
                     break;
                 end
             end
+            numOff = 0;
             if timestamp - obj.LastPM >= obj.MinimumDifference
                 numOn = nnz(obj.BufferOn(obj.BufferOnStart:i));
-                numOff = nnz(obj.BufferOff(obj.BufferOffStart:i));
-            else
-                [numOn, numOff] = deal(0);
+                if numOn > growconst/2 && numOn < 5*growconst
+                    numOff = nnz(obj.BufferOff(obj.BufferOffStart:i));
+
+                end
             end
+        end
+        
+        function correlation(obj, modelblink, corrbufferscale)
+            bufOn = zeros(1, obj.BlinkLength/corrbufferscale);
+            bufOff = zeros(1, obj.BlinkLength/corrbufferscale);
+            divisor = timestamp - obj.BlinkLength;
+            % generate a 'time representation' rather than simply the events
+            % and downscale to smaller buffer size
+            for k=find(obj.BufferOn == 1)
+                index = ceil(mod(obj.AllTimestamps(k), divisor)/corrbufferscale);
+                if index == 0
+                    index = 1;
+                end
+                bufOn(index) = allActivityOn(k)/amplitudeScale;
+            end
+            m = max(bufOn(1:floor((obj.BlinkLength/corrbufferscale)/3)));
+            if m < 0.6 || m > 1.6
+                return
+            end
+            for k=find(bufferOff == 1)
+                index = ceil(mod(allTimestamps(k), divisor)/corrbufferscale);
+                if index == 0
+                    index = 1;
+                end
+                bufOff(index) = allActivityOff(k)/amplitudeScale;
+            end
+            samplesOn = modelblink.AverageOn .* (bufOn>0);
+            samplesOff = modelblink.AverageOff .* (bufOff>0);
+            resOn = xcorr(bufOn, samplesOn, 'coeff');
+            resOff = xcorr(bufOff, samplesOff, 'coeff');
+            eye.patternCorrelation(i) = 1.25*resOn(bufferSize) * 0.8*resOff(bufferSize);
+            lastPM = timestamp;
         end
     end
 end
