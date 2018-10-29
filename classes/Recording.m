@@ -23,9 +23,9 @@ classdef Recording < handle
             obj.Number = number;
             obj.Eventstream = eventStream;
             obj.IsTrainingRecording = isTrainingRecording;
-            obj.Center = Blinklocation(obj, parent);
-            obj.Left = Blinklocation(obj, parent);
-            obj.Right = Blinklocation(obj, parent);
+            obj.Center = Blinklocation(obj);
+            obj.Left = Blinklocation(obj);
+            obj.Right = Blinklocation(obj);
             obj.Parent = parent;
         end
         
@@ -121,7 +121,7 @@ classdef Recording < handle
             for i = 1:obj.GridSizes(1)
                 for j = 1:obj.GridSizes(2)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
-                    tile = activity(tile, obj.Parent.ActivityDecayConstant, true);
+                    tile = activity(tile, obj.Parent.ActivityDecayConstant, 1 / obj.Parent.AmplitudeScale, true);
                     tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
                     c{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
@@ -145,7 +145,7 @@ classdef Recording < handle
             for i = 1:(obj.GridSizes(1)-1)
                 for j = 1:(obj.GridSizes(2)-1)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
-                    tile = activity(tile, obj.Parent.ActivityDecayConstant, true);
+                    tile = activity(tile, obj.Parent.ActivityDecayConstant, 1 / obj.Parent.AmplitudeScale, true);
                     tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
                     c2{i,j} = tile;
                     ts = horzcat(ts, tile.ts);
@@ -169,7 +169,7 @@ classdef Recording < handle
         function calculatecorrelationwithsuperblink(obj)
             obj.calculatecorrelation(obj.Parent.Parent.Supermodel)
         end
-        
+      
         function detectblinks(obj)
             if isempty(obj.EventstreamGrid1)
                 disp('No correlation data present, starting computation...')
@@ -333,7 +333,7 @@ classdef Recording < handle
                 if col == 0
                     col = 1;
                 end
-
+                
                 % update activity
                 grid(row, col).updateactivity(currentts, pol, growConstant);
 
@@ -442,8 +442,8 @@ classdef Recording < handle
             end
             z = zeros(1, length(continuum.activityOn));
             x = continuum.ts;
-            y1 = continuum.activityOff / obj.Parent.AmplitudeScale;
-            y2 = continuum.activityOn / obj.Parent.AmplitudeScale;
+            y1 = continuum.activityOff;
+            y2 = continuum.activityOn;
             fill_between(x, y1, y2, y1 < y2, opts2{:});
             fill_between(x, z, y1, y1 > z, opts1{:});
             %sometimes it is desired to rather show the events 

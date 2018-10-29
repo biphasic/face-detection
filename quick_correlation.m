@@ -66,7 +66,7 @@ for i = skip:len
                     if index == 0
                         index = 1;
                     end
-                    bufOn(index) = allActivityOn(k)/amplitudeScale;
+                    bufOn(index) = allActivityOn(k);
                 end
                 m = max(bufOn(1:floor((slidingWindowWidth/corrBufferScale)/3)));
                 if m < 0.6 || m > 1.6
@@ -77,7 +77,7 @@ for i = skip:len
                     if index == 0
                         index = 1;
                     end
-                    bufOff(index) = allActivityOff(k)/amplitudeScale;
+                    bufOff(index) = allActivityOff(k);
                 end
                 samplesOn = filterOn .* (bufOn>0);
                 samplesOff = filterOff .* (bufOff>0);
