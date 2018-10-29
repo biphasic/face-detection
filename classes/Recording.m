@@ -308,7 +308,10 @@ classdef Recording < handle
         
         function continuousdetection(obj)
         % continuous detection and scaling according to distance between trackers
+        tic
+            counter = 0;
             rec = obj.Eventstream;
+            modelblink = obj.Parent.Modelblink;
             growConstant = obj.Parent.AmplitudeScale;
             allTimestamps = rec.ts;
             grid(obj.GridSizes(1), obj.GridSizes(2)) = Tile();
@@ -323,6 +326,7 @@ classdef Recording < handle
                 row = ceil(rec.y(i) / tileSizes(2));
                 col = ceil(rec.x(i) / tileSizes(1));
                 currentts = allTimestamps(i);
+                pol = rec.p(i);
                 if row == 0
                     row = 1;
                 end
@@ -331,15 +335,20 @@ classdef Recording < handle
                 end
 
                 % update activity
-                grid(row, col).updateactivity(currentts, rec.p(i), growConstant);
+                grid(row, col).updateactivity(currentts, pol, growConstant);
 
                 % update buffers
-                [numOn, numOff] = grid(row, col).updatebuffer(i, currentts, rec.p(i));
-                if numOn > obj.Parent.AmplitudeScale/3 numOff > 0
-    
+                numOff = grid(row, col).updatebuffer(i, currentts, pol, growConstant);
+                
+                % correlate buffer if high enough
+                if numOff > growConstant/3 && numOff < 5*growConstant
+                    counter = counter + 1;
+                    %grid(row.col).correlation(modelblink, obj.Parent.ModelSubsamplingRate)
                 end
             end
+            disp(counter)
             delete(grid)
+        toc
         end
 
         function plotblinks(obj, varargin)
