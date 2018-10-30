@@ -119,23 +119,22 @@ classdef Blinklocation
             mask = and(continuum.ts > ((obj.Times(1)-8000000)), continuum.ts < ((obj.Times(end)+8000000)));
             z = zeros(1, length(continuum.activityOn(mask)));
             x = continuum.ts(mask);
-            y1 = continuum.activityOff(mask);
-            y2 = continuum.activityOn(mask);
-            %fxOff = [x, fliplr(x)];
-            %foff = [z, fliplr(y1)];
-            %mask = y2 > y1;
-            %fxOn = [x(mask), fliplr(x(mask))];
-            %fOn = [y1(mask), fliplr(y2(mask))];
-            %fill(fxOff, foff, [0    0.4470    0.7410], 'FaceAlpha', 0.7); % blue
-            %fill(fxOn, fOn, [0.8500    0.3250    0.0980], 'FaceAlpha', 0.7); % red
-            opts1={'FaceAlpha', 0.7, 'FaceColor', [0    0.4470    0.7410]};%blau
-            opts2={'FaceAlpha', 0.7, 'FaceColor', [0.8500    0.3250    0.0980]};%rot
-            fill_between(x, y1, y2, y1 < y2, opts2{:});
-            fill_between(x, z, y1, y1 > z, opts1{:});
+            y1 = continuum.activityOn(mask);
+            y2 = continuum.activityOff(mask);
+            opts1={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.Parent.OnColour};%rot
+            opts2={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.Parent.OffColour};%blau
+            fill_between(x, y2, y1, y2 < y1, opts1{:});
+            fill_between(x, z, y2, y2 > z, opts2{:});
             %sometimes it is desired to rather show the events 
             %stem(eye.ts, eye.activityOn/subjects.(names{s}).AmplitudeScale);
             %stem(eye.ts, -eye.activityOff/subjects.(names{s}).AmplitudeScale);
+            path = ['/home/gregorlenz/Recordings/face-detection/indoor/printing-with-matplotlib/activity-detail.csv'];
+            times = zeros(1, length(y2));
+            times(1:length(obj.Times)) = obj.Times;
+            m = [x; y1; y2; times];
+            csvwrite(path, m);
         end
+        
     end
 end
 

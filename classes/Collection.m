@@ -1,6 +1,8 @@
 classdef Collection < dynamicprops
    properties
        DatasetType
+       OnColour = [0.8500, 0.3250, 0.0980] % red
+       OffColour = [0, 0.4470, 0.7410] % blue
        % rest are subjects
    end
    properties (Dependent = true)
@@ -61,13 +63,13 @@ classdef Collection < dynamicprops
             m = obj.getaveragemodelblink(smoothingFactor);
             ax = shadedErrorBar(1:length(m.AverageOn), m.AverageOn, m.VarianceOn, 'lineprops', '-b');
             ax.mainLine.LineWidth = 3;
-            ax.mainLine.Color = [0  0.4470    0.7410];
+            ax.mainLine.Color = obj.OnColour;
             ax.edge.set('Visible', false)
-            ax.patch.FaceColor = [0    0.4470    0.7410];
+            ax.patch.FaceColor = obj.OnColour;
             ax = shadedErrorBar(1:length(m.AverageOff), m.AverageOff, m.VarianceOff, 'lineprops', '-r');
             ax.edge.set('Visible', false)
-            %ax.mainLine.Color = [0.8500    0.3250    0.0980];
-            %ax.patch.FaceColor = [0.8500    0.3250    0.0980];
+            ax.mainLine.Color = obj.OffColour;
+            ax.patch.FaceColor = obj.OffColour;
             ax.mainLine.LineWidth = 3;
             ylim([0 inf])
             file = [1:1:length(m.AverageOn); m.AverageOn; m.AverageOff; m.VarianceOn; m.VarianceOff]';
