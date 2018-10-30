@@ -206,7 +206,7 @@ classdef Recording < handle
                         right = abs(quadruplet(4,:) - quadruplet(3,:));
                         rightMean = (quadruplet(4,:) + quadruplet(3,:))/2;
                         diff = (rightMean - leftMean);
-                        if leftDelta(1) < tileWidth && leftDelta(2) < tileHeight && right(1) < tileWidth && right(2) < tileHeight && diff(1) > tileWidth && diff(1) < 50 && diff(2) < tileHeight
+                        if leftDelta(1) < tileWidth && leftDelta(2) < tileHeight && right(1) < tileWidth && right(2) < tileHeight && diff(1) >= tileWidth && diff(1) < 80 && diff(2) < tileHeight
                             obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
                             blinkIndex = blinkIndex + 1;
                             skip = 2;
@@ -223,14 +223,14 @@ classdef Recording < handle
                     %two on the left
                     leftDiff = abs(triplet(2,:) - triplet(1,:));
                     leftMean = ((triplet(2,:) + triplet(1,:))/2);
-                    if  leftDiff(1) < tileWidth && leftDiff(2) < tileHeight && triplet(3,1) - leftMean(1) > tileWidth && triplet(3,1) - leftMean(1) < 50 && abs(triplet(3,2) - leftMean(2)) < tileHeight
+                    if  leftDiff(1) < tileWidth && leftDiff(2) < tileHeight && triplet(3,1) - leftMean(1) > tileWidth/2 && triplet(3,1) - leftMean(1) < 80 && abs(triplet(3,2) - leftMean(2)) < tileHeight
                         obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), triplet(3,1), leftMean(2), combinedGrid.ts(indices(i)));
                         blinkIndex = blinkIndex + 1;
                     end
                     %two on the right
                     rightDiff = abs(triplet(3,:) - triplet(2,:));
                     rightMean = ((triplet(3,:) + triplet(2,:))/2);
-                    if  rightDiff(1) < tileWidth && rightDiff(2) < tileHeight && rightMean(1) - triplet(1,1) > tileWidth && rightMean(1) - triplet(1,1) < 50 && abs(triplet(1,2) - rightMean(2)) < tileHeight
+                    if  rightDiff(1) < tileWidth && rightDiff(2) < tileHeight && rightMean(1) - triplet(1,1) > tileWidth && rightMean(1) - triplet(1,1) < 80 && abs(triplet(1,2) - rightMean(2)) < tileHeight
                         obj.Blinks(blinkIndex) = Blink(triplet(1,1), rightMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
                         blinkIndex = blinkIndex + 1;
                     end
