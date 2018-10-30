@@ -33,8 +33,8 @@ classdef Recording < handle
             tilesizes = obj.Dimensions ./ obj.GridSizes;
         end
         function set.GridSizes(obj, sizes)
-            if mod(obj.Dimensions, sizes) ~= 0
-                error('grid size does not align well with dimensions of the recording')
+            if mod([304, 240], sizes) ~= 0
+                error('grid size does not align well with dimensions of an ATIS recording')
             end
             obj.GridSizes = sizes;
         end
