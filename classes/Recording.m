@@ -269,43 +269,6 @@ classdef Recording < handle
             obj.Eventstream = rec;
         end
         
-        function plotcorrelation(obj, varargin)
-            if isempty(obj.EventstreamGrid1)
-                disp("You haven't run the correlation yet, computing now...")
-                obj.calculatecorrelation
-            end
-            if nargin > 1
-                ax = varargin{1};
-            else
-                figure;
-                ax = gca;
-            end
-            grid1 = obj.EventstreamGrid1;
-            corrThreshold = obj.Parent.CorrelationThreshold;
-            scatter3(ax, grid1.x(grid1.patternCorrelation>corrThreshold), -grid1.ts(grid1.patternCorrelation>corrThreshold), grid1.y(grid1.patternCorrelation>corrThreshold))
-            grid2 = obj.EventstreamGrid2;
-            hold on
-            scatter3(ax, grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
-            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us']))
-            %x/z
-            xlabel('tile number x direction')
-            xlim([0 obj.Dimensions(1)])
-            set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
-            xt=arrayfun(@num2str,get(gca,'xtick')/obj.TileSizes(1), 'UniformOutput', false);
-            set(gca, 'xticklabel', xt)
-            zlabel('tile number y direction')
-            zlim([0 obj.Dimensions(2)])
-            set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
-            zt=arrayfun(@num2str,get(gca,'ztick')/obj.TileSizes(2), 'UniformOutput', false);
-            set(gca, 'zticklabel', zt)
-            %y
-            ylabel('time [s]')
-            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
-            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
-            yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
-            set(gca, 'yticklabel', yt);
-        end
-        
         function continuousdetection(obj)
         % continuous detection and scaling according to distance between trackers
         tic
@@ -351,6 +314,43 @@ classdef Recording < handle
         toc
         end
 
+        function plotcorrelation(obj, varargin)
+            if isempty(obj.EventstreamGrid1)
+                disp("You haven't run the correlation yet, computing now...")
+                obj.calculatecorrelation
+            end
+            if nargin > 1
+                ax = varargin{1};
+            else
+                figure;
+                ax = gca;
+            end
+            grid1 = obj.EventstreamGrid1;
+            corrThreshold = obj.Parent.CorrelationThreshold;
+            scatter3(ax, grid1.x(grid1.patternCorrelation>corrThreshold), -grid1.ts(grid1.patternCorrelation>corrThreshold), grid1.y(grid1.patternCorrelation>corrThreshold))
+            grid2 = obj.EventstreamGrid2;
+            hold on
+            scatter3(ax, grid2.x(grid2.patternCorrelation>corrThreshold), -grid2.ts(grid2.patternCorrelation>corrThreshold), grid2.y(grid2.patternCorrelation>corrThreshold))
+            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: 0.', int2str(obj.Parent.CorrelationThreshold*100), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us']))
+            %x/z
+            xlabel('tile number x direction')
+            xlim([0 obj.Dimensions(1)])
+            set(gca, 'xtick', 0:obj.TileSizes(1):obj.Dimensions(1))
+            xt=arrayfun(@num2str,get(gca,'xtick')/obj.TileSizes(1), 'UniformOutput', false);
+            set(gca, 'xticklabel', xt)
+            zlabel('tile number y direction')
+            zlim([0 obj.Dimensions(2)])
+            set(gca, 'ztick', 0:obj.TileSizes(2):obj.Dimensions(2))
+            zt=arrayfun(@num2str,get(gca,'ztick')/obj.TileSizes(2), 'UniformOutput', false);
+            set(gca, 'zticklabel', zt)
+            %y
+            ylabel('time [s]')
+            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
+            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
+            yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
+            set(gca, 'yticklabel', yt);
+        end
+        
         function plotblinks(obj, varargin)
             if isempty(obj.Blinks)
                 disp('Cannot plot blinks because none have been detected yet, starting detectblinks...')
@@ -380,9 +380,9 @@ classdef Recording < handle
             % y
             ylabel('time [s]')
             ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
+            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
             yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
             set(gca, 'yticklabel', yt);
-            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
             legend(ax, 'left eye detected', 'right eye detected', 'Location', 'best')
         end
 
