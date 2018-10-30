@@ -401,17 +401,35 @@ classdef Recording < handle
             scatter3(ax, obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red',  'Displayname', 'left eye tracker');
             hold on 
             scatter3(ax, obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green', 'Displayname', 'right eye tracker');
-            X = [0 obj.Dimensions(1); 0 obj.Dimensions(1)];
-            Y = -[obj.Blinks(1).ts obj.Blinks(1).ts; obj.Blinks(1).ts obj.Blinks(1).ts];
-            Z = [obj.Dimensions(2) obj.Dimensions(2); 0 0];
-            im = imread('/home/gregorlenz/Téléchargements/frames/1.png');
-            surface(X, Y, Z, im, 'facecolor', 'texturemap', 'edgecolor', 'none');
+            %print screenshots
+            blinkstoprint = [1 4 6];
+            for i = 1:length(blinkstoprint)
+                closestScreenshot = round(obj.Blinks(blinkstoprint(i)).ts / 1000000);
+                framepath = (['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', lower(obj.Parent.Name), '/', num2str(obj.Number), '/frames/', num2str(closestScreenshot), '.png']);
+                if exist(framepath, 'file') == 2
+                    img = imread(framepath);
+                    %img = double(img)/255;
+                    %index1 = img(:,:,1) == 1;
+                    %index2 = img(:,:,2) == 1;
+                    %index3 = img(:,:,3) == 1;
+                    %indexWhite = index1+index2+index3==3;
+                    %for idx = 1 : 3
+                    %   rgb = img(:,:,idx);     % extract part of the image
+                    %   rgb(indexWhite) = NaN;  % set the white portion of the image to NaN
+                    %   img(:,:,idx) = rgb;     % substitute the update values
+                    %end
+                    X = [0 obj.Dimensions(1); 0 obj.Dimensions(1)];
+                    Y = -[obj.Blinks(blinkstoprint(i)).ts obj.Blinks(blinkstoprint(i)).ts; obj.Blinks(blinkstoprint(i)).ts obj.Blinks(blinkstoprint(i)).ts];
+                    Z = [obj.Dimensions(2) obj.Dimensions(2); 0 0];
+                    s = surface(X, Y, Z, img,'FaceColor','texturemap')%,'FaceAlpha', 0.7);
+                end
+            end
             title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
             xlim([0 obj.Dimensions(1)])
             zlim([0 obj.Dimensions(2)])
             ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
             a = legend('show');
-            a.String(end) = '';
+            a.String(end-length(blinkstoprint)+1:end) = '';
         end
         
         function plottileactivity(obj, grid, x, y)
