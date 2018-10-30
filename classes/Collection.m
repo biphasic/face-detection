@@ -3,6 +3,7 @@ classdef Collection < dynamicprops
        DatasetType
        OnColour = [0.8500, 0.3250, 0.0980] % red
        OffColour = [0, 0.4470, 0.7410] % blue
+       % don't forget to update getsubjects method
        % rest are subjects
    end
    properties (Dependent = true)
@@ -20,7 +21,7 @@ classdef Collection < dynamicprops
         
         function list = getsubjects(obj)
             list = fieldnames(obj);
-            list = list(3:end);
+            list = list(5:end);
         end
 
         function calculateallcorrelations(obj)
