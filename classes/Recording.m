@@ -89,7 +89,7 @@ classdef Recording < handle
             movingAverageWindow = ones(1, filterResolution)/filterResolution;
             modelblink = Modelblink();
             amplitudescale = floor(max(filter(movingAverageWindow, 1, modelOn)));
-            if obj.Parent.AmplitudeScale ~= amplitudescale
+            if amplitudescale ~= 1 && amplitudescale ~= obj.Parent.AmplitudeScale
                 obj.Parent.AmplitudeScale = amplitudescale;
                 disp(['Amplitude scale: ', int2str(amplitudescale)])
             end

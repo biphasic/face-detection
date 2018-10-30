@@ -16,7 +16,7 @@ classdef Collection < dynamicprops
         end
         
         function obj = get.Supermodel(obj)
-            obj = obj.getaveragemodelblink(40);
+            obj = obj.getaveragemodelblink;
         end
         
         function list = getsubjects(obj)
@@ -41,7 +41,8 @@ classdef Collection < dynamicprops
 
         function blink = getaveragemodelblink(obj, smoothingFactor)
             if ~exist('smoothingFactor','var')
-                error('You have to supply a smoothing factor');
+                smoothingFactor = 40;
+                disp(['Using default smoothing factor of ', num2str(smoothingFactor)]);
             end
             subjects = obj.getsubjects;
             num = numel(subjects);
@@ -57,7 +58,8 @@ classdef Collection < dynamicprops
 
         function plotaveragemodelblink(obj, smoothingFactor)
             if ~exist('smoothingFactor','var')
-                error('You have to supply a smoothing factor');
+                smoothingFactor = 40;
+                disp(['Using default smoothing factor of ', num2str(smoothingFactor)]);
             end
             figure;
             title(['averaged blink across all ', obj.DatasetType, ' subjects'])
