@@ -26,9 +26,9 @@ for s = 1:numel(names)
         kevin.Recordings{2}.Center.Location = [136 137];
         kevin.Recordings{2}.Left.Location =   [ 89 132];
         kevin.Recordings{2}.Right.Location =  [186 134];
-        kevin.Recordings{2}.Center.Times = [10440000, 18697460];
+        kevin.Recordings{2}.Center.Times = [10453000, 18710460];
         %kevin.Recordings{2}.Left.Times = [15470000, 17780000];
-        kevin.Recordings{2}.Right.Times = [41417300, 46152760];
+        kevin.Recordings{2}.Right.Times = [41431800  46166080];
         kevin.CorrelationThreshold = 0.90;
         kevin.addrecording(1, outdoorEventsKevin(1), false);
         kevin.addrecording(3, outdoorEventsKevin(3), false);
