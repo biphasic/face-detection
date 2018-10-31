@@ -34,6 +34,15 @@ classdef Subject < handle
             recording = obj.Recordings{obj.gettrainingrecordingindex};
         end
         
+        function shiftallannotatedblinksby(obj, shift)
+            r = obj.gettrainingrecording;
+            loc = r.getannotatedlocations;
+            for i = 1:length(loc)
+                r.(loc{i}).Times = r.(loc{i}).Times + shift;
+                disp(['new times for ', loc{i}, ': ', num2str(r.(loc{i}).Times)])
+            end
+        end
+        
         function calculateallcorrelations(obj)
             for r = 1:numel(obj.Recordings)
                 if ~isempty(obj.Recordings{r})
