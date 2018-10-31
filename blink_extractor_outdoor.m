@@ -11,9 +11,9 @@ for s = 1:numel(names)
         laure.Recordings{1}.Center.Location = [139 152];
         laure.Recordings{1}.Left.Location =   [ 11 146];
         laure.Recordings{1}.Right.Location =  [246 152];
-        laure.Recordings{1}.Center.Times = [646900, 7635260];
-        laure.Recordings{1}.Left.Times = 17337700;
-        laure.Recordings{1}.Right.Times = [27588050, 29688650];
+        laure.Recordings{1}.Center.Times = [646900     7633960];
+        laure.Recordings{1}.Left.Times = 17334640;
+        laure.Recordings{1}.Right.Times = [27585390    29687210];
         laure.CorrelationThreshold = 0.88;
         laure.addrecording(2, outdoorEventsLaure(2), false);
         laure.addrecording(3, outdoorEventsLaure(3), false);
