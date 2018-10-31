@@ -67,8 +67,8 @@ classdef Blinklocation
             hold on
             [blinksOn, blinksOff] = obj.getblinks;
             for n = 1:size(blinksOn, 1)
-                plot(ax, blinksOn(n, :)/obj.Parent.Parent.AmplitudeScale, 'red')
-                plot(ax, blinksOff(n, :)/obj.Parent.Parent.AmplitudeScale, 'blue')
+                plot(ax, blinksOn(n, :), 'red')
+                plot(ax, blinksOff(n, :), 'blue')
             end
         end
         
