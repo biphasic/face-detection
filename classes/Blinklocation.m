@@ -143,8 +143,40 @@ classdef Blinklocation
             events = activity(events(blinknumber), 50000, 1/obj.Parent.Parent.AmplitudeScale, true);
             opts={'FaceAlpha', 0.1, 'FaceColor', 'black', 'DisplayName', 'continuous model'};
             
+            subplot(2,15,1:15)
+            tileWidth = obj.Parent.TileSizes(1);
+            tileHeight = obj.Parent.TileSizes(2);
+            eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
+            eye = activity(eye, obj.Parent.Parent.ActivityDecayConstant, (1 / obj.Parent.Parent.AmplitudeScale) * obj.AmplitudeScaleScale);
+            continuum = shannonise(eye, obj.Parent.Parent.ActivityDecayConstant, obj.Parent.Parent.ModelSubsamplingRate);
+            mask = and(continuum.ts > ((obj.Times(1)-1200000)), continuum.ts < ((obj.Times(1)+1000000)));
+            z = zeros(1, length(continuum.activityOn(mask)));
+            x = continuum.ts(mask);
+            y1 = continuum.activityOn(mask);
+            y2 = continuum.activityOff(mask);
+            plot(x, y1, 'Color', obj.Parent.Parent.Parent.OnColour);
+            hold on
+            plot(x, y2, 'Color', obj.Parent.Parent.Parent.OffColour);            
+            xlim([obj.Times(blinknumber)-1200000 obj.Times(blinknumber)+1000000])
+            %opts1={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.Parent.OnColour};%rot
+            %opts2={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.Parent.OffColour};%blau
+            %fill_between(x, y2, y1, y2 < y1, opts1{:});
+            %fill_between(x, z, y2, y2 > z, opts2{:});
+            windows = [9800000, obj.Times(blinknumber)-80000, obj.Times(blinknumber)];
+            for w = 1:length(windows)
+                a = area([windows(w), windows(w)+obj.Parent.Parent.BlinkLength], [1 1]);
+                a.FaceAlpha = 0.1;
+                if w == 1
+                    a.FaceColor = 'red';
+                elseif w == 2
+                    a.FaceColor = 'yellow';
+                else
+                    a.FaceColor = 'green';
+                end
+            end
+            
             for p = 1:3
-                ax = subplot(1, 15, 1+(p-1)*5:4+(p-1)*5);
+                ax = subplot(2, 15, 1+(p-1)*5+15:4+(p-1)*5+15);
                 z = zeros(1, length(model.AverageOff));
                 [line1, line2, patch] = fill_between(1:length(model.AverageOff), z, model.AverageOff, model.AverageOff > z, opts{:});
                 line1.delete;
@@ -188,13 +220,13 @@ classdef Blinklocation
                 intersect(intersect == 0) = nan;
                 stem(intersect, ':k', 'filled', 'DisplayName', 'sparse model');
                 z(z==0) = nan;
-                h = stem(z, ':^b', 'filled', 'DisplayName', 'activity of events received');
+                h = stem(z, ':^', 'filled', 'DisplayName', 'activity of events received', 'Color', obj.Parent.Parent.Parent.OffColour);
                 xticklabels('')
                 xlabel('250ms')
-                ylabel('normalised activity')
+                %ylabel('normalised activity')
                 %legend('Location', 'south')
 
-                ax = subplot(1, 15, 5*p);
+                ax = subplot(2, 15, 5*p+15);
                 a = area([0 1], [corr corr]);
                 a.FaceAlpha = 0.6;
                 a.FaceColor = color;
