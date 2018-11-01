@@ -141,113 +141,69 @@ classdef Blinklocation
             model = obj.Parent.Parent.Modelblink;
             events = obj.getblinkevents;
             events = activity(events(blinknumber), 50000, 1/obj.Parent.Parent.AmplitudeScale, true);
-            z = zeros(1, length(model.AverageOff));
             opts={'FaceAlpha', 0.1, 'FaceColor', 'black', 'DisplayName', 'continuous model'};
-            scale = 1;
             
-            ax = subplot(2,15,21:24);
-            subplot(2,15,30)
-            subplot(2,15,26:29)
-            
-            %%%%%%third
-            [line1, line2, patch] = fill_between(1:length(model.AverageOff), z, model.AverageOff*scale, model.AverageOff > z, opts{:});
-            line1.delete;
-            line2.delete;
-            patch.EdgeAlpha = 0;
-            hold on
-            divisor = events.ts(end) - obj.Parent.Parent.BlinkLength;
-            for i = 1:length(events.ts)
-                index = ceil(mod(events.ts(i), divisor)/100);
-                if index == 0
-                    index = 1;
+            for p = 1:3
+                ax = subplot(1, 15, 1+(p-1)*5:4+(p-1)*5);
+                z = zeros(1, length(model.AverageOff));
+                [line1, line2, patch] = fill_between(1:length(model.AverageOff), z, model.AverageOff, model.AverageOff > z, opts{:});
+                line1.delete;
+                line2.delete;
+                patch.EdgeAlpha = 0;
+                divisor = events.ts(end) - obj.Parent.Parent.BlinkLength;
+                hold on
+                if p == 1
+                    corr = 0.3;
+                    color = 'red';
+                    intersect = zeros(1,length(z));
+                    
+                elseif p == 2
+                    corr = 0.62;
+                    color = 'yellow';
+                    for i = 1:length(events.ts)
+                        index = ceil(mod(events.ts(i), divisor)/100);
+                        if index == 0
+                            index = 1;
+                        end
+                        z(index) = events.activityOff(i);
+                    end
+                    z = [zeros(1, 718), z(1:1782)];
+                    intersect = zeros(1,length(z));
+                    intersect(z > 0) = model.AverageOff(z > 0);
+                    
+                elseif p == 3
+                    corr = 0.92;
+                    color = 'green';
+                    for i = 1:length(events.ts)
+                        index = ceil(mod(events.ts(i), divisor)/100);
+                        if index == 0
+                            index = 1;
+                        end
+                        z(index) = events.activityOff(i);
+                    end
+                    intersect = zeros(1,length(z));
+                    intersect(z > 0) = model.AverageOff(z > 0);
                 end
-                z(index) = events.activityOff(i);
+                
+                intersect(intersect == 0) = nan;
+                stem(intersect, ':k', 'filled', 'DisplayName', 'sparse model');
+                z(z==0) = nan;
+                h = stem(z, ':^b', 'filled', 'DisplayName', 'activity of events received');
+                xticklabels('')
+                xlabel('250ms')
+                ylabel('normalised activity')
+                %legend('Location', 'south')
+
+                ax = subplot(1, 15, 5*p);
+                a = area([0 1], [corr corr]);
+                a.FaceAlpha = 0.6;
+                a.FaceColor = color;
+                xticklabels('')
+                xticks([0 1])
+                ylabel('correlation score')
+                ylim([0 1])
             end
-            intersect(z > 0) = model.AverageOff(z > 0)*scale;
-            intersect(intersect == 0) = nan;
-            stem(intersect, ':k', 'filled', 'DisplayName', 'sparse model');
-            z(z==0) = nan;
-            h = stem(z, ':^b', 'filled', 'DisplayName', 'activity of events received');
-            xticklabels('')
-            xlabel('250ms')
-            ylabel('normalised activity')
-            %legend('Location', 'south')
             
-            a = area([0 1], [0.92 0.92]);
-            a.FaceAlpha = 0.6;
-            a.FaceColor = 'green';
-            xticklabels('')
-            xticks([0 1])
-            ylabel('correlation score')
-            ylim([0 1])
-            
-            %%twooooo
-            z = zeros(1, length(model.AverageOff));
-            [line1, line2, patch] = fill_between(1:length(model.AverageOff), z, model.AverageOff*scale, model.AverageOff > z, opts{:});
-            line1.delete;
-            line2.delete;
-            patch.EdgeAlpha = 0;
-            z = [zeros(1, 718), z(1:1782)];
-            intersect = zeros(1,length(z));
-            intersect(z > 0) = model.AverageOff(z > 0)*scale;
-            intersect(intersect == 0) = nan;
-            stem(ax, intersect, ':k', 'filled', 'DisplayName', 'sparse model');
-            z(z==0) = nan;
-            h = stem(ax, z, ':^b', 'filled', 'DisplayName', 'activity of events received');
-            xticklabels('')
-            xlabel('250ms')
-            ylabel('normalised activity')
-            %legend('Location', 'northwest')
-            
-            subplot(2,15,25)
-            a = area([0 1], [0.52 0.52]);
-            a.FaceAlpha = 0.6;
-            a.FaceColor = 'yellow';
-            xticklabels('')
-            xticks([0 1])
-            ylabel('correlation score')
-            ylim([0 1])
-            
-            %%%%%%%%%%%%first
-            subplot(2,15,16:19)
-            tileWidth = obj.Parent.TileSizes(1);
-            tileHeight = obj.Parent.TileSizes(2);
-            eye = crop_spatial(obj.Parent.Eventstream, obj.Location(1)-tileWidth/2, obj.Location(2)-tileHeight/2, tileWidth, tileHeight);
-            eye = activity(eye, obj.Parent.Parent.ActivityDecayConstant, (1 / obj.Parent.Parent.AmplitudeScale) * obj.AmplitudeScaleScale);
-            z = zeros(1, length(model.AverageOff));
-            [line1, line2, patch] = fill_between(1:length(model.AverageOff), z, model.AverageOff*scale, model.AverageOff > z, opts{:});
-            line1.delete;
-            line2.delete;
-            patch.EdgeAlpha = 0;
-            hold on
-            divisor = events.ts(end) - obj.Parent.Parent.BlinkLength;
-            for i = 1:length(events.ts)
-                index = ceil(mod(events.ts(i), divisor)/100);
-                if index == 0
-                    index = 1;
-                end
-                z(index) = events.activityOff(i);
-            end
-            z = [zeros(1, 718), z(1:1782)];
-            intersect = zeros(1,length(z));
-            intersect(z > 0) = model.AverageOff(z > 0)*scale;
-            intersect(intersect == 0) = nan;
-            stem(intersect, ':k', 'filled', 'DisplayName', 'sparse model');
-            z(z==0) = nan;
-            h = stem(z, ':^b', 'filled', 'DisplayName', 'activity of events received');
-            xticklabels('')
-            xlabel('250ms')
-            ylabel('normalised activity')
-            %legend('Location', 'northwest')
-            
-            subplot(2,15,20)
-            a = area([0 1], [0.52 0.52]);
-            a.FaceAlpha = 0.6;
-            a.FaceColor = 'yellow';
-            xticklabels('')
-            xticks([0 1])
-            ylabel('correlation score')
-            ylim([0 1])
         end
         
     end
