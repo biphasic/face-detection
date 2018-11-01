@@ -135,6 +135,50 @@ classdef Blinklocation
             csvwrite(path, m);
         end
         
+        function plotmodelversusevents(obj, blinknumber)
+            close all
+            figure
+            model = obj.Parent.Parent.Modelblink;
+            decayedEvents = obj.getblinks;
+            decayedEvents = decayedEvents(1,:);
+            events = obj.getblinkevents;
+            events = activity(events(blinknumber), 50000, 1/obj.Parent.Parent.AmplitudeScale, true);
+            z = zeros(1, length(model.AverageOff));
+            opts={'FaceAlpha', 0.1, 'FaceColor', 'black', 'DisplayName', 'continuous model'};
+            scale = 1;
+            subplot(1,5,1:4)
+            [line1, line2, patch] = fill_between(1:length(model.AverageOff), z, model.AverageOff*scale, model.AverageOff > z, opts{:});
+            line1.delete;
+            line2.delete;
+            patch.EdgeAlpha = 0;
+            hold on
+            divisor = events.ts(end) - obj.Parent.Parent.BlinkLength;
+            for i = 1:length(events.ts)
+                index = ceil(mod(events.ts(i), divisor)/100);
+                if index == 0
+                    index = 1;
+                end
+                z(index) = events.activityOff(i);
+            end
+            intersect(z > 0) = model.AverageOff(z > 0)*scale;
+            intersect(intersect == 0) = nan;
+            stem(intersect, ':k', 'filled', 'DisplayName', 'activity for model for events received');
+            z(z==0) = nan;
+            h = stem(z, ':^b', 'filled', 'DisplayName', 'activity of events received');
+            xticklabels('')
+            xlabel('250ms')
+            ylabel('normalised activity')
+            legend()
+            
+            subplot(1,5,5)
+            a = area([0 1], [0.92 0.92]);
+            a.FaceAlpha = 0.6;
+            a.FaceColor = 'green';
+            xticklabels('')
+            xticks([0 1])
+            ylabel('correlation score')
+        end
+        
     end
 end
 
