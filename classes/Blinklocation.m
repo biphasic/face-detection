@@ -135,7 +135,44 @@ classdef Blinklocation
             csvwrite(path, m);
         end
         
-        function plotmodelversusevents(obj, blinknumber)
+        function plotsinglemodelversusevents(obj, blinknumber)
+            close all
+            figure
+            model = obj.Parent.Parent.Modelblink;
+            events = obj.getblinkevents;
+            events = activity(events(blinknumber), 50000, 1/obj.Parent.Parent.AmplitudeScale, true);
+            opts={'FaceAlpha', 0.1, 'FaceColor', 'black', 'DisplayName', 'continuous model'};
+            
+            z = zeros(1, length(model.AverageOff));
+            [line1, line2, patch] = fill_between(1:length(model.AverageOff), z, model.AverageOff, model.AverageOff > z, opts{:});
+            line1.delete;
+            line2.delete;
+            patch.EdgeAlpha = 0;
+            divisor = events.ts(end) - obj.Parent.Parent.BlinkLength;
+            hold on
+
+            for i = 1:length(events.ts)
+                index = ceil(mod(events.ts(i), divisor)/100);
+                if index == 0
+                    index = 1;
+                end
+                z(index) = events.activityOff(i);
+            end
+            intersect = zeros(1,length(z));
+            intersect(z > 0) = model.AverageOff(z > 0);
+
+            intersect(intersect == 0) = nan;
+            stem(intersect, ':k', 'filled', 'DisplayName', 'sparse model');
+            z(z==0) = nan;
+            stem(z, ':^', 'filled', 'DisplayName', 'activity of events received', 'Color', obj.Parent.Parent.Parent.OffColour);
+            xticklabels('')
+            xlabel('250ms')
+            ylim([0 1.1])
+            ylabel('normalised activity')
+            legend('Location', 'south')
+        end
+        
+        function plotmultiplemodelsversusevents(obj, blinknumber)
             close all
             figure
             model = obj.Parent.Parent.Modelblink;
