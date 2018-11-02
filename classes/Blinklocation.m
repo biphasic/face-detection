@@ -154,16 +154,17 @@ classdef Blinklocation
             x = continuum.ts(mask);
             y1 = continuum.activityOn(mask);
             y2 = continuum.activityOff(mask);
-            plot(x, y1, 'Color', obj.Parent.Parent.Parent.OnColour);
-            hold on
-            plot(x, y2, 'Color', obj.Parent.Parent.Parent.OffColour);            
+            %plot(x, y1, 'Color', obj.Parent.Parent.Parent.OnColour);
+            %plot(x, y2, 'Color', obj.Parent.Parent.Parent.OffColour);
             xlim([obj.Times(blinknumber)-1200000 obj.Times(blinknumber)+1000000])
             %opts1={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.Parent.OnColour};%rot
-            %opts2={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.Parent.OffColour};%blau
+            opts2={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.Parent.OffColour};%blau
             %fill_between(x, y2, y1, y2 < y1, opts1{:});
-            %fill_between(x, z, y2, y2 > z, opts2{:});
+            fill_between(x, z, y2, y2 > z, opts2{:});
+            hold on
             windows = [9800000, obj.Times(blinknumber)-80000, obj.Times(blinknumber)];
             for w = 1:length(windows)
+                %a = line([windows(w) windows(w)], [0 1.2])
                 a = area([windows(w), windows(w)+obj.Parent.Parent.BlinkLength], [1 1]);
                 a.FaceAlpha = 0.1;
                 if w == 1
@@ -174,9 +175,12 @@ classdef Blinklocation
                     a.FaceColor = 'green';
                 end
             end
+            xticklabels('')
+            xlabel('2000ms')
+            legend()
             
             for p = 1:3
-                ax = subplot(2, 15, 1+(p-1)*5+15:4+(p-1)*5+15);
+                subplot(2, 15, 1+(p-1)*5+15:4+(p-1)*5+15);
                 z = zeros(1, length(model.AverageOff));
                 [line1, line2, patch] = fill_between(1:length(model.AverageOff), z, model.AverageOff, model.AverageOff > z, opts{:});
                 line1.delete;
@@ -187,7 +191,19 @@ classdef Blinklocation
                 if p == 1
                     corr = 0.3;
                     color = 'red';
+                    mask = and(eye.ts > 9800000, eye.ts < 9800000+obj.Parent.Parent.BlinkLength);
+                    timestamps = eye.ts(mask);
+                    divisor = timestamps(end) - obj.Parent.Parent.BlinkLength;
+                    activityOff = eye.activityOff(mask);
+                    for i = 1:length(timestamps)
+                        index = ceil(mod(timestamps(i), divisor)/100);
+                        if index == 0
+                            index = 1;
+                        end
+                        z(index) = activityOff(i);
+                    end
                     intersect = zeros(1,length(z));
+                    intersect(z > 0) = model.AverageOff(z > 0);
                     
                 elseif p == 2
                     corr = 0.62;
@@ -220,13 +236,14 @@ classdef Blinklocation
                 intersect(intersect == 0) = nan;
                 stem(intersect, ':k', 'filled', 'DisplayName', 'sparse model');
                 z(z==0) = nan;
-                h = stem(z, ':^', 'filled', 'DisplayName', 'activity of events received', 'Color', obj.Parent.Parent.Parent.OffColour);
+                stem(z, ':^', 'filled', 'DisplayName', 'activity of events received', 'Color', obj.Parent.Parent.Parent.OffColour);
                 xticklabels('')
                 xlabel('250ms')
+                ylim([0 1.1])
                 %ylabel('normalised activity')
                 %legend('Location', 'south')
 
-                ax = subplot(2, 15, 5*p+15);
+                subplot(2, 15, 5*p+15);
                 a = area([0 1], [corr corr]);
                 a.FaceAlpha = 0.6;
                 a.FaceColor = color;
