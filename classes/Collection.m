@@ -47,10 +47,14 @@ classdef Collection < dynamicprops
             subjects = obj.getsubjects;
             num = numel(subjects);
             for s = 1:numel(subjects)
-               if s == 1
-                   blink = obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingFactor);
+               if obj.(subjects{s}).gettrainingrecordingindex ~= 0
+                   if ~exist('blink', 'var')
+                       blink = obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingFactor);
+                   else
+                       blink = blink + obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingFactor);
+                   end
                else
-                   blink = blink + obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingFactor);
+                   continue
                end
             end
             blink = blink / num;
