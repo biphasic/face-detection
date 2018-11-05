@@ -22,9 +22,11 @@ classdef Subject < handle
             obj.Recordings{1,number} = Recording(number, eventStream, isTrainingRecording, obj);
         end
         
-        function index = gettrainingrecordingindex(obj)
+        function training = gettrainingrecordingindex(obj)
+            training = 0;
             for index = 1:numel(obj.Recordings)
                 if ~isempty(obj.Recordings{index}) && obj.Recordings{index}.IsTrainingRecording
+                    training = index;
                     break
                 end
             end
