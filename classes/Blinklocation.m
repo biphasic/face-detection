@@ -128,7 +128,7 @@ classdef Blinklocation
             %sometimes it is desired to rather show the events 
             %stem(eye.ts, eye.activityOn/subjects.(names{s}).AmplitudeScale);
             %stem(eye.ts, -eye.activityOff/subjects.(names{s}).AmplitudeScale);
-            path = '/home/gregorlenz/Recordings/face-detection/indoor/printing-with-matplotlib/activity-detail.csv';
+            path = '/home/gregorlenz/Recordings/face-detection/plotting-with-matplotlib/activity-detail.csv';
             times = zeros(1, length(y2));
             times(1:length(obj.Times)) = obj.Times;
             m = [x; y1; y2; times];

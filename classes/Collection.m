@@ -45,13 +45,15 @@ classdef Collection < dynamicprops
                 disp(['Using default smoothing factor of ', num2str(smoothingFactor)]);
             end
             subjects = obj.getsubjects;
-            num = numel(subjects);
+            num = 0;
             for s = 1:numel(subjects)
                if obj.(subjects{s}).gettrainingrecordingindex ~= 0
                    if ~exist('blink', 'var')
                        blink = obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingFactor);
+                       num = num + 1;
                    else
                        blink = blink + obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingFactor);
+                       num = num + 1;
                    end
                else
                    continue
@@ -80,7 +82,7 @@ classdef Collection < dynamicprops
             ax.mainLine.LineWidth = 3;
             ylim([0 inf])
             file = [1:1:length(m.AverageOn); m.AverageOn; m.AverageOff; m.VarianceOn; m.VarianceOff]';
-            csvwrite('/home/gregorlenz/Recordings/face-detection/indoor/printing-with-matplotlib/average-blink-model.csv', file)
+            csvwrite('/home/gregorlenz/Recordings/face-detection/plotting-with-matplotlib/average-blink-model.csv', file)
         end
         
         function ploteachmodelblink(obj)
