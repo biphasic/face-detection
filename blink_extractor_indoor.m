@@ -59,6 +59,8 @@ for s = 1:numel(names)
         rec.Left.Times = 17548425;
         rec.Right.Location = [183 152];
         rec.Right.Times = [27241850    30502010];
+        subject.addrecording(2, recordingsIndoor.(name)(2), false);
+        subject.addrecording(3, recordingsIndoor.(name)(3), false);
     else
         for r = 1:length(recordingsIndoor.(name))
             subject.addrecording(r, recordingsIndoor.(name)(r), false);

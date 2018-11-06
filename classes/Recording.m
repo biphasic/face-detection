@@ -175,7 +175,7 @@ classdef Recording < handle
       
         function detectblinks(obj)
             if isempty(obj.EventstreamGrid1)
-                disp('no correlation data present, starting computation...')
+                disp(['no correlation data present for rec no ', num2str(obj.Number), ', starting computation...'])
                 obj.calculatecorrelation;
             end
             disp(['detecting blink for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
@@ -244,7 +244,7 @@ classdef Recording < handle
                 
         function calculatetracking(obj)
             if isempty(obj.Blinks)
-               disp('no blinks detected yet, triggering detection...')
+               disp(['no blinks detected yet for rec no ', num2str(obj.Number), ', triggering detection...'])
                obj.detectblinks
             end
             disp(['calculating tracking for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
@@ -362,7 +362,7 @@ classdef Recording < handle
         function res = calculatetrackingerror(obj)
             if obj.readGT
                 if ~isfield(obj.Eventstream, 'leftTracker')
-                    disp('no tracking data present, starting computation...')
+                    disp(['no tracking data present for rec no ', num2str(obj.Number), ', starting computation...'])
                     obj.calculatetracking
                 end
                 %figure
@@ -388,7 +388,7 @@ classdef Recording < handle
         
         function plottracking(obj, varargin)
             if ~isfield(obj.Eventstream, 'leftTracker')
-               disp('no tracking data present, starting computation...')
+               disp(['no tracking data present for rec no ', num2str(obj.Number), ', starting computation...'])
                obj.calculatetracking
             end
             if nargin > 1
