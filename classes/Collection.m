@@ -38,6 +38,21 @@ classdef Collection < dynamicprops
                 obj.(subjects{s}).gettrainingrecording.calculatecorrelation;
             end
         end
+        
+        function showtrackingerrorandblinkdetectionrate(obj)
+            subjects = obj.getsubjects;
+            av = 0;
+            num = 0;
+            for s = 1:numel(subjects)
+                err = obj.(subjects{s}).calculateaverageerror;
+                if err > 0
+                    av = av + err;
+                    num = num + 1;
+                end
+            end
+            av = av / num;
+            disp(['tracking error for collection ', obj.DatasetType, ': ', num2str(av)])
+        end
 
         function blink = getaveragemodelblink(obj, smoothingFactor)
             if ~exist('smoothingFactor','var')
