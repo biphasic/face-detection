@@ -13,6 +13,7 @@ classdef Recording < handle
         Dimensions = [304, 240]
         GridSizes = [16, 16]
         GT = []
+        AverageError = 0
         Parent
     end
     properties (Dependent)
@@ -347,11 +348,32 @@ classdef Recording < handle
             result = false;
             if exist(path, 'file') == 2
                 csv = csvread(path);
-                obj.GT.t = csv(:,1)';
-                obj.GT.x = csv(:,2)';
-                obj.GT.y = csv(:,3)';
-                obj.GT.width = csv(:,4)';
+                obj.GT.ts = csv(:,1)';
+                obj.GT.x = (csv(:,2)+csv(:,4)/2)';
+                obj.GT.y = obj.Dimensions(2) - (csv(:,3)' + 0.43 * csv(:,4)');
+                %obj.GT.width = csv(:,4)';
                 result = true;
+            end
+        end
+        
+        function calculatetrackingerror(obj)
+            if obj.readGT
+                %figure
+                tracker = (obj.Eventstream.leftTracker + obj.Eventstream.rightTracker) / 2;
+                trackerX = tracker(:,1)';
+                trackerY = tracker(:,2)';
+                [~, ia, ~] = unique(obj.Eventstream.ts);
+                interpolatedX = interp1(obj.Eventstream.ts(ia), trackerX(ia), obj.GT.ts);
+                interpolatedY = interp1(obj.Eventstream.ts(ia), trackerY(ia), obj.GT.ts);
+                %scatter3(obj.GT.ts, obj.GT.x, obj.GT.y)
+                %hold on
+                %scatter3(obj.GT.ts, interpolatedX, interpolatedY);
+                deviation = sqrt((obj.GT.x - interpolatedX).^2 + (obj.GT.y - interpolatedY).^2);
+                obj.AverageError = mean(deviation(~isnan(deviation)));
+                disp(['average error is ', num2str(obj.AverageError)])
+                %rel = sum(deviation(~isnan(deviation)))/obj.GT.ts(end)
+            else
+                error('could not read GT')
             end
         end
         
@@ -410,7 +432,7 @@ classdef Recording < handle
             
             %print GT
             if obj.readGT
-                scatter3(ax, obj.GT.x+obj.GT.width/2, -obj.GT.t, obj.Dimensions(2)-(obj.GT.y+0.43*obj.GT.width), 'yellow')
+                scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'blue')
             end
         end
         
