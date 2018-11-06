@@ -16,6 +16,7 @@ classdef Subject < handle
             obj.Name = name;
             obj.Modelblink = Modelblink();
             obj.Parent = parent;
+            disp(['created subject ', name])
         end
 
         function obj = addrecording(obj, number, eventStream, isTrainingRecording)
