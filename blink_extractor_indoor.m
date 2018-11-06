@@ -42,11 +42,13 @@ for s = 1:numel(names)
         subject.addrecording(1, recordingsIndoor.(name)(1), true);
         rec = subject.Recordings{1};
         rec.Center.Location = [132 128];
-        rec.Center.Times = [1000000, 4900000 14350000];
+        rec.Center.Times = [1013000   4925820  14376820];
         rec.Left.Location = [74 124];
-        rec.Left.Times = [20320000, 28190000 28900000, 30370000, 31150000];
+        rec.Left.Times = [20334090  28176130  28968990  30392610  31155690];
         rec.Right.Location = [189 125];
-        rec.Right.Times = [35340000, 43430000];
+        rec.Right.Times = [35374390  43454550];
+        subject.addrecording(2, recordingsIndoor.(name)(2), false);
+        subject.addrecording(3, recordingsIndoor.(name)(3), false);
     else
         for r = 1:length(recordingsIndoor.(name))
             subject.addrecording(r, recordingsIndoor.(name)(r), false);
