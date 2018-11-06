@@ -39,11 +39,14 @@ for s = 1:numel(names)
         subject.addrecording(1, recordingsIndoor.(name)(1), false);
         subject.addrecording(2, recordingsIndoor.(name)(2), false);
     elseif strcmp(name, 'suzon')
-        subject.addrecording(1, recordingsIndoor.(name)(1), false);
+        subject.addrecording(1, recordingsIndoor.(name)(1), true);
         rec = subject.Recordings{1};
-        rec.Center.Location = [132 138];
+        rec.Center.Location = [132 128];
+        rec.Center.Times = [1000000, 4900000 14350000];
         rec.Left.Location = [74 124];
+        rec.Left.Times = [20320000, 28190000 28900000, 30370000, 31150000];
         rec.Right.Location = [189 125];
+        rec.Right.Times = [35340000, 43430000];
     else
         for r = 1:length(recordingsIndoor.(name))
             subject.addrecording(r, recordingsIndoor.(name)(r), false);
