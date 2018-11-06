@@ -12,6 +12,7 @@ classdef Recording < handle
         Right
         Dimensions = [304, 240]
         GridSizes = [16, 16]
+        GT = []
         Parent
     end
     properties (Dependent)
@@ -268,51 +269,6 @@ classdef Recording < handle
             end
             obj.Eventstream = rec;
         end
-        
-        function continuousdetection(obj)
-        % continuous detection and scaling according to distance between trackers
-        tic
-            counter = 0;
-            rec = obj.Eventstream;
-            modelblink = obj.Parent.Modelblink;
-            growConstant = obj.Parent.AmplitudeScale;
-            allTimestamps = rec.ts;
-            grid(obj.GridSizes(1), obj.GridSizes(2)) = Tile();
-            for i = 1:obj.GridSizes(1)
-                for j = 1:obj.GridSizes(2)
-                    grid(i, j).initialise(obj.Parent.ActivityDecayConstant, growConstant, allTimestamps, obj.Parent.BlinkLength);
-                end
-            end
-            tileSizes = obj.TileSizes;
-
-            for i = 1:length(rec.ts)/8
-                row = ceil(rec.y(i) / tileSizes(2));
-                col = ceil(rec.x(i) / tileSizes(1));
-                currentts = allTimestamps(i);
-                pol = rec.p(i);
-                if row == 0
-                    row = 1;
-                end
-                if col == 0
-                    col = 1;
-                end
-                
-                % update activity
-                grid(row, col).updateactivity(currentts, pol, growConstant);
-
-                % update buffers
-                numOff = grid(row, col).updatebuffer(i, currentts, pol, growConstant);
-                
-                % correlate buffer if high enough
-                if numOff > growConstant/3 && numOff < 5*growConstant
-                    counter = counter + 1;
-                    %grid(row.col).correlation(modelblink, obj.Parent.ModelSubsamplingRate)
-                end
-            end
-            disp(counter)
-            delete(grid)
-        toc
-        end
 
         function plotcorrelation(obj, varargin)
             if isempty(obj.EventstreamGrid1)
@@ -386,6 +342,19 @@ classdef Recording < handle
             legend(ax, 'left eye detected', 'right eye detected', 'Location', 'best')
         end
 
+        function result = readGT(obj)
+            path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/run', num2str(obj.Number), '-frames.csv'];
+            result = false;
+            if exist(path, 'file') == 2
+                csv = csvread(path);
+                obj.GT.t = csv(:,1)';
+                obj.GT.x = csv(:,2)';
+                obj.GT.y = csv(:,3)';
+                obj.GT.width = csv(:,4)';
+                result = true;
+            end
+        end
+        
         function plottracking(obj, varargin)
             if ~isfield(obj.Eventstream, 'leftTracker')
                disp('No tracking data present, starting computation...')
@@ -401,8 +370,15 @@ classdef Recording < handle
             scatter3(ax, obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red',  'Displayname', 'left eye tracker');
             hold on 
             scatter3(ax, obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green', 'Displayname', 'right eye tracker');
+            
             %print screenshots
-            blinkstoprint = [1 4 6];
+            blinkstoprint = [1 1 length(obj.Blinks)];
+            for index = 2:length(obj.Blinks)
+                if obj.Blinks(index).ts > 11000000
+                    blinkstoprint(2) = index;
+                    break;
+                end
+            end
             for i = 1:length(blinkstoprint)
                 closestScreenshot = round(obj.Blinks(blinkstoprint(i)).ts / 1000000);
                 framepath = (['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', lower(obj.Parent.Name), '/', num2str(obj.Number), '/frames/', num2str(closestScreenshot), '.png']);
@@ -421,15 +397,21 @@ classdef Recording < handle
                     X = [0 obj.Dimensions(1); 0 obj.Dimensions(1)];
                     Y = -[obj.Blinks(blinkstoprint(i)).ts obj.Blinks(blinkstoprint(i)).ts; obj.Blinks(blinkstoprint(i)).ts obj.Blinks(blinkstoprint(i)).ts];
                     Z = [obj.Dimensions(2) obj.Dimensions(2); 0 0];
-                    s = surface(X, Y, Z, img,'FaceColor','texturemap')%,'FaceAlpha', 0.7);
+                    surface(X, Y, Z, img,'FaceColor','texturemap')%,'FaceAlpha', 0.7);
                 end
             end
+            %format axes
             title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
             xlim([0 obj.Dimensions(1)])
             zlim([0 obj.Dimensions(2)])
             ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
             a = legend('show');
             a.String(end-length(blinkstoprint)+1:end) = '';
+            
+            %print GT
+            if obj.readGT
+                scatter3(ax, obj.GT.x+obj.GT.width/2, -obj.GT.t, obj.Dimensions(2)-(obj.GT.y+0.43*obj.GT.width), 'yellow')
+            end
         end
         
         function plottileactivity(obj, grid, x, y)
