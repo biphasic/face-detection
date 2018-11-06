@@ -8,6 +8,7 @@ classdef Subject < handle
         BlinkLength = 250000
         ModelSubsamplingRate = 100
         ActivityDecayConstant = 50000
+        AverageTrackingError = 0
         Parent
     end
 
@@ -53,6 +54,20 @@ classdef Subject < handle
                     obj.Recordings{r}.calculatecorrelation();
                 end
             end
+        end
+        
+        function average = calculateaverageerror(obj)
+            average = 0;
+            num = 0;
+            for r = 1:numel(obj.Recordings)
+                if obj.Recordings{r}.calculatetrackingerror
+                    average = average + obj.Recordings{r}.AverageTrackingError;
+                    num = num + 1;
+                end
+            end
+            average = average / num;
+            obj.AverageTrackingError = average;
+            disp(['average tracking error for subject ', obj.Name, ': ', num2str(obj.AverageTrackingError)])
         end
         
         function exportmodelblink(obj)

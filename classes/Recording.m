@@ -13,7 +13,7 @@ classdef Recording < handle
         Dimensions = [304, 240]
         GridSizes = [16, 16]
         GT = []
-        AverageError = 0
+        AverageTrackingError = 0
         Parent
     end
     properties (Dependent)
@@ -102,6 +102,7 @@ classdef Recording < handle
         end
         
         function calculatecorrelation(obj, varargin)
+            disp(['calculating correlation for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
             if nargin > 1 && isa(varargin{1}, 'Modelblink')
                 disp('inserted new Modelblink for correlation')
                 modelblink = varargin{1};
@@ -174,9 +175,10 @@ classdef Recording < handle
       
         function detectblinks(obj)
             if isempty(obj.EventstreamGrid1)
-                disp('No correlation data present, starting computation...')
+                disp('no correlation data present, starting computation...')
                 obj.calculatecorrelation;
             end
+            disp(['detecting blink for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
             obj.Blinks = Blink(1,1,1,1,1);
             blinkIndex = 1;
             combinedGrid = merge_streams(obj.EventstreamGrid1, obj.EventstreamGrid2);
@@ -242,9 +244,10 @@ classdef Recording < handle
                 
         function calculatetracking(obj)
             if isempty(obj.Blinks)
-               disp('No blinks detected yet which are necessary to calcute tracking')
+               disp('no blinks detected yet, triggering detection...')
                obj.detectblinks
             end
+            disp(['calculating tracking for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
             rec = obj.Eventstream;
             rec.leftTracker = nan(length(rec.ts), 2);
             rec.rightTracker = nan(length(rec.ts), 2);
@@ -356,8 +359,12 @@ classdef Recording < handle
             end
         end
         
-        function calculatetrackingerror(obj)
+        function res = calculatetrackingerror(obj)
             if obj.readGT
+                if ~isfield(obj.Eventstream, 'leftTracker')
+                    disp('no tracking data present, starting computation...')
+                    obj.calculatetracking
+                end
                 %figure
                 tracker = (obj.Eventstream.leftTracker + obj.Eventstream.rightTracker) / 2;
                 trackerX = tracker(:,1)';
@@ -369,17 +376,19 @@ classdef Recording < handle
                 %hold on
                 %scatter3(obj.GT.ts, interpolatedX, interpolatedY);
                 deviation = sqrt((obj.GT.x - interpolatedX).^2 + (obj.GT.y - interpolatedY).^2);
-                obj.AverageError = mean(deviation(~isnan(deviation)));
-                disp(['average error is ', num2str(obj.AverageError)])
+                obj.AverageTrackingError = mean(deviation(~isnan(deviation)));
+                disp(['tracking error for rec no ', num2str(obj.Number), ': ', num2str(obj.AverageTrackingError)])
                 %rel = sum(deviation(~isnan(deviation)))/obj.GT.ts(end)
+                res = true;
             else
-                error('could not read GT')
+                disp(['could not read GT for rec no ', num2str(obj.Number)])
+                res = false;
             end
         end
         
         function plottracking(obj, varargin)
             if ~isfield(obj.Eventstream, 'leftTracker')
-               disp('No tracking data present, starting computation...')
+               disp('no tracking data present, starting computation...')
                obj.calculatetracking
             end
             if nargin > 1
