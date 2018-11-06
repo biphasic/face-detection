@@ -54,11 +54,11 @@ for s = 1:numel(names)
         subject.addrecording(1, recordingsIndoor.(name)(1), true);
         rec = subject.Recordings{1};
         rec.Center.Location = [130 162];
-        rec.Center.Times = [4236000, 9017000, 10230000];
+        rec.Center.Times = [4236000     9032820    10240740];
         rec.Left.Location = [32 137];
-        rec.Left.Times = [15000000];
+        rec.Left.Times = 17548425;
         rec.Right.Location = [183 152];
-        rec.Right.Times = [27220000 30490000];
+        rec.Right.Times = [27241850    30502010];
     else
         for r = 1:length(recordingsIndoor.(name))
             subject.addrecording(r, recordingsIndoor.(name)(r), false);

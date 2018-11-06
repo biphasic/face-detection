@@ -123,8 +123,10 @@ classdef Blinklocation
             y2 = continuum.activityOff(mask);
             opts1={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.Parent.OnColour};%rot
             opts2={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.Parent.OffColour};%blau
-            fill_between(x, y2, y1, y2 < y1, opts1{:});
-            fill_between(x, z, y2, y2 > z, opts2{:});
+            %fill_between(x, y2, y1, y2 < y1, opts1{:});
+            %fill_between(x, z, y2, y2 > z, opts2{:});
+            plot(x, y1, 'r')
+            plot(x, y2, 'b')
             %sometimes it is desired to rather show the events 
             %stem(eye.ts, eye.activityOn/subjects.(names{s}).AmplitudeScale);
             %stem(eye.ts, -eye.activityOff/subjects.(names{s}).AmplitudeScale);
@@ -189,7 +191,7 @@ classdef Blinklocation
             mask = and(continuum.ts > ((obj.Times(1)-1200000)), continuum.ts < ((obj.Times(1)+1000000)));
             z = zeros(1, length(continuum.activityOn(mask)));
             x = continuum.ts(mask);
-            y1 = continuum.activityOn(mask);
+            %y1 = continuum.activityOn(mask);
             y2 = continuum.activityOff(mask);
             %plot(x, y1, 'Color', obj.Parent.Parent.Parent.OnColour);
             %plot(x, y2, 'Color', obj.Parent.Parent.Parent.OffColour);
