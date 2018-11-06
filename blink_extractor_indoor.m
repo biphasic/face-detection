@@ -1,4 +1,5 @@
 if ~exist('recordingsIndoor', 'var')
+    disp('loading compressed recordings from file...')
     load('recordingsIndoor.mat')
 end
 names = fieldnames(recordingsIndoor);
@@ -49,6 +50,15 @@ for s = 1:numel(names)
         rec.Right.Times = [35374390  43454550];
         subject.addrecording(2, recordingsIndoor.(name)(2), false);
         subject.addrecording(3, recordingsIndoor.(name)(3), false);
+    elseif strcmp(name, 'mylene')
+        subject.addrecording(1, recordingsIndoor.(name)(1), true);
+        rec = subject.Recordings{1};
+        rec.Center.Location = [130 162];
+        rec.Center.Times = [4236000, 9017000, 10230000];
+        rec.Left.Location = [32 137];
+        rec.Left.Times = [15000000];
+        rec.Right.Location = [183 152];
+        rec.Right.Times = [27220000 30490000];
     else
         for r = 1:length(recordingsIndoor.(name))
             subject.addrecording(r, recordingsIndoor.(name)(r), false);
