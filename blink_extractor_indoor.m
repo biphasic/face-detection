@@ -61,6 +61,15 @@ for s = 1:numel(names)
         rec.Right.Times = [27241850    30502010];
         subject.addrecording(2, recordingsIndoor.(name)(2), false);
         subject.addrecording(3, recordingsIndoor.(name)(3), false);
+    elseif strcmp(name, 'gregor')
+        subject.addrecording(1, recordingsIndoor.(name)(1), true);
+        rec = subject.Recordings{1};
+        rec.Center.Location = [141 157];
+        rec.Center.Times = [2968000     5013780     9743660];
+        rec.Left.Location = [48 145];
+        rec.Left.Times = [18788875    23772195    25834255];
+        rec.Right.Location = [232 147];
+        rec.Right.Times = [33422800    34960200];
     else
         for r = 1:length(recordingsIndoor.(name))
             subject.addrecording(r, recordingsIndoor.(name)(r), false);
