@@ -1,12 +1,14 @@
 if ~exist('outdoorEventsLaure', 'var')
+    disp('loading compressed recordings from file...')
     load('recordingsOutdoor.mat')
 end
 names = {'laure', 'kevin', 'francesco'};
 outdoor = Collection('outdoor');
 for s = 1:numel(names)
-    if s == 1
-        disp('Laure/1-filtered.es')
-        laure = Subject(names{s}, outdoor);
+    name = names{s};
+    addprop(indoor, name);
+    subject = Subject(name, indoor);
+    if strcmp(name, 'laure')
         laure.addrecording(1, outdoorEventsLaure(1), true);
         laure.Recordings{1}.Center.Location = [139 152];
         laure.Recordings{1}.Left.Location =   [ 11 146];
