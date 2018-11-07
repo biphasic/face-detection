@@ -353,7 +353,7 @@ classdef Recording < handle
                 csv = csvread(path);
                 obj.GT.ts = csv(:,1)';
                 obj.GT.x = (csv(:,2)+csv(:,4)/2)';
-                obj.GT.y = obj.Dimensions(2) - (csv(:,3)' + 0.43 * csv(:,4)');
+                obj.GT.y = obj.Dimensions(2) - (csv(:,3)' + 0.40 * csv(:,4)');
                 %obj.GT.width = csv(:,4)';
                 result = true;
             end
