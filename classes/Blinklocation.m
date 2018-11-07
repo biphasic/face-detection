@@ -134,7 +134,11 @@ classdef Blinklocation
             times = zeros(1, length(y2));
             times(1:length(obj.Times)) = obj.Times;
             m = [x; y1; y2; times];
-            csvwrite(path, m);
+            try
+                csvwrite(path, m);
+            catch
+                disp('could not write csv')
+            end
         end
         
         function plotsinglemodelversusevents(obj, blinknumber)

@@ -97,7 +97,11 @@ classdef Collection < dynamicprops
             ax.mainLine.LineWidth = 3;
             ylim([0 inf])
             file = [1:1:length(m.AverageOn); m.AverageOn; m.AverageOff; m.VarianceOn; m.VarianceOff]';
-            csvwrite('/home/gregorlenz/Recordings/face-detection/plotting-with-matplotlib/average-blink-model.csv', file)
+            try
+                csvwrite('/home/gregorlenz/Recordings/face-detection/plotting-with-matplotlib/average-blink-model.csv', file)
+            catch
+                disp('could not write csv')
+            end
         end
         
         function ploteachmodelblink(obj)
