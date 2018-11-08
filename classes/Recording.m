@@ -195,9 +195,9 @@ classdef Recording < handle
             for i = 1:obj.GridSizes(1)
                 for j = 1:obj.GridSizes(2)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
-                    if (i-1) * tile_width < 76
+                    if (i-1) * tile_width <= 87
                         addconst = obj.Left.AmplitudeScaleScale;
-                    elseif (i-1) * tile_width >= 209
+                    elseif (i-1) * tile_width >= 200
                         addconst = obj.Right.AmplitudeScaleScale;
                     else
                         addconst = obj.Center.AmplitudeScaleScale;
@@ -226,9 +226,9 @@ classdef Recording < handle
             for i = 1:(obj.GridSizes(1)-1)
                 for j = 1:(obj.GridSizes(2)-1)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
-                    if (i-1) * tile_width + floor(tile_width/2) <= 76
+                    if (i-1) * tile_width + floor(tile_width/2) <= 87
                         addconst = obj.Left.AmplitudeScaleScale;
-                    elseif (i-1) * tile_width + floor(tile_width/2) >= 209
+                    elseif (i-1) * tile_width + floor(tile_width/2) >= 200
                         addconst = obj.Right.AmplitudeScaleScale;
                     else
                         addconst = obj.Center.AmplitudeScaleScale;
