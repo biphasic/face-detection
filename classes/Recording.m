@@ -409,7 +409,7 @@ classdef Recording < handle
         end
         
         function plotblinks(obj, varargin)
-            if isempty(obj.Blinks)
+            if isempty(obj.Faces)
                 disp('Cannot plot blinks because none have been detected yet, starting detectblinks...')
                 obj.detectblinks;
             end
@@ -419,12 +419,15 @@ classdef Recording < handle
                 figure;
                 ax = gca;
             end
-            for i = 1:length(obj.Blinks)
-                scatter3(ax, obj.Blinks(i).x1, -obj.Blinks(i).ts, obj.Blinks(i).y1, 200, 'black', 'diamond', 'Displayname', 'left blink detected');
-                hold on
-                scatter3(ax, obj.Blinks(i).x2, -obj.Blinks(i).ts, obj.Blinks(i).y2, 200, 'black', 'diamond', 'Displayname', 'right blink detected');
+            colors = {'blue', 'black', 'magenta'};
+            for f = 1:length(obj.Faces)
+                for i = 1:length(obj.Faces(f).Blinks)
+                    scatter3(ax, obj.Faces(f).Blinks(i).x1, -obj.Faces(f).Blinks(i).ts, obj.Faces(f).Blinks(i).y1, 200, colors{f}, 'diamond', 'Displayname', 'left blink detected');
+                    hold on
+                    scatter3(ax, obj.Faces(f).Blinks(i).x2, -obj.Faces(f).Blinks(i).ts, obj.Faces(f).Blinks(i).y2, 200, colors{f}, 'diamond', 'Displayname', 'right blink detected');
+                end
             end
-            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
+            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink in the middle detected at ', num2str(round(obj.Faces(2).Blinks(1).ts/1000000,3)), 's']))
             % x/z
             xlabel('input frame x direction');
             xlim([0 obj.Dimensions(1)])
