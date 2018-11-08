@@ -209,7 +209,7 @@ classdef Recording < handle
                         leftMean = (quadruplet(2,:) + quadruplet(1,:))/2;
                         right = abs(quadruplet(4,:) - quadruplet(3,:));
                         rightMean = (quadruplet(4,:) + quadruplet(3,:))/2;
-                        diff = (rightMean - leftMean);
+                        diff = abs(rightMean - leftMean);
                         if leftDelta(1) < tileWidth && leftDelta(2) < tileHeight && right(1) < tileWidth && right(2) < tileHeight && diff(1) > tileWidth && diff(1) < 50 && diff(2) < tileHeight
                             obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
                             blinkIndex = blinkIndex + 1;
