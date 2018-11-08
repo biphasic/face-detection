@@ -277,8 +277,8 @@ classdef Recording < handle
                 end
                 %last three events are close enough in time and do not have
                 %the same x value
-                if combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
-                    %last 4 events are close enough in time and have the
+                if combinedGrid.y(indices(i)) > 120 && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
+                    %last 3 events and next one are close enough in time and have the
                     %same x value
                     if i ~= length(indices) && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i+1)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-2)), combinedGrid.x(indices(i+1)) )
                         quadruplet = zeros(4, 2);
@@ -290,7 +290,7 @@ classdef Recording < handle
                         leftMean = (quadruplet(2,:) + quadruplet(1,:))/2;
                         right = abs(quadruplet(4,:) - quadruplet(3,:));
                         rightMean = (quadruplet(4,:) + quadruplet(3,:))/2;
-                        diff = (rightMean - leftMean);
+                        diff = abs(rightMean - leftMean);
                         if leftDelta(1) < tileWidth && leftDelta(2) < tileHeight && right(1) < tileWidth && right(2) < tileHeight && diff(1) > tileWidth && diff(1) < 50 && diff(2) < tileHeight
                             obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
                             blinkIndex = blinkIndex + 1;
