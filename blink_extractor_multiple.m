@@ -1,31 +1,34 @@
 if ~exist('multipleEvents', 'var')
+    disp('loading compressed recordings from file...')
     load('recordingsMultiple.mat')
 end
-names = {'jpmarcogregor'};
+names = {'felixkevingregor'};
 multiple = Collection('multiple');
 for s = 1:numel(names)
+    name = names{s};
+    addprop(multiple, name);
+    subject = Subject(name, multiple);
     if s == 1
-        disp('jp-marco-jpmarcogregor/run4.es')
-        jpmarcogregor = Subject(names{s}, multiple);
-        jpmarcogregor.BlinkLength = 300000;
-        n = 6;
-        jpmarcogregor.addrecording(n, multipleEvents(n), true);
-        jpmarcogregor.Recordings{n}.Center.Location = [135 119];
-        jpmarcogregor.Recordings{n}.Center.Times = [1529000     32031200];
-        jpmarcogregor.Recordings{n}.Left.Location = [103 165];
-        jpmarcogregor.Recordings{n}.Left.Times = [24576445];
-        jpmarcogregor.Recordings{n}.Left.AmplitudeScaleScale = 0.2;
-        jpmarcogregor.Recordings{n}.Right.Location =  [202 123];
-        jpmarcogregor.Recordings{n}.Right.Times = [42568445];
-        jpmarcogregor.Recordings{n}.Right.AmplitudeScaleScale = 2;
-        jpmarcogregor.CorrelationThreshold = 0.88;
-        addprop(multiple, jpmarcogregor.Name);
-        multiple.(names{s}) = jpmarcogregor;
+        n = 3;
+        subject.addrecording(n, multipleEvents(n), true);
+        %subject.Recordings{n}.Center.Location = [133 140];
+        subject.Recordings{n}.Center.Location = [51 131];
+        subject.Recordings{n}.Center.Times = [6275000 11230000 15000000];
+        subject.Recordings{n}.Left.Location = [25 136];
+        subject.Recordings{n}.Left.Times = [11230000    14720540 15000000];
+        %subject.Recordings{n}.Left.AmplitudeScaleScale = 0.2;
+        subject.Recordings{n}.Right.Location =  [228 136];
+        subject.Recordings{n}.Right.Times = [19294785];
+        %subject.Recordings{n}.Right.AmplitudeScaleScale = 2;
+        subject.CorrelationThreshold = 0.91;
+        subject.addrecording(1, multipleEvents(1), false);
+        subject.addrecording(2, multipleEvents(2), false);
     end
+    multiple.(name) = subject;
     
-    r = multiple.(names{s}).gettrainingrecordingindex;
+    r = multiple.(name).gettrainingrecordingindex;
     
     multiple.(names{s}).Modelblink = multiple.(names{s}).Recordings{r}.getmodelblink(30);
-        
-    clear(names{s}, 'r', 'm', 'ax', 's')
 end
+
+clear('names', 'rec', 'name', 'subject', 'r', 's')
