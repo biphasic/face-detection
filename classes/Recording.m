@@ -172,6 +172,87 @@ classdef Recording < handle
         function calculatecorrelationwithsuperblink(obj)
             obj.calculatecorrelation(obj.Parent.Parent.Supermodel)
         end
+        
+        function calculatescalecorrelation(obj, varargin)
+            if nargin > 1 && isa(varargin{1}, 'Modelblink')
+                disp('inserted new Modelblink for correlation')
+                modelblink = varargin{1};
+            else
+                disp('Using subject-specific Modelblink')
+                modelblink = obj.Parent.Modelblink;
+            end
+            tic
+            tile_width = obj.TileSizes(1);
+            tile_height = obj.TileSizes(2);
+            c = cell(obj.GridSizes(1), obj.GridSizes(2));
+            c2 = cell(obj.GridSizes(1)-1, obj.GridSizes(2)-1);
+            
+            ts=[];
+            x=[];
+            y=[];
+            corr=[];
+            disp('grid 1')
+            for i = 1:obj.GridSizes(1)
+                for j = 1:obj.GridSizes(2)
+                    tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
+                    if (i-1) * tile_width < 120
+                        addconst = 0.2;
+                    elseif (i-1) * tile_width > 190
+                        addconst = 2;
+                    else
+                        addconst = 1;
+                    end
+                    tile = activity(tile, obj.Parent.ActivityDecayConstant, (1 / obj.Parent.AmplitudeScale) * addconst, true);
+                    tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale / addconst, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                    c{i,j} = tile;
+                    ts = horzcat(ts, tile.ts);
+                    x = horzcat(x, ones(1,length(tile.ts)).*((i-0.5) * (tile_width)));
+                    y = horzcat(y, ones(1,length(tile.ts)).*((j-0.5) * (tile_height)));
+                    corr = horzcat(corr, tile.patternCorrelation);
+                end
+            end
+            fusion = [ts; x; y; corr]';
+            fusion = sortrows(fusion);
+            obj.EventstreamGrid1.ts = fusion(:,1)';
+            obj.EventstreamGrid1.x = fusion(:,2)';
+            obj.EventstreamGrid1.y = fusion(:,3)';
+            obj.EventstreamGrid1.patternCorrelation = fusion(:,4)';
+            
+            ts=[];
+            x=[];
+            y=[];
+            corr=[];
+            disp('grid 2')
+            for i = 1:(obj.GridSizes(1)-1)
+                for j = 1:(obj.GridSizes(2)-1)
+                    tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
+                    if (i-1) * tile_width + floor(tile_width/2) < 120
+                        addconst = 0.2;
+                    elseif (i-1) * tile_width + floor(tile_width/2) > 190
+                        addconst = 2;
+                    else
+                        addconst = 1;
+                    end
+                    tile = activity(tile, obj.Parent.ActivityDecayConstant, (1 / obj.Parent.AmplitudeScale) * addconst, true);
+                    tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale / addconst, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                    c2{i,j} = tile;
+                    ts = horzcat(ts, tile.ts);
+                    x = horzcat(x, ones(1,length(tile.ts)).*(i * tile_width));
+                    y = horzcat(y, ones(1,length(tile.ts)).*(j * tile_height));
+                    corr = horzcat(corr, tile.patternCorrelation);
+                end
+            end
+            fusion = [ts; x; y; corr]';
+            fusion = sortrows(fusion);
+            obj.EventstreamGrid2.ts = fusion(:,1)';
+            obj.EventstreamGrid2.x = fusion(:,2)';
+            obj.EventstreamGrid2.y = fusion(:,3)';
+            obj.EventstreamGrid2.patternCorrelation = fusion(:,4)';
+            
+            obj.Grids{1,1} = c;
+            obj.Grids{1,2} = c2;
+            toc
+        end
       
         function detectblinks(obj)
             if isempty(obj.EventstreamGrid1)
