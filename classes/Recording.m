@@ -195,12 +195,12 @@ classdef Recording < handle
             for i = 1:obj.GridSizes(1)
                 for j = 1:obj.GridSizes(2)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
-                    if (i-1) * tile_width < 120
-                        addconst = 0.2;
-                    elseif (i-1) * tile_width > 190
-                        addconst = 2;
+                    if (i-1) * tile_width < 76
+                        addconst = obj.Left.AmplitudeScaleScale;
+                    elseif (i-1) * tile_width >= 209
+                        addconst = obj.Right.AmplitudeScaleScale;
                     else
-                        addconst = 1;
+                        addconst = obj.Center.AmplitudeScaleScale;
                     end
                     tile = activity(tile, obj.Parent.ActivityDecayConstant, (1 / obj.Parent.AmplitudeScale) * addconst, true);
                     tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale / addconst, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
@@ -226,12 +226,12 @@ classdef Recording < handle
             for i = 1:(obj.GridSizes(1)-1)
                 for j = 1:(obj.GridSizes(2)-1)
                     tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
-                    if (i-1) * tile_width + floor(tile_width/2) < 120
-                        addconst = 0.2;
-                    elseif (i-1) * tile_width + floor(tile_width/2) > 190
-                        addconst = 2;
+                    if (i-1) * tile_width + floor(tile_width/2) <= 76
+                        addconst = obj.Left.AmplitudeScaleScale;
+                    elseif (i-1) * tile_width + floor(tile_width/2) >= 209
+                        addconst = obj.Right.AmplitudeScaleScale;
                     else
-                        addconst = 1;
+                        addconst = obj.Center.AmplitudeScaleScale;
                     end
                     tile = activity(tile, obj.Parent.ActivityDecayConstant, (1 / obj.Parent.AmplitudeScale) * addconst, true);
                     tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale / addconst, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
