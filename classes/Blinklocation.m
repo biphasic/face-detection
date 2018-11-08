@@ -93,7 +93,7 @@ classdef Blinklocation
             eye = quick_correlation(eye, obj.Parent.Parent.Modelblink.AverageOn, obj.Parent.Parent.Modelblink.AverageOff, obj.Parent.Parent.AmplitudeScale / obj.AmplitudeScaleScale, obj.Parent.Parent.BlinkLength, obj.Parent.Parent.ModelSubsamplingRate);
             continuum = shannonise(eye, obj.Parent.Parent.ActivityDecayConstant, obj.Parent.Parent.ModelSubsamplingRate);
             correlationThreshold = obj.Parent.Parent.CorrelationThreshold;
-            ylim([0 4])
+            ylim([0 40])
             xlim([0 obj.Times(end)+8000000])
             %xt=arrayfun(@num2str,get(gca,'xtick')*0.000001, 'UniformOutput', false);
             %set(gca,'xticklabel',xt)
@@ -118,9 +118,9 @@ classdef Blinklocation
             end
             mask = and(continuum.ts > ((obj.Times(1)-8000000)), continuum.ts < ((obj.Times(end)+8000000)));
             z = zeros(1, length(continuum.activityOn(mask)));
-            x = continuum.ts(mask);
-            y1 = continuum.activityOn(mask);
-            y2 = continuum.activityOff(mask);
+            x = continuum.ts;%(mask);
+            y1 = continuum.activityOn;%(mask);
+            y2 = continuum.activityOff;%(mask);
             opts1={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.Parent.OnColour};%rot
             opts2={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.Parent.OffColour};%blau
             %fill_between(x, y2, y1, y2 < y1, opts1{:});
