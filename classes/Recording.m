@@ -2,7 +2,7 @@ classdef Recording < handle
     properties
         Number
         Eventstream
-        Blinks = []
+        Faces = Face.empty
         EventstreamGrid1
         EventstreamGrid2
         Grids = cell(1,2)
@@ -260,8 +260,9 @@ classdef Recording < handle
                 obj.calculatecorrelation;
             end
             disp(['detecting blink for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
-            obj.Blinks = Blink(1,1,1,1,1);
-            blinkIndex = 1;
+            for f = 1:3
+                obj.Faces(f) = Face;
+            end
             combinedGrid = merge_streams(obj.EventstreamGrid1, obj.EventstreamGrid2);
             mask = combinedGrid.patternCorrelation>obj.Parent.CorrelationThreshold;
             
@@ -292,8 +293,13 @@ classdef Recording < handle
                         rightMean = (quadruplet(4,:) + quadruplet(3,:))/2;
                         diff = abs(rightMean - leftMean);
                         if leftDelta(1) < tileWidth && leftDelta(2) < tileHeight && right(1) < tileWidth && right(2) < tileHeight && diff(1) > tileWidth && diff(1) < 50 && diff(2) < tileHeight
-                            obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
-                            blinkIndex = blinkIndex + 1;
+                            if rightMean(1) < 87
+                                obj.Faces(1).addblink(Blink(leftMean(1), leftMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i))));
+                            elseif leftMean(1) > 200
+                                obj.Faces(3).addblink(Blink(leftMean(1), leftMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i))));
+                            else
+                                obj.Faces(2).addblink(Blink(leftMean(1), leftMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i))));
+                            end
                             skip = 2;
                             continue;
                         end
@@ -309,15 +315,25 @@ classdef Recording < handle
                     leftDiff = abs(triplet(2,:) - triplet(1,:));
                     leftMean = ((triplet(2,:) + triplet(1,:))/2);
                     if  leftDiff(1) < tileWidth && leftDiff(2) < tileHeight && triplet(3,1) - leftMean(1) > tileWidth && triplet(3,1) - leftMean(1) < 50 && abs(triplet(3,2) - leftMean(2)) < tileHeight
-                        obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), triplet(3,1), leftMean(2), combinedGrid.ts(indices(i)));
-                        blinkIndex = blinkIndex + 1;
+                        if triplet(3,1) < 87
+                            obj.Faces(1).addblink(Blink(leftMean(1), leftMean(2), triplet(3,1), leftMean(2), combinedGrid.ts(indices(i))));
+                        elseif leftMean(1) > 200
+                            obj.Faces(3).addblink(Blink(leftMean(1), leftMean(2), triplet(3,1), leftMean(2), combinedGrid.ts(indices(i))));
+                        else
+                            obj.Faces(2).addblink(Blink(leftMean(1), leftMean(2), triplet(3,1), leftMean(2), combinedGrid.ts(indices(i))));
+                        end
                     end
                     %two on the right
                     rightDiff = abs(triplet(3,:) - triplet(2,:));
                     rightMean = ((triplet(3,:) + triplet(2,:))/2);
                     if  rightDiff(1) < tileWidth && rightDiff(2) < tileHeight && rightMean(1) - triplet(1,1) > tileWidth && rightMean(1) - triplet(1,1) < 50 && abs(triplet(1,2) - rightMean(2)) < tileHeight
-                        obj.Blinks(blinkIndex) = Blink(triplet(1,1), rightMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
-                        blinkIndex = blinkIndex + 1;
+                        if triplet(3,1) < 87
+                            obj.Faces(1).addblink(Blink(triplet(1,1), rightMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i))));
+                        elseif triplet(1,1) > 200
+                            obj.Faces(3).addblink(Blink(triplet(1,1), rightMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i))));
+                        else
+                            obj.Faces(2).addblink(Blink(triplet(1,1), rightMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i))));
+                        end
                     end
                 end
             end
