@@ -19,18 +19,18 @@ classdef Blob < handle
             obj.sigmaY = sigmaY;
         end
         
-        function probability = getblobprobability(obj, x, y)
+        function updatebyevent(obj, x, y)
             xDelta = x - obj.x;
             yDelta = y - obj.y;
             determinant = obj.sigmaX * obj.sigmaY - obj.sigmaXY^2;
             probability = exp(-(xDelta^2 * obj.sigmaY + yDelta^2 * obj.sigmaX - 2 * xDelta * yDelta * obj.sigmaXY)/(2*determinant))/sqrt(determinant);
             probability = probability / (2*pi);
+            if probability > obj.minimumProbability
+                obj.x = obj.positionInertia * obj.x + (1 - obj.positionInertia) * x;
+                obj.y = obj.positionInertia * obj.y + (1 - obj.positionInertia) * y;
+            end
         end
         
-        function updatebyevent(obj, x, y)
-            obj.x = obj.positionInertia * obj.x + (1 - obj.positionInertia) * x;
-            obj.y = obj.positionInertia * obj.y + (1 - obj.positionInertia) * y;
-        end
     end
 end
 

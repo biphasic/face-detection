@@ -24,6 +24,7 @@ for s = 1:numel(names)
         subject.CorrelationThreshold = 0.88;
         subject.addrecording(1, multipleEvents(1), false);
         subject.addrecording(2, multipleEvents(2), false);
+        subject.addrecording(4, multipleEvents(4), false);
     end
     multiple.(name) = subject;
     

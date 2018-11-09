@@ -278,7 +278,7 @@ classdef Recording < handle
                 end
                 %last three events are close enough in time and do not have
                 %the same x value
-                if combinedGrid.y(indices(i)) > 120 && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
+                if combinedGrid.y(indices(i)) > 120 && combinedGrid.y(indices(i)) < 170 && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
                     %last 3 events and next one are close enough in time and have the
                     %same x value
                     if i ~= length(indices) && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i+1)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-2)), combinedGrid.x(indices(i+1)) )
@@ -319,7 +319,7 @@ classdef Recording < handle
                             obj.Faces(1).addblink(Blink(leftMean(1), leftMean(2), triplet(3,1), leftMean(2), combinedGrid.ts(indices(i))));
                         elseif leftMean(1) > 200
                             obj.Faces(3).addblink(Blink(leftMean(1), leftMean(2), triplet(3,1), leftMean(2), combinedGrid.ts(indices(i))));
-                        else
+                        elseif leftMean(2) > 130
                             obj.Faces(2).addblink(Blink(leftMean(1), leftMean(2), triplet(3,1), leftMean(2), combinedGrid.ts(indices(i))));
                         end
                     end
@@ -331,7 +331,7 @@ classdef Recording < handle
                             obj.Faces(1).addblink(Blink(triplet(1,1), rightMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i))));
                         elseif triplet(1,1) > 200
                             obj.Faces(3).addblink(Blink(triplet(1,1), rightMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i))));
-                        else
+                        elseif rightMean(2) > 130
                             obj.Faces(2).addblink(Blink(triplet(1,1), rightMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i))));
                         end
                     end
@@ -346,9 +346,9 @@ classdef Recording < handle
             end
             disp(['calculating tracking for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
             rec = obj.Eventstream;
+            blinkIndex = ones(1, length(obj.Faces));
             blinkTimes = cell(1, length(obj.Faces));
             blinkCount = zeros(1, length(obj.Faces));
-            blinkIndex = ones(1, length(obj.Faces));
             blobNumbers = zeros(1, length(obj.Faces));
             first = rec.ts(end);
             for f = 1:length(obj.Faces)
@@ -362,37 +362,51 @@ classdef Recording < handle
                 blinkTimes{f} = obj.Faces(f).getblinktimes;
                 blinkCount(f) = length(obj.Faces(f).Blinks);
             end
-            start = find(first);
+
+            
+            start = find(rec.ts == first);
             stop = length(rec.ts);
-            for i = start:stop
-                probability = 0;
-                win = 0;
-                for f = 1:length(obj.Faces)
+            for i = start:stop       
+                if rec.x(i) < 87
+                    f = 1;
                     if blinkIndex(f) <= blinkCount(f) && blinkTimes{f}(blinkIndex(f)) < rec.ts(i)
-                        %for l = 1:length(obj.Faces.Blinks)
-                        %    if blinkTimes{f} == obj.Faces(f).Blinks(l).ts
                         obj.Faces(f).resettracker(obj.Faces(f).Blinks(blinkIndex(f)));
                         blinkIndex(f) = blinkIndex(f) + 1;
                         blobNumbers(f) = 2;
-                        %blinkTimes{f}(1) = [];
-                        break;
                     else
                         for b = 1:blobNumbers(f)
-                            prob = obj.Faces(f).Blobs(b).getblobprobability(rec.x(i), rec.y(i));
-                            if prob > probability && prob > 0.003
-                                probability = prob;
-                                win = [f, b];
-                            end
+                            obj.Faces(f).Blobs(b).updatebyevent(rec.x(i), rec.y(i));
+                        end
+                    end
+                elseif rec.x(i) > 200
+                    f = 3;
+                    if blinkIndex(f) <= blinkCount(f) && blinkTimes{f}(blinkIndex(f)) < rec.ts(i)
+                        obj.Faces(f).resettracker(obj.Faces(f).Blinks(blinkIndex(f)));
+                        blinkIndex(f) = blinkIndex(f) + 1;
+                        blobNumbers(f) = 2;
+                    else
+                        for b = 1:blobNumbers(f)
+                            obj.Faces(f).Blobs(b).updatebyevent(rec.x(i), rec.y(i));
+                        end
+                    end
+                else
+                    f = 2;
+                    if blinkIndex(f) <= blinkCount(f) && blinkTimes{f}(blinkIndex(f)) < rec.ts(i)
+                        obj.Faces(f).resettracker(obj.Faces(f).Blinks(blinkIndex(f)));
+                        blinkIndex(f) = blinkIndex(f) + 1;
+                        blobNumbers(f) = 2;
+                    else
+                        for b = 1:blobNumbers(f)
+                            obj.Faces(f).Blobs(b).updatebyevent(rec.x(i), rec.y(i));
                         end
                     end
                 end
-                if win(1) ~= 0
-                    obj.Faces(win(1)).Blobs(win(2)).updatebyevent(rec.x(i), rec.y(i));
-                    pos = obj.Faces(win(1)).gettrackerpositions;
-                    rec.faces(win(1)).leftTracker.x(i) = pos(1,1);
-                    rec.faces(win(1)).leftTracker.y(i) = pos(1,2);
-                    rec.faces(win(1)).rightTracker.x(i) = pos(2,1);
-                    rec.faces(win(1)).rightTracker.y(i) = pos(2,2);
+                if blobNumbers(f) ~= 0
+                    pos = obj.Faces(f).gettrackerpositions;
+                    rec.faces(f).leftTracker.x(i) = pos(1,1);
+                    rec.faces(f).leftTracker.y(i) = pos(1,2);
+                    rec.faces(f).rightTracker.x(i) = pos(2,1);
+                    rec.faces(f).rightTracker.y(i) = pos(2,2);
                 end
             end
             obj.Eventstream = rec;
@@ -470,7 +484,7 @@ classdef Recording < handle
             set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
             yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
             set(gca, 'yticklabel', yt);
-            legend(ax, 'left eye detected', 'right eye detected', 'Location', 'best')
+            %legend(ax, 'left eye detected', 'right eye detected', 'Location', 'best')
         end
 
         function result = readGT(obj)
@@ -532,42 +546,14 @@ classdef Recording < handle
                     scatter3(ax, obj.Eventstream.faces(f).rightTracker.x, -obj.Eventstream.ts, obj.Eventstream.faces(f).rightTracker.y, '.', 'green', 'Displayname', 'right eye tracker');
                 end
             end
-            %print screenshots
-            blinkstoprint = [1 1 length(obj.Blinks)];
-            for index = 2:length(obj.Blinks)
-                if obj.Blinks(index).ts > 11000000
-                    blinkstoprint(2) = index;
-                    break;
-                end
-            end
-            for i = 1:length(blinkstoprint)
-                closestScreenshot = round(obj.Blinks(blinkstoprint(i)).ts / 1000000);
-                framepath = (['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', lower(obj.Parent.Name), '/', num2str(obj.Number), '/frames/', num2str(closestScreenshot), '.png']);
-                if exist(framepath, 'file') == 2
-                    img = imread(framepath);
-                    %img = double(img)/255;
-                    %index1 = img(:,:,1) == 1;
-                    %index2 = img(:,:,2) == 1;
-                    %index3 = img(:,:,3) == 1;
-                    %indexWhite = index1+index2+index3==3;
-                    %for idx = 1 : 3
-                    %   rgb = img(:,:,idx);     % extract part of the image
-                    %   rgb(indexWhite) = NaN;  % set the white portion of the image to NaN
-                    %   img(:,:,idx) = rgb;     % substitute the update values
-                    %end
-                    X = [0 obj.Dimensions(1); 0 obj.Dimensions(1)];
-                    Y = -[obj.Blinks(blinkstoprint(i)).ts obj.Blinks(blinkstoprint(i)).ts; obj.Blinks(blinkstoprint(i)).ts obj.Blinks(blinkstoprint(i)).ts];
-                    Z = [obj.Dimensions(2) obj.Dimensions(2); 0 0];
-                    surface(X, Y, Z, img,'FaceColor','texturemap')%,'FaceAlpha', 0.7);
-                end
-            end
+           
             %format axes
-            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
+            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst center blink detected at ', num2str(round(obj.Faces(2).Blinks(1).ts/1000000,3)), 's']))
             xlim([0 obj.Dimensions(1)])
             zlim([0 obj.Dimensions(2)])
             ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
-            a = legend('show');
-            a.String(end-length(blinkstoprint)+1:end) = '';
+            %a = legend('show');
+            %a.String(end-length(blinkstoprint)+1:end) = '';
             
             %print GT
             if obj.readGT
