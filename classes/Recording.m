@@ -366,8 +366,8 @@ classdef Recording < handle
             stop = length(rec.ts);
             for i = start:stop
                 probability = 0;
+                win = 0;
                 for f = 1:length(obj.Faces)
-                    win = 0;
                     if blinkIndex(f) <= blinkCount(f) && blinkTimes{f}(blinkIndex(f)) < rec.ts(i)
                         %for l = 1:length(obj.Faces.Blinks)
                         %    if blinkTimes{f} == obj.Faces(f).Blinks(l).ts
