@@ -340,32 +340,59 @@ classdef Recording < handle
         end
                 
         function calculatetracking(obj)
-            if isempty(obj.Blinks)
+            if isempty(obj.Faces)
                disp(['no blinks detected yet for rec no ', num2str(obj.Number), ', triggering detection...'])
                obj.detectblinks
             end
             disp(['calculating tracking for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
             rec = obj.Eventstream;
-            rec.leftTracker = nan(length(rec.ts), 2);
-            rec.rightTracker = nan(length(rec.ts), 2);
-            blobs = Blob(1,1,1,1,1);
-            blinkIndex = 1;
-            blinkCount = length(obj.Blinks);
-            start = find(rec.ts == obj.Blinks(1).ts);
+            blinkTimes = cell(1, length(obj.Faces));
+            blinkCount = zeros(1, length(obj.Faces));
+            blinkIndex = ones(1, length(obj.Faces));
+            blobNumbers = zeros(1, length(obj.Faces));
+            first = rec.ts(end);
+            for f = 1:length(obj.Faces)
+                rec.faces(f).leftTracker.x = nan(1,length(rec.ts));
+                rec.faces(f).leftTracker.y = nan(1,length(rec.ts));
+                rec.faces(f).rightTracker.x = nan(1,length(rec.ts));
+                rec.faces(f).rightTracker.y = nan(1,length(rec.ts));
+                if obj.Faces(f).Blinks(1).ts < first
+                    first = obj.Faces(f).Blinks(1).ts;
+                end
+                blinkTimes{f} = obj.Faces(f).getblinktimes;
+                blinkCount(f) = length(obj.Faces(f).Blinks);
+            end
+            start = find(first);
             stop = length(rec.ts);
             for i = start:stop
-                if blinkIndex <= blinkCount && rec.ts(i) >= obj.Blinks(blinkIndex).ts
-                    blobs = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 5, 0, 3);
-                    blobs(2) = Blob(obj.Blinks(blinkIndex).x2, obj.Blinks(blinkIndex).y2, 5, 0, 3);
-                    blinkIndex = blinkIndex + 1;
-                else
-                    for b = 1:length(blobs)
-                        blobs(b).updatebyevent(rec.x(i), rec.y(i));
+                probability = 0;
+                for f = 1:length(obj.Faces)
+                    win = 0;
+                    if blinkIndex(f) <= blinkCount(f) && blinkTimes{f}(blinkIndex(f)) < rec.ts(i)
+                        %for l = 1:length(obj.Faces.Blinks)
+                        %    if blinkTimes{f} == obj.Faces(f).Blinks(l).ts
+                        obj.Faces(f).resettracker(obj.Faces(f).Blinks(blinkIndex(f)));
+                        blinkIndex(f) = blinkIndex(f) + 1;
+                        blobNumbers(f) = 2;
+                        %blinkTimes{f}(1) = [];
+                        break;
+                    else
+                        for b = 1:blobNumbers(f)
+                            prob = obj.Faces(f).Blobs(b).getblobprobability(rec.x(i), rec.y(i));
+                            if prob > probability && prob > 0.003
+                                probability = prob;
+                                win = [f, b];
+                            end
+                        end
                     end
-                    rec.leftTracker(i,1) = blobs(1).x;
-                    rec.leftTracker(i,2) = blobs(1).y;
-                    rec.rightTracker(i,1) = blobs(2).x;
-                    rec.rightTracker(i,2) = blobs(2).y;    
+                end
+                if win(1) ~= 0
+                    obj.Faces(win(1)).Blobs(win(2)).updatebyevent(rec.x(i), rec.y(i));
+                    pos = obj.Faces(win(1)).gettrackerpositions;
+                    rec.faces(win(1)).leftTracker.x(i) = pos(1,1);
+                    rec.faces(win(1)).leftTracker.y(i) = pos(1,2);
+                    rec.faces(win(1)).rightTracker.x(i) = pos(2,1);
+                    rec.faces(win(1)).rightTracker.y(i) = pos(2,2);
                 end
             end
             obj.Eventstream = rec;
