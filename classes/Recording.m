@@ -488,7 +488,7 @@ classdef Recording < handle
         
         function res = calculatetrackingerror(obj)
             if obj.readGT
-                if ~isfield(obj.Eventstream, 'leftTracker')
+                if ~isfield(obj.Eventstream, 'faces')
                     disp(['no tracking data present for rec no ', num2str(obj.Number), ', starting computation...'])
                     obj.calculatetracking
                 end
@@ -514,7 +514,7 @@ classdef Recording < handle
         end
         
         function plottracking(obj, varargin)
-            if ~isfield(obj.Eventstream, 'leftTracker')
+            if ~isfield(obj.Eventstream, 'faces')
                disp(['no tracking data present for rec no ', num2str(obj.Number), ', starting computation...'])
                obj.calculatetracking
             end
@@ -525,10 +525,13 @@ classdef Recording < handle
                 ax = gca;
             end
             obj.plotblinks(ax)
-            scatter3(ax, obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red',  'Displayname', 'left eye tracker');
-            hold on 
-            scatter3(ax, obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green', 'Displayname', 'right eye tracker');
-            
+            for f = 1:length(obj.Faces)
+                for i = 1:length(obj.Faces(f).Blinks)
+                    scatter3(ax, obj.Eventstream.faces(f).leftTracker.x, -obj.Eventstream.ts, obj.Eventstream.faces(f).leftTracker.y, '.', 'red',  'Displayname', 'left eye tracker');
+                    hold on 
+                    scatter3(ax, obj.Eventstream.faces(f).rightTracker.x, -obj.Eventstream.ts, obj.Eventstream.faces(f).rightTracker.y, '.', 'green', 'Displayname', 'right eye tracker');
+                end
+            end
             %print screenshots
             blinkstoprint = [1 1 length(obj.Blinks)];
             for index = 2:length(obj.Blinks)
