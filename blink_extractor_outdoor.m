@@ -10,7 +10,7 @@ for s = 1:numel(names)
     subject = Subject(name, outdoor);
     if strcmp(name, 'laure')
         subject.addrecording(1, recordingsOutdoor.(name)(1), true);
-        rec = subject.Recordings{1};
+        rec = subject.gettrainingrecording;
         rec.Center.Location = [139 152];
         rec.Left.Location =   [ 11 146];
         rec.Right.Location =  [246 152];
@@ -21,7 +21,7 @@ for s = 1:numel(names)
         subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     elseif strcmp(name, 'kevin')
         subject.addrecording(2, recordingsOutdoor.(name)(2), true);
-        rec = subject.Recordings{2};
+        rec = subject.gettrainingrecording;
         rec.Center.Location = [136 137];
         rec.Left.Location =   [ 89 132];
         rec.Right.Location =  [186 134];
@@ -33,7 +33,7 @@ for s = 1:numel(names)
         subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     elseif strcmp(name, 'francesco')
         subject.addrecording(1, recordingsOutdoor.(name)(1), true);
-        rec = subject.Recordings{1};
+        rec = subject.gettrainingrecording;
         rec.Center.Location = [136 138];
         rec.Left.Location = [47 135];
         rec.Right.Location = [260 138];
@@ -45,7 +45,7 @@ for s = 1:numel(names)
         subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     elseif strcmp(name, 'gregor')
         subject.addrecording(1, recordingsOutdoor.(name)(1), true);
-        rec = subject.Recordings{1};
+        rec = subject.gettrainingrecording;
         rec.Center.Location = [136 151];
         rec.Left.Location = [65 155];
         rec.Right.Location = [224 142];
@@ -54,7 +54,7 @@ for s = 1:numel(names)
         rec.Right.Times = [26771135]; %24980000,
     elseif strcmp(name, 'gregor2')
         subject.addrecording(1, recordingsOutdoor.(name)(1), true);
-        rec = subject.Recordings{1};
+        rec = subject.gettrainingrecording;
         rec.Center.Location = [93 159];
         rec.Left.Location = [158 155];
         rec.Right.Location = [223 148];
@@ -63,7 +63,7 @@ for s = 1:numel(names)
         %rec.Right.Times = [ 18250000];
     elseif strcmp(name, 'ricardo')
         subject.addrecording(1, recordingsOutdoor.(name)(1), true);
-        rec = subject.Recordings{1};
+        rec = subject.gettrainingrecording;
         rec.Center.Location = [136 135];
         %rec.Left.Location = [44 137];
         rec.Right.Location = [183 142];
@@ -74,7 +74,7 @@ for s = 1:numel(names)
         subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     elseif strcmp(name, 'alex')
         subject.addrecording(2, recordingsOutdoor.(name)(2), true);
-        rec = subject.Recordings{2};
+        rec = subject.gettrainingrecording;
         rec.Center.Location = [138 141];
         rec.Left.Location = [46 140];
         rec.Right.Location = [204 146];
@@ -85,7 +85,7 @@ for s = 1:numel(names)
         subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     elseif strcmp(name, 'jm')
         subject.addrecording(3, recordingsOutdoor.(name)(3), true);
-        rec = subject.Recordings{3};
+        rec = subject.gettrainingrecording ;
         rec.Center.Location = [144 163];
         rec.Left.Location = [57 150];
         rec.Right.Location = [206 164];
@@ -94,6 +94,17 @@ for s = 1:numel(names)
         %rec.Right.Times = [24800000];
         subject.addrecording(1, recordingsOutdoor.(name)(1), false);
         subject.addrecording(2, recordingsOutdoor.(name)(2), false);
+    elseif strcmp(name, 'omar')
+        subject.addrecording(6, recordingsOutdoor.(name)(6), true);
+        rec = subject.gettrainingrecording;
+        rec.Center.Location = [147 148];
+        rec.Left.Location = [78 148];
+        rec.Right.Location = [216 151];
+        %rec.Center.Times = [3500000];
+        %rec.Left.Times = [17000000];
+        rec.Right.Times = [28840000, 31240000];
+        subject.addrecording(4, recordingsOutdoor.(name)(4), false);
+        subject.addrecording(5, recordingsOutdoor.(name)(5), false);
     else
         for r = 1:length(recordingsOutdoor.(name))
             subject.addrecording(r, recordingsOutdoor.(name)(r), false);
