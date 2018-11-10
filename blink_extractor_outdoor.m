@@ -34,12 +34,12 @@ for s = 1:numel(names)
     elseif strcmp(name, 'francesco')
         subject.addrecording(1, recordingsOutdoor.(name)(1), true);
         rec = subject.Recordings{1};
-        rec.Center.Location = [136 137];
+        rec.Center.Location = [136 138];
         rec.Left.Location = [47 135];
-        rec.Right.Location = [258 138];
-        rec.Center.Times = [8202000, 1580000];
-        rec.Left.Times = 21615000;
-        rec.Right.Times = [41767600, 46037840, 47094080];
+        rec.Right.Location = [260 138];
+        rec.Center.Times = [8218300  1592860];
+        rec.Left.Times = 21616595;
+        rec.Right.Times = [41782665  46055845  47109505];
         subject.CorrelationThreshold = 0.9;
         subject.addrecording(2, recordingsOutdoor.(name)(2), false);
         subject.addrecording(3, recordingsOutdoor.(name)(3), false);
@@ -71,8 +71,19 @@ for s = 1:numel(names)
         rec.Center.Times = [4007000];
         rec.Left.Times = [13364230];
         %rec.Right.Times = [24800000];
-        subject.addrecording(4, recordingsOutdoor.(name)(4), false);
+        subject.addrecording(1, recordingsOutdoor.(name)(1), false);
         subject.addrecording(3, recordingsOutdoor.(name)(3), false);
+    elseif strcmp(name, 'jm')
+        subject.addrecording(3, recordingsOutdoor.(name)(3), true);
+        rec = subject.Recordings{3};
+        rec.Center.Location = [144 163];
+        rec.Left.Location = [57 150];
+        rec.Right.Location = [206 164];
+        rec.Center.Times = [1515000     4734540];
+        rec.Left.Times = [13201755    16794575];
+        %rec.Right.Times = [24800000];
+        subject.addrecording(1, recordingsOutdoor.(name)(1), false);
+        subject.addrecording(2, recordingsOutdoor.(name)(2), false);
     else
         for r = 1:length(recordingsOutdoor.(name))
             subject.addrecording(r, recordingsOutdoor.(name)(r), false);
