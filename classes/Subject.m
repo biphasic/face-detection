@@ -48,10 +48,12 @@ classdef Subject < handle
         end
         
         function calculateallcorrelations(obj)
-            for r = 1:numel(obj.Recordings)
-                if ~isempty(obj.Recordings{r})
-                    disp(['Subject: ', obj.Name, ', recording no: ', num2str(r)])
-                    obj.Recordings{r}.calculatecorrelation();
+            if obj.gettrainingrecordingindex ~= 0
+                for r = 1:numel(obj.Recordings)
+                    if ~isempty(obj.Recordings{r})
+                        disp(['Subject: ', obj.Name, ', recording no: ', num2str(r)])
+                        obj.Recordings{r}.calculatecorrelation();
+                    end
                 end
             end
         end
