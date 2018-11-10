@@ -45,21 +45,33 @@ for s = 1:numel(names)
         subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     elseif strcmp(name, 'gregor')
         subject.addrecording(1, recordingsOutdoor.(name)(1), false);
+        rec = subject.Recordings{1};
         rec.Center.Location = [157 156];
         rec.Center.Times = 7640000; %, 8570000
         %rec.Right.Location = [223 148];
         rec.Left.Location = [81 158];
         rec.Left.Times = [13640000,14888000 ];
     elseif strcmp(name, 'ricardo')
-        subject.addrecording(1, recordingsOutdoor.(name)(1), false);
+        subject.addrecording(1, recordingsOutdoor.(name)(1), true);
         rec = subject.Recordings{1};
-        rec.Center.Location = [136 137];
-        rec.Left.Location = [47 135];
-        rec.Right.Location = [258 138];
-        rec.Center.Times = [8202000, 1580000];
-        rec.Left.Times = 21615000;
-        rec.Right.Times = [21615000];  
+        rec.Center.Location = [136 135];
+        %rec.Left.Location = [44 137];
+        rec.Right.Location = [183 142];
+        rec.Center.Times = [1229000     3774280     5819880];
+        %rec.Left.Times = 15990375;
+        rec.Right.Times = [23960805    28761545];  
         subject.addrecording(2, recordingsOutdoor.(name)(2), false);
+        subject.addrecording(3, recordingsOutdoor.(name)(3), false);
+    elseif strcmp(name, 'alex')
+        subject.addrecording(2, recordingsOutdoor.(name)(2), true);
+        rec = subject.Recordings{2};
+        rec.Center.Location = [138 141];
+        rec.Left.Location = [46 140];
+        rec.Right.Location = [204 146];
+        rec.Center.Times = [4007000];
+        rec.Left.Times = [13364230];
+        %rec.Right.Times = [24800000];
+        subject.addrecording(4, recordingsOutdoor.(name)(4), false);
         subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     else
         for r = 1:length(recordingsOutdoor.(name))
