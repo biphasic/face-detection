@@ -58,6 +58,17 @@ classdef Subject < handle
             end
         end
         
+        function detectallblinks(obj)
+            if obj.gettrainingrecordingindex ~= 0
+                for r = 1:numel(obj.Recordings)
+                    if ~isempty(obj.Recordings{r})
+                        disp(['Subject: ', obj.Name, ', recording no: ', num2str(r)])
+                        obj.Recordings{r}.detectblinks();
+                    end
+                end
+            end
+        end
+        
         function average = calculateaverageerror(obj)
             average = 0;
             num = 0;
@@ -93,6 +104,17 @@ classdef Subject < handle
                 if ~isempty(obj.Recordings{r})
                     ax = subplot(1,length(obj.Recordings), r);
                     obj.Recordings{r}.plotcorrelation(ax);
+                end
+            end
+        end
+        
+        function plotalldetectedblinks(obj)
+            obj.detectallblinks;
+            figure
+            for r = 1:numel(obj.Recordings)
+                if ~isempty(obj.Recordings{r})
+                    ax = subplot(1,length(obj.Recordings), r);
+                    obj.Recordings{r}.plotdetectedblinks(ax);
                 end
             end
         end
@@ -187,7 +209,7 @@ classdef Subject < handle
         
         function plotmodelblink(obj, varargin)
             if isempty(obj.gettrainingrecording.getannotatedlocations())
-                error('Blinks annotated')
+                error('no blinks annotated')
             end
             if nargin > 1
                 ax = varargin{1};

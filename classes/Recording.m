@@ -311,7 +311,7 @@ classdef Recording < handle
             set(gca, 'yticklabel', yt);
         end
         
-        function plotblinks(obj, varargin)
+        function plotdetectedblinks(obj, varargin)
             if isempty(obj.Blinks)
                 disp('Cannot plot blinks because none have been detected yet, starting detectblinks...')
                 obj.detectblinks;
@@ -397,7 +397,7 @@ classdef Recording < handle
                 figure;
                 ax = gca;
             end
-            obj.plotblinks(ax)
+            obj.plotdetectedblinks(ax)
             scatter3(ax, obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red',  'Displayname', 'left eye tracker');
             hold on 
             scatter3(ax, obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green', 'Displayname', 'right eye tracker');

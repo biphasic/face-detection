@@ -51,7 +51,7 @@ for s = 1:numel(names)
         rec.Right.Location = [224 142];
         rec.Center.Times = 12020000;
         rec.Left.Times = [19446325];
-        rec.Right.Times = [ 26771135]; %24980000,
+        rec.Right.Times = [26771135]; %24980000,
     elseif strcmp(name, 'gregor2')
         subject.addrecording(1, recordingsOutdoor.(name)(1), true);
         rec = subject.Recordings{1};
