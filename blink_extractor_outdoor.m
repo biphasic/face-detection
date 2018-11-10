@@ -1,53 +1,66 @@
-if ~exist('outdoorEventsLaure', 'var')
+if ~exist('recordingsOutdoor', 'var')
     disp('loading compressed recordings from file...')
     load('recordingsOutdoor.mat')
 end
-names = {'laure', 'kevin', 'francesco'};
+names = fieldnames(recordingsOutdoor);
 outdoor = Collection('outdoor');
 for s = 1:numel(names)
     name = names{s};
     addprop(outdoor, name);
     subject = Subject(name, outdoor);
     if strcmp(name, 'laure')
-        laure.addrecording(1, outdoorEventsLaure(1), true);
-        laure.Recordings{1}.Center.Location = [139 152];
-        laure.Recordings{1}.Left.Location =   [ 11 146];
-        laure.Recordings{1}.Right.Location =  [246 152];
-        laure.Recordings{1}.Center.Times = [646900     7633960];
-        laure.Recordings{1}.Left.Times = 17334640;
-        laure.Recordings{1}.Right.Times = [27585390    29687210];
-        laure.CorrelationThreshold = 0.88;
-        laure.addrecording(2, outdoorEventsLaure(2), false);
-        laure.addrecording(3, outdoorEventsLaure(3), false);
+        subject.addrecording(1, recordingsOutdoor.(name)(1), true);
+        rec = subject.Recordings{1};
+        rec.Center.Location = [139 152];
+        rec.Left.Location =   [ 11 146];
+        rec.Right.Location =  [246 152];
+        rec.Center.Times = [646900     7633960];
+        rec.Left.Times = 17334640;
+        rec.Right.Times = [27585390    29687210];
+        subject.addrecording(2, recordingsOutdoor.(name)(2), false);
+        subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     elseif strcmp(name, 'kevin')
-        kevin.addrecording(2, outdoorEventsKevin(2), true);
-        kevin.Recordings{2}.Center.Location = [136 137];
-        kevin.Recordings{2}.Left.Location =   [ 89 132];
-        kevin.Recordings{2}.Right.Location =  [186 134];
-        kevin.Recordings{2}.Center.Times = [10453000, 18710460];
-        %kevin.Recordings{2}.Left.Times = [15470000, 17780000];
-        kevin.Recordings{2}.Right.Times = [41431800  46166080];
-        kevin.CorrelationThreshold = 0.90;
-        kevin.addrecording(1, outdoorEventsKevin(1), false);
-        kevin.addrecording(3, outdoorEventsKevin(3), false);
+        subject.addrecording(2, recordingsOutdoor.(name)(2), true);
+        rec = subject.Recordings{2};
+        rec.Center.Location = [136 137];
+        rec.Left.Location =   [ 89 132];
+        rec.Right.Location =  [186 134];
+        rec.Center.Times = [10453000, 18710460];
+        %rec.Left.Times = [15470000, 17780000];
+        rec.Right.Times = [41431800  46166080];
+        subject.CorrelationThreshold = 0.90;
+        subject.addrecording(1, recordingsOutdoor.(name)(1), false);
+        subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     elseif strcmp(name, 'francesco')
-        francesco.addrecording(1, outdoorEventsFrancesco(1), true);
-        francesco.Recordings{1}.Center.Location = [136 137];
-        francesco.Recordings{1}.Left.Location = [47 135];
-        francesco.Recordings{1}.Right.Location = [258 138];
-        francesco.Recordings{1}.Center.Times = [8202000, 1580000];
-        francesco.Recordings{1}.Left.Times = 21615000;
-        francesco.Recordings{1}.Right.Times = [41767600, 46037840, 47094080];
-        francesco.CorrelationThreshold = 0.9;
-        francesco.addrecording(2, outdoorEventsFrancesco(2), false);
-        francesco.addrecording(3, outdoorEventsFrancesco(3), false);
+        subject.addrecording(1, recordingsOutdoor.(name)(1), true);
+        rec = subject.Recordings{1};
+        rec.Center.Location = [136 137];
+        rec.Left.Location = [47 135];
+        rec.Right.Location = [258 138];
+        rec.Center.Times = [8202000, 1580000];
+        rec.Left.Times = 21615000;
+        rec.Right.Times = [41767600, 46037840, 47094080];
+        subject.CorrelationThreshold = 0.9;
+        subject.addrecording(2, recordingsOutdoor.(name)(2), false);
+        subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     elseif strcmp(name, 'gregor')
-        gregor.addrecording(1, eventsGregor, true);
-        gregor.Recordings{1}.Center.Location = [157 156];
-        gregor.Recordings{1}.Right.Location = [223 148];
-        gregor.Recordings{1}.Left.Location = [81 158];
-        gregor.Recordings{1}.Center.Times = 7640000; %, 8570000
-        gregor.Recordings{1}.Left.Times = [13640000,14888000 ];
+        subject.addrecording(1, recordingsOutdoor.(name)(1), false);
+        rec.Center.Location = [157 156];
+        rec.Center.Times = 7640000; %, 8570000
+        %rec.Right.Location = [223 148];
+        rec.Left.Location = [81 158];
+        rec.Left.Times = [13640000,14888000 ];
+    elseif strcmp(name, 'ricardo')
+        subject.addrecording(1, recordingsOutdoor.(name)(1), false);
+        rec = subject.Recordings{1};
+        rec.Center.Location = [136 137];
+        rec.Left.Location = [47 135];
+        rec.Right.Location = [258 138];
+        rec.Center.Times = [8202000, 1580000];
+        rec.Left.Times = 21615000;
+        rec.Right.Times = [21615000];  
+        subject.addrecording(2, recordingsOutdoor.(name)(2), false);
+        subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     else
         for r = 1:length(recordingsOutdoor.(name))
             subject.addrecording(r, recordingsOutdoor.(name)(r), false);
