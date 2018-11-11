@@ -1,13 +1,13 @@
 if ~exist('recordingsOutdoor', 'var')
     disp('loading compressed recordings from file...')
-    load('recordingsOutdoor.mat')
+    load('recordingsOutdoorUnfiltered.mat')
 end
 names = fieldnames(recordingsOutdoor);
 outdoor = Collection('outdoor');
 for s = 1:numel(names)
     name = names{s};
     addprop(outdoor, name);
-    subject = Subject(name, outdoor);
+    subject = Subject(name, 0.87, outdoor);
     if strcmp(name, 'laure')
         subject.addrecording(1, recordingsOutdoor.(name)(1), true);
         rec = subject.gettrainingrecording;
@@ -20,6 +20,7 @@ for s = 1:numel(names)
         subject.addrecording(2, recordingsOutdoor.(name)(2), false);
         subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     elseif strcmp(name, 'kevin')
+        subject.CorrelationThreshold = 0.89;
         subject.addrecording(2, recordingsOutdoor.(name)(2), true);
         rec = subject.gettrainingrecording;
         rec.Center.Location = [136 137];
@@ -28,7 +29,6 @@ for s = 1:numel(names)
         rec.Center.Times = [10453000, 18710460];
         %rec.Left.Times = [15470000, 17780000];
         rec.Right.Times = [41431800  46166080];
-        subject.CorrelationThreshold = 0.90;
         subject.addrecording(1, recordingsOutdoor.(name)(1), false);
         subject.addrecording(3, recordingsOutdoor.(name)(3), false);
     elseif strcmp(name, 'francesco')

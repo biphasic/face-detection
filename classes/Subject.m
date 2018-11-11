@@ -2,7 +2,7 @@ classdef Subject < handle
     properties
         Name
         Recordings
-        CorrelationThreshold = 0.88
+        CorrelationThreshold
         Modelblink
         AmplitudeScale = 1
         BlinkLength = 250000
@@ -13,8 +13,9 @@ classdef Subject < handle
     end
 
     methods
-        function obj = Subject(name, parent)
+        function obj = Subject(name, corrthreshold, parent)
             obj.Name = name;
+            obj.CorrelationThreshold = corrthreshold;
             obj.Modelblink = Modelblink();
             obj.Parent = parent;
             disp(['created subject ', name])
