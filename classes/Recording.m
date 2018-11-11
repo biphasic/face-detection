@@ -355,6 +355,9 @@ classdef Recording < handle
                 obj.GT.ts = csv(:,1)';
                 obj.GT.x = (csv(:,2)+csv(:,4)/2)';
                 obj.GT.y = obj.Dimensions(2) - (csv(:,3)' + 0.40 * csv(:,4)');
+                obj.GT.ts(obj.GT.x == 0) = nan;
+                obj.GT.x(obj.GT.x == 0) = nan;
+                obj.GT.y(obj.GT.x == 0) = nan;
                 %obj.GT.width = csv(:,4)';
                 result = true;
             end
