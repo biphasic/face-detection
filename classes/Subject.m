@@ -62,6 +62,15 @@ classdef Subject < handle
             end
         end
         
+        function calculateallcorrelationswithsuperblink(obj)
+            for r = 1:numel(obj.Recordings)
+                if ~isempty(obj.Recordings{r})
+                    disp(['Subject: ', obj.Name, ', recording no: ', num2str(r)])
+                    obj.Recordings{r}.calculatecorrelationwithsuperblink();
+                end
+            end
+        end
+        
         function detectallblinks(obj)
             if obj.gettrainingrecordingindex ~= 0
                 for r = 1:numel(obj.Recordings)

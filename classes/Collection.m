@@ -27,8 +27,14 @@ classdef Collection < dynamicprops
         function calculateallcorrelations(obj)
             subjects = obj.getsubjects;
             for s = 1:numel(subjects)
-               disp(['calculating correlations for ', subjects{s}])
                obj.(subjects{s}).calculateallcorrelations;
+            end
+        end
+        
+        function calculateallcorrelationswithsuperblink(obj)
+            subjects = obj.getsubjects;
+            for s = 1:numel(subjects)
+               obj.(subjects{s}).calculateallcorrelationswithsuperblink;
             end
         end
         
@@ -65,11 +71,10 @@ classdef Collection < dynamicprops
                if obj.(subjects{s}).gettrainingrecordingindex ~= 0
                    if ~exist('blink', 'var')
                        blink = obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingFactor);
-                       num = num + 1;
                    else
                        blink = blink + obj.(subjects{s}).gettrainingrecording.getmodelblink(smoothingFactor);
-                       num = num + 1;
                    end
+                   num = num + 1;
                else
                    continue
                end
@@ -108,8 +113,10 @@ classdef Collection < dynamicprops
             subjects = obj.getsubjects;
             figure
             for s = 1:numel(subjects)
-                ax = subplot(1,numel(subjects),s);
-                obj.(subjects{s}).plotmodelblink(ax)
+                if obj.(subjects{s}).gettrainingrecordingindex ~= 0
+                    ax = subplot(1,numel(subjects),s);
+                    obj.(subjects{s}).plotmodelblink(ax)
+                end
             end
         end
         
