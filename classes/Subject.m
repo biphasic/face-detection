@@ -70,6 +70,16 @@ classdef Subject < handle
             end
         end
         
+        function calculatealltrackings(obj)
+            if obj.gettrainingrecordingindex ~= 0
+                for r = 1:numel(obj.Recordings)
+                    if ~isempty(obj.Recordings{r})
+                        obj.Recordings{r}.calculatetracking;
+                    end
+                end
+            end
+        end
+        
         function average = calculateaverageerror(obj)
             average = 0;
             num = 0;
