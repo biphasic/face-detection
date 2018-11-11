@@ -165,8 +165,8 @@ classdef Recording < handle
             obj.EventstreamGrid2.y = fusion(:,3)';
             obj.EventstreamGrid2.patternCorrelation = fusion(:,4)';
             
-            obj.Grids{1,1} = c;
-            obj.Grids{1,2} = c2;
+            %obj.Grids{1,1} = c;
+            %obj.Grids{1,2} = c2;
             toc
         end
         
