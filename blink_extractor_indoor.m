@@ -7,7 +7,7 @@ indoor = Collection('indoor');
 for s = 1:numel(names)
     name = names{s};
     addprop(indoor, name);
-    subject = Subject(name, indoor);
+    subject = Subject(name, 0.88, indoor);
     if strcmp(name, 'fede')
         subject.addrecording(1, recordingsIndoor.(name)(1), true);
         subject.Recordings{1}.Center.Location = [152 131];
