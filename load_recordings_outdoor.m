@@ -9,11 +9,11 @@ for n = 1:length(names)
         recordingsOutdoor.(name) = [];
     end
     for r = 1:6
-        if strcmp(name, 'kevin')
+        %if strcmp(name, 'kevin')
             path = ['~/Recordings/face-detection/outdoor/', name, '/converted/', num2str(r),'.es'];
-        else
-            path = ['~/Recordings/face-detection/outdoor/', name, '/converted/', num2str(r),'-filtered.es'];
-        end
+        %else
+            %path = ['~/Recordings/face-detection/outdoor/', name, '/converted/', num2str(r),'-filtered.es'];
+        %end
         if exist(path, 'file') == 2 && size(recordingsOutdoor.(name), 2) < r
             if r == 1
                 recordingsOutdoor.(name) = load_eventstream(path);
