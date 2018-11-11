@@ -9,15 +9,15 @@ for s = 1:numel(names)
     addprop(indoor, name);
     subject = Subject(name, 0.88, indoor);
     if strcmp(name, 'fede')
-        subject.addrecording(1, recordingsIndoor.(name)(1), true);
+        subject.addrecording(1, recordingsIndoor.(name)(1), true, 15);
         subject.Recordings{1}.Center.Location = [152 131];
         subject.Recordings{1}.Left.Location = [ 62 125];
         subject.Recordings{1}.Right.Location =  [228 132];
         subject.Recordings{1}.Center.Times = [2432000     5125600     6771680     9025140    10915620];
         subject.Recordings{1}.Left.Times = [16210115    17043535    19352235    20343515];
         subject.Recordings{1}.Right.Times = [31274790    36131610];
-        subject.addrecording(2, recordingsIndoor.(name)(2), false);
-        subject.addrecording(3, recordingsIndoor.(name)(3), false);
+        subject.addrecording(2, recordingsIndoor.(name)(2), false, 13);
+        subject.addrecording(3, recordingsIndoor.(name)(3), false, 18);
     elseif strcmp(name, 'alex')
         subject.addrecording(1, recordingsIndoor.(name)(1), true);
         subject.Recordings{1}.Center.Location = [152 167];

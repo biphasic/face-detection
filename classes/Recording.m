@@ -14,6 +14,7 @@ classdef Recording < handle
         GridSizes = [16, 16]
         GT = []
         AverageTrackingError = 0
+        NumberOfBlinks
         Parent
     end
     properties (Dependent)

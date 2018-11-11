@@ -21,8 +21,11 @@ classdef Subject < handle
             disp(['created subject ', name])
         end
 
-        function obj = addrecording(obj, number, eventStream, isTrainingRecording)
+        function obj = addrecording(obj, number, eventStream, isTrainingRecording, varargin)
             obj.Recordings{1,number} = Recording(number, eventStream, isTrainingRecording, obj);
+            if nargin > 4
+                obj.Recordings{1,number}.NumberOfBlinks = varargin{1};
+            end
         end
         
         function training = gettrainingrecordingindex(obj)
