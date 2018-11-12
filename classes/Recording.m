@@ -330,8 +330,10 @@ classdef Recording < handle
             end
             disp(['calculating tracking for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
             rec = obj.Eventstream;
-            rec.leftTracker = nan(length(rec.ts), 2);
-            rec.rightTracker = nan(length(rec.ts), 2);
+            rec.leftTracker.x = nan(1, length(rec.ts));
+            rec.leftTracker.y = nan(1, length(rec.ts));
+            rec.rightTracker.x = nan(1, length(rec.ts));
+            rec.rightTracker.y = nan(1, length(rec.ts));
             blobs = Blob(1,1,1,1,1);
             blinkIndex = 1;
             blinkCount = length(obj.Blinks);
@@ -346,10 +348,10 @@ classdef Recording < handle
                     for b = 1:length(blobs)
                         blobs(b).updatebyevent(rec.x(i), rec.y(i));
                     end
-                    rec.leftTracker(i,1) = blobs(1).x;
-                    rec.leftTracker(i,2) = blobs(1).y;
-                    rec.rightTracker(i,1) = blobs(2).x;
-                    rec.rightTracker(i,2) = blobs(2).y;    
+                    rec.leftTracker.x(i) = blobs(1).x;
+                    rec.leftTracker.y(i) = blobs(1).y;
+                    rec.rightTracker.x(i) = blobs(2).x;
+                    rec.rightTracker.y(i) = blobs(2).y;   
                 end
             end
             obj.Eventstream = rec;
@@ -479,9 +481,9 @@ classdef Recording < handle
                 ax = gca;
             end
             obj.plotblinks(ax)
-            scatter3(ax, obj.Eventstream.leftTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.leftTracker(:,2), '.', 'red',  'Displayname', 'left eye tracker');
+            scatter3(ax, obj.Eventstream.leftTracker.x, -obj.Eventstream.ts, obj.Eventstream.leftTracker.y, '.', 'red',  'Displayname', 'left eye tracker');
             hold on 
-            scatter3(ax, obj.Eventstream.rightTracker(:,1), -obj.Eventstream.ts, obj.Eventstream.rightTracker(:,2), '.', 'green', 'Displayname', 'right eye tracker');
+            scatter3(ax, obj.Eventstream.rightTracker.y, -obj.Eventstream.ts, obj.Eventstream.rightTracker.y, '.', 'green', 'Displayname', 'right eye tracker');
             
             %print screenshots
             blinkstoprint = [1 1 length(obj.Blinks)];
