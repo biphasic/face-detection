@@ -59,6 +59,19 @@ classdef Collection < dynamicprops
             av = av / num;
             disp(['tracking error for collection ', obj.DatasetType, ': ', num2str(av)])
         end
+        
+        function av = getaverageamplitudescale(obj)
+            subjects = obj.getsubjects;
+            av = 0;
+            num = 0;
+            for s = 1:numel(subjects)
+                if obj.(subjects{s}).AmplitudeScale ~= 1
+                    av = av + obj.(subjects{s}).AmplitudeScale;
+                    num = num + 1;
+                end
+            end
+            av = av/num;
+        end
 
         function blink = getaveragemodelblink(obj, smoothingFactor)
             if ~exist('smoothingFactor','var')
