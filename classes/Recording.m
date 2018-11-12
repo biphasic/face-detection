@@ -483,7 +483,7 @@ classdef Recording < handle
             obj.plotblinks(ax)
             scatter3(ax, obj.Eventstream.leftTracker.x, -obj.Eventstream.ts, obj.Eventstream.leftTracker.y, '.', 'red',  'Displayname', 'left eye tracker');
             hold on 
-            scatter3(ax, obj.Eventstream.rightTracker.y, -obj.Eventstream.ts, obj.Eventstream.rightTracker.y, '.', 'green', 'Displayname', 'right eye tracker');
+            scatter3(ax, obj.Eventstream.rightTracker.x, -obj.Eventstream.ts, obj.Eventstream.rightTracker.y, '.', 'green', 'Displayname', 'right eye tracker');
             
             %print screenshots
             blinkstoprint = [1 1 length(obj.Blinks)];
