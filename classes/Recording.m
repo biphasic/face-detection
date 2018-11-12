@@ -493,6 +493,7 @@ classdef Recording < handle
                     break;
                 end
             end
+            blinkstoprint = [1 4 6];
             for i = 1:length(blinkstoprint)
                 closestScreenshot = round(obj.Blinks(blinkstoprint(i)).ts / 1000000);
                 framepath = (['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', lower(obj.Parent.Name), '/', num2str(obj.Number), '/frames/', num2str(closestScreenshot), '.png']);
@@ -511,20 +512,21 @@ classdef Recording < handle
                     X = [0 obj.Dimensions(1); 0 obj.Dimensions(1)];
                     Y = -[obj.Blinks(blinkstoprint(i)).ts obj.Blinks(blinkstoprint(i)).ts; obj.Blinks(blinkstoprint(i)).ts obj.Blinks(blinkstoprint(i)).ts];
                     Z = [obj.Dimensions(2) obj.Dimensions(2); 0 0];
-                    surface(X, Y, Z, img,'FaceColor','texturemap')%,'FaceAlpha', 0.7);
+                    surface(X, Y, Z, img,'FaceColor','texturemap')%,'FaceAlpha', 0.7); , 'EdgeColor', 'white'
                 end
             end
             %format axes
-            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
+            %title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
             xlim([0 obj.Dimensions(1)])
             zlim([0 obj.Dimensions(2)])
             ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
-            a = legend('show');
-            a.String(end-length(blinkstoprint)+1:end) = '';
-            
+            %a = legend('show');
+            %a.String(end-length(blinkstoprint)+1:end) = '';
+            title('')
+            legend('off')
             %print GT
             if obj.readGT
-                scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'blue')
+                %scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'blue')
             end
         end
         
