@@ -101,6 +101,15 @@ classdef Recording < handle
             modelblink.VarianceOff = filter(movingAverageWindow/amplitudescale, 1, sqrt(varianceOff));
         end
         
+        function exporttrackerpositions(obj)
+            matrix = [obj.Eventstream.ts(1:1000:end); obj.Eventstream.leftTracker.x(1:1000:end) ; obj.Eventstream.leftTracker.y(1:1000:end) ; obj.Eventstream.rightTracker.x(1:1000:end) ; obj.Eventstream.rightTracker.y(1:1000:end) ];
+            path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number)];
+            if exist(path, 'dir') == 7
+                path = [path, '/run', num2str(obj.Number), '-events.csv'];
+                csvwrite(path, matrix');
+            end            
+        end
+        
         function calculatecorrelation(obj, varargin)
             disp(['calculating correlation for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
             if nargin > 1 && isa(varargin{1}, 'Modelblink')
@@ -525,9 +534,9 @@ classdef Recording < handle
             title('')
             legend('off')
             %print GT
-            if obj.readGT
-                %scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'blue')
-            end
+            %if obj.readGT
+                scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'blue')
+            %end
         end
         
         function plottileactivity(obj, grid, x, y)
