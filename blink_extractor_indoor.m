@@ -40,7 +40,7 @@ for s = 1:numel(names)
         subject.addrecording(1, recordingsIndoor.(name)(1), false);
         subject.addrecording(2, recordingsIndoor.(name)(2), false);
     elseif strcmp(name, 'suzon')
-        subject.addrecording(1, recordingsIndoor.(name)(1), true);
+        subject.addrecording(1, recordingsIndoor.(name)(1), true, 17);
         rec = subject.Recordings{1};
         rec.Center.Location = [132 128];
         rec.Center.Times = [1013000   4925820  14376820];
@@ -48,10 +48,10 @@ for s = 1:numel(names)
         rec.Left.Times = [20334090  28176130  28968990  30392610  31155690];
         rec.Right.Location = [189 125];
         rec.Right.Times = [35374390  43454550];
-        subject.addrecording(2, recordingsIndoor.(name)(2), false);
-        subject.addrecording(3, recordingsIndoor.(name)(3), false);
+        subject.addrecording(2, recordingsIndoor.(name)(2), false, 17);
+        subject.addrecording(3, recordingsIndoor.(name)(3), false, 13);
     elseif strcmp(name, 'mylene')
-        subject.addrecording(1, recordingsIndoor.(name)(1), true);
+        subject.addrecording(1, recordingsIndoor.(name)(1), true, 13);
         rec = subject.Recordings{1};
         rec.Center.Location = [130 162];
         rec.Center.Times = [4236000     9032820    10240740];
@@ -59,7 +59,7 @@ for s = 1:numel(names)
         rec.Left.Times = 17548425;
         rec.Right.Location = [183 152];
         rec.Right.Times = [27241850    30502010];
-        subject.addrecording(2, recordingsIndoor.(name)(2), false);
+        subject.addrecording(2, recordingsIndoor.(name)(2), false, 12);
         subject.addrecording(3, recordingsIndoor.(name)(3), false);
     elseif strcmp(name, 'gregor')
         subject.addrecording(1, recordingsIndoor.(name)(1), true);
