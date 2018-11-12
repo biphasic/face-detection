@@ -534,9 +534,9 @@ classdef Recording < handle
             title('')
             legend('off')
             %print GT
-            %if obj.readGT
+            if obj.readGT
                 scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'blue')
-            %end
+            end
         end
         
         function plottileactivity(obj, grid, x, y)

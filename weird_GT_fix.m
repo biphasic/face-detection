@@ -11,6 +11,7 @@ movingAverageWindow = ones(1, filterResolution) / filterResolution;
 unityXFiltered = filter(movingAverageWindow, 1, unityx-unityx(1));
 unityYFiltered = filter(movingAverageWindow, 1, unityy-unityy(1));
 
+figure
 plot(rec.Eventstream.ts(maskTracker), unityx)
 hold on
 plot(rec.Eventstream.ts(maskTracker), unityXFiltered+unityx(1))
@@ -22,10 +23,13 @@ testTS = rec.Eventstream.ts(maskTracker);
 testTS = testTS(1:832:end-200);
 testX= unityXFiltered(1:832:end-200)+unityx(1);
 testY= unityYFiltered(1:832:end-200)+unityy(1);
-plot(testTS, testX)
+stem(testTS, testX)
 
-rec.GT.x(mask) = testX;
-rec.GT.y(mask) = testY;
+newX = interp1(testTS, testX, rec.GT.ts(mask));
+newY = interp1(testTS, testY, rec.GT.ts(mask));
 
+rec.GT.x(mask) = newX;
+rec.GT.y(mask) = newY;
 
-%rec.GT.x(mask) = 
+m = [newX; newY];
+csvwrite('data.csv', m')
