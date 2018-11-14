@@ -47,8 +47,8 @@ classdef Face < handle
         end
         
         function resettracker(obj, blink)
-            obj.Blobs = Blob(blink.x1, blink.y1, 5, 0, 3);
-            obj.Blobs(2) = Blob(blink.x2, blink.y2, 5, 0, 3);
+            obj.Blobs = Blob(blink.x1, blink.y1, 3, 0, 2);
+            obj.Blobs(2) = Blob(blink.x2, blink.y2, 3, 0, 2);
         end
         
         function probability = getmaxtrackerprobability(obj)
