@@ -3,6 +3,7 @@ classdef Face < handle
         Blinks = Blink.empty
         Blobs = Blob.empty
         BlinkIndex = 1
+        GT
     end
     
     properties (Dependent = true)

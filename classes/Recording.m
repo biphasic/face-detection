@@ -102,7 +102,11 @@ classdef Recording < handle
         end
         
         function exporttrackerpositions(obj)
-            matrix = [obj.Eventstream.ts(1:1000:end); obj.Eventstream.leftTracker.x(1:1000:end) ; obj.Eventstream.leftTracker.y(1:1000:end) ; obj.Eventstream.rightTracker.x(1:1000:end) ; obj.Eventstream.rightTracker.y(1:1000:end) ];
+            skip = 300;
+            matrix = obj.Eventstream.ts(1:skip:end);
+            for f = 1:length(obj.Faces)
+                matrix = [matrix; obj.Eventstream.faces(f).leftTracker.x(1:skip:end) ; obj.Eventstream.faces(f).leftTracker.y(1:skip:end) ; obj.Eventstream.faces(f).rightTracker.x(1:skip:end) ; obj.Eventstream.faces(f).rightTracker.y(1:skip:end) ];
+            end
             path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number)];
             if exist(path, 'dir') == 7
                 path = [path, '/run', num2str(obj.Number), '-events.csv'];
@@ -410,12 +414,14 @@ classdef Recording < handle
                         end
                     end
                 end
-                if blobNumbers(f) ~= 0
-                    pos = obj.Faces(f).gettrackerpositions;
-                    rec.faces(f).leftTracker.x(i) = pos(1,1);
-                    rec.faces(f).leftTracker.y(i) = pos(1,2);
-                    rec.faces(f).rightTracker.x(i) = pos(2,1);
-                    rec.faces(f).rightTracker.y(i) = pos(2,2);
+                for f = 1:length(obj.Faces)
+                    if blobNumbers(f) ~= 0
+                        pos = obj.Faces(f).gettrackerpositions;
+                        rec.faces(f).leftTracker.x(i) = pos(1,1);
+                        rec.faces(f).leftTracker.y(i) = pos(1,2);
+                        rec.faces(f).rightTracker.x(i) = pos(2,1);
+                        rec.faces(f).rightTracker.y(i) = pos(2,2);
+                    end
                 end
             end
             obj.Eventstream = rec;
@@ -501,10 +507,14 @@ classdef Recording < handle
             result = false;
             if exist(path, 'file') == 2
                 csv = csvread(path);
-                obj.GT.ts = csv(:,1)';
-                obj.GT.x = (csv(:,2)+csv(:,4)/2)';
-                obj.GT.y = obj.Dimensions(2) - (csv(:,3)' + 0.40 * csv(:,4)');
-                %obj.GT.width = csv(:,4)';
+                for f = 1:length(obj.Faces)
+                    obj.Faces(f).GT.ts = csv(:,1)';
+                    obj.Faces(f).GT.x = (csv(:,(f-1)*4+2)+csv(:,(f-1)*4+4)/2)';
+                    obj.Faces(f).GT.y = obj.Dimensions(2) - (csv(:,(f-1)*4+3)' + 0.40 * csv(:,(f-1)*4+4)');
+                    obj.Faces(f).GT.ts(obj.Faces(f).GT.x == 0) = nan;
+                    obj.Faces(f).GT.x(obj.Faces(f).GT.x == 0) = nan;
+                    obj.Faces(f).GT.y(obj.Faces(f).GT.x == 0) = nan;
+                end
                 result = true;
             end
         end
@@ -548,11 +558,14 @@ classdef Recording < handle
                 ax = gca;
             end
             obj.plotblinks(ax)
+            
+            skip = 1000;
             for f = 1:length(obj.Faces)
                 for i = 1:length(obj.Faces(f).Blinks)
-                    scatter3(ax, obj.Eventstream.faces(f).leftTracker.x, -obj.Eventstream.ts, obj.Eventstream.faces(f).leftTracker.y, '.', 'red',  'Displayname', 'left eye tracker');
+                    scatter3(ax, obj.Eventstream.faces(f).leftTracker.x(1:skip:end), -obj.Eventstream.ts(1:skip:end), obj.Eventstream.faces(f).leftTracker.y(1:skip:end), '.', 'red',  'Displayname', 'left eye tracker');
                     hold on 
-                    scatter3(ax, obj.Eventstream.faces(f).rightTracker.x, -obj.Eventstream.ts, obj.Eventstream.faces(f).rightTracker.y, '.', 'green', 'Displayname', 'right eye tracker');
+                    scatter3(ax, obj.Eventstream.faces(f).rightTracker.x(1:skip:end), -obj.Eventstream.ts(1:skip:end), obj.Eventstream.faces(f).rightTracker.y(1:skip:end), '.', 'green', 'Displayname', 'right eye tracker');
+                    scatter3(ax, obj.Faces(f).GT.x, -obj.Faces(f).GT.ts, obj.Faces(f).GT.y, '.', 'blue')
                 end
             end
            
@@ -564,10 +577,6 @@ classdef Recording < handle
             %a = legend('show');
             %a.String(end-length(blinkstoprint)+1:end) = '';
             
-            %print GT
-            if obj.readGT
-                scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'blue')
-            end
         end
         
         function plottileactivity(obj, grid, x, y)
