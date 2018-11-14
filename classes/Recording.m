@@ -102,7 +102,13 @@ classdef Recording < handle
         end
         
         function exporttrackerpositions(obj)
-            matrix = [obj.Eventstream.ts(1:1000:end); obj.Eventstream.leftTracker.x(1:1000:end) ; obj.Eventstream.leftTracker.y(1:1000:end) ; obj.Eventstream.rightTracker.x(1:1000:end) ; obj.Eventstream.rightTracker.y(1:1000:end) ];
+            scale = sqrt((obj.Eventstream.leftTracker.x - obj.Eventstream.rightTracker.x).^2 + (obj.Eventstream.leftTracker.y - obj.Eventstream.rightTracker.y).^2);
+            indices = ~isnan(scale);
+            first = scale(indices);
+            scale = scale/ first(1);
+            obj.Eventstream.scale = scale;
+            skip = 200;
+            matrix = [obj.Eventstream.ts(1:skip:end); obj.Eventstream.leftTracker.x(1:skip:end) ; obj.Eventstream.leftTracker.y(1:skip:end) ; obj.Eventstream.rightTracker.x(1:skip:end) ; obj.Eventstream.rightTracker.y(1:skip:end); obj.Eventstream.scale(1:skip:end) ];
             path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number)];
             if exist(path, 'dir') == 7
                 path = [path, '/run', num2str(obj.Number), '-events.csv'];
