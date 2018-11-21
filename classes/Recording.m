@@ -370,9 +370,8 @@ classdef Recording < handle
                     obj.calculatetracking
                 end
                 %figure
-                tracker = (obj.Eventstream.leftTracker + obj.Eventstream.rightTracker) / 2;
-                trackerX = tracker(:,1)';
-                trackerY = tracker(:,2)';
+                trackerX = (obj.Eventstream.leftTracker.x + obj.Eventstream.rightTracker.x)/2;
+                trackerY = (obj.Eventstream.leftTracker.y + obj.Eventstream.rightTracker.y)/2;
                 [~, ia, ~] = unique(obj.Eventstream.ts);
                 interpolatedX = interp1(obj.Eventstream.ts(ia), trackerX(ia), obj.GT.ts);
                 interpolatedY = interp1(obj.Eventstream.ts(ia), trackerY(ia), obj.GT.ts);
