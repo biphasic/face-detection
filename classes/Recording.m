@@ -322,6 +322,7 @@ classdef Recording < handle
             else
                 figure;
                 ax = gca;
+                obj.detectblinks;
             end
             for i = 1:length(obj.Blinks)
                 scatter3(ax, obj.Blinks(i).x1, -obj.Blinks(i).ts, obj.Blinks(i).y1, 200, 'black', 'diamond', 'Displayname', 'left blink detected');
