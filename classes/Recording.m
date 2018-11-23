@@ -103,7 +103,13 @@ classdef Recording < handle
         end
         
         function exporttrackerpositions(obj)
-            matrix = [obj.Eventstream.ts(1:1000:end); obj.Eventstream.leftTracker.x(1:1000:end) ; obj.Eventstream.leftTracker.y(1:1000:end) ; obj.Eventstream.rightTracker.x(1:1000:end) ; obj.Eventstream.rightTracker.y(1:1000:end) ];
+            scale = sqrt((obj.Eventstream.leftTracker.x - obj.Eventstream.rightTracker.x).^2 + (obj.Eventstream.leftTracker.y - obj.Eventstream.rightTracker.y).^2);
+            indices = ~isnan(scale);
+            first = scale(indices);
+            scale = scale/ first(1);
+            obj.Eventstream.scale = scale;
+            skip = 200;
+            matrix = [obj.Eventstream.ts(1:skip:end); obj.Eventstream.leftTracker.x(1:skip:end) ; obj.Eventstream.leftTracker.y(1:skip:end) ; obj.Eventstream.rightTracker.x(1:skip:end) ; obj.Eventstream.rightTracker.y(1:skip:end); obj.Eventstream.scale(1:skip:end) ];
             path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number)];
             if exist(path, 'dir') == 7
                 path = [path, '/run', num2str(obj.Number), '-events.csv'];
@@ -181,6 +187,87 @@ classdef Recording < handle
         
         function calculatecorrelationwithsuperblink(obj)
             obj.calculatecorrelation(obj.Parent.Parent.Supermodel)
+        end
+        
+        function calculatescalecorrelation(obj, varargin)
+            if nargin > 1 && isa(varargin{1}, 'Modelblink')
+                disp('inserted new Modelblink for correlation')
+                modelblink = varargin{1};
+            else
+                disp('Using subject-specific Modelblink')
+                modelblink = obj.Parent.Modelblink;
+            end
+            tic
+            tile_width = obj.TileSizes(1);
+            tile_height = obj.TileSizes(2);
+            c = cell(obj.GridSizes(1), obj.GridSizes(2));
+            c2 = cell(obj.GridSizes(1)-1, obj.GridSizes(2)-1);
+            
+            ts=[];
+            x=[];
+            y=[];
+            corr=[];
+            disp('grid 1')
+            for i = 1:obj.GridSizes(1)
+                for j = 1:obj.GridSizes(2)
+                    tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
+                    if (i-1) * tile_width < 120
+                        addconst = 0.2;
+                    elseif (i-1) * tile_width > 190
+                        addconst = 2;
+                    else
+                        addconst = 1;
+                    end
+                    tile = activity(tile, obj.Parent.ActivityDecayConstant, (1 / obj.Parent.AmplitudeScale) * addconst, true);
+                    tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale / addconst, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                    c{i,j} = tile;
+                    ts = horzcat(ts, tile.ts);
+                    x = horzcat(x, ones(1,length(tile.ts)).*((i-0.5) * (tile_width)));
+                    y = horzcat(y, ones(1,length(tile.ts)).*((j-0.5) * (tile_height)));
+                    corr = horzcat(corr, tile.patternCorrelation);
+                end
+            end
+            fusion = [ts; x; y; corr]';
+            fusion = sortrows(fusion);
+            obj.EventstreamGrid1.ts = fusion(:,1)';
+            obj.EventstreamGrid1.x = fusion(:,2)';
+            obj.EventstreamGrid1.y = fusion(:,3)';
+            obj.EventstreamGrid1.patternCorrelation = fusion(:,4)';
+            
+            ts=[];
+            x=[];
+            y=[];
+            corr=[];
+            disp('grid 2')
+            for i = 1:(obj.GridSizes(1)-1)
+                for j = 1:(obj.GridSizes(2)-1)
+                    tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
+                    if (i-1) * tile_width + floor(tile_width/2) < 120
+                        addconst = 0.2;
+                    elseif (i-1) * tile_width + floor(tile_width/2) > 190
+                        addconst = 2;
+                    else
+                        addconst = 1;
+                    end
+                    tile = activity(tile, obj.Parent.ActivityDecayConstant, (1 / obj.Parent.AmplitudeScale) * addconst, true);
+                    tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale / addconst, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                    c2{i,j} = tile;
+                    ts = horzcat(ts, tile.ts);
+                    x = horzcat(x, ones(1,length(tile.ts)).*(i * tile_width));
+                    y = horzcat(y, ones(1,length(tile.ts)).*(j * tile_height));
+                    corr = horzcat(corr, tile.patternCorrelation);
+                end
+            end
+            fusion = [ts; x; y; corr]';
+            fusion = sortrows(fusion);
+            obj.EventstreamGrid2.ts = fusion(:,1)';
+            obj.EventstreamGrid2.x = fusion(:,2)';
+            obj.EventstreamGrid2.y = fusion(:,3)';
+            obj.EventstreamGrid2.patternCorrelation = fusion(:,4)';
+            
+            obj.Grids{1,1} = c;
+            obj.Grids{1,2} = c2;
+            toc
         end
       
         function detectblinks(obj)
@@ -271,7 +358,7 @@ classdef Recording < handle
             for i = start:stop
                 if blinkIndex <= blinkCount && rec.ts(i) >= obj.Blinks(blinkIndex).ts
                     blobs = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 5, 0, 3);
-                    blobs(2) = Blob(obj.Blinks(blinkIndex).x2, obj.Blinks(blinkIndex).y2, 5, 0, 3);
+                    blobs(2) = Blob(obj.Blinks(blinkIndex).x2, obj.Blinks(blinkIndex).y2, 8, 0, 5);
                     blinkIndex = blinkIndex + 1;
                 else
                     for b = 1:length(blobs)
@@ -425,6 +512,7 @@ classdef Recording < handle
                     break;
                 end
             end
+            blinkstoprint = [1 4 6];
             for i = 1:length(blinkstoprint)
                 closestScreenshot = round(obj.Blinks(blinkstoprint(i)).ts / 1000000);
                 framepath = (['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', lower(obj.Parent.Name), '/', num2str(obj.Number), '/frames/', num2str(closestScreenshot), '.png']);
@@ -443,17 +531,18 @@ classdef Recording < handle
                     X = [0 obj.Dimensions(1); 0 obj.Dimensions(1)];
                     Y = -[obj.Blinks(blinkstoprint(i)).ts obj.Blinks(blinkstoprint(i)).ts; obj.Blinks(blinkstoprint(i)).ts obj.Blinks(blinkstoprint(i)).ts];
                     Z = [obj.Dimensions(2) obj.Dimensions(2); 0 0];
-                    surface(X, Y, Z, img,'FaceColor','texturemap')%,'FaceAlpha', 0.7);
+                    surface(X, Y, Z, img,'FaceColor','texturemap')%,'FaceAlpha', 0.7); , 'EdgeColor', 'white'
                 end
             end
             %format axes
-            title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
+            %title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
             xlim([0 obj.Dimensions(1)])
             zlim([0 obj.Dimensions(2)])
             ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
-            a = legend('show');
-            a.String(end-length(blinkstoprint)+1:end) = '';
-            
+            %a = legend('show');
+            %a.String(end-length(blinkstoprint)+1:end) = '';
+            title('')
+            legend('off')
             %print GT
             if obj.readGT
                 scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'blue')
