@@ -1,7 +1,7 @@
 if ~exist('recordingsOutdoor', 'var')
     disp('loading compressed recordings from file...')
-    %load('recordingsOutdoor.mat')
-    load('recordingsOutdoorUnfiltered.mat')
+    load('recordingsOutdoor.mat')
+    %load('recordingsOutdoorUnfiltered.mat')
 end
 names = fieldnames(recordingsOutdoor);
 outdoor = Collection('outdoor');
