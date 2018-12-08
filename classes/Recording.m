@@ -281,7 +281,8 @@ classdef Recording < handle
             combinedGrid = merge_streams(obj.EventstreamGrid1, obj.EventstreamGrid2);
             mask = combinedGrid.patternCorrelation>obj.Parent.CorrelationThreshold;
             
-            maximumDifference = 50000;
+            maxDiffTime = 50000;
+            maxDiffX = 50;
             tileWidth = obj.TileSizes(1);
             tileHeight = obj.TileSizes(2);
             indices = find(mask);
@@ -293,10 +294,10 @@ classdef Recording < handle
                 end
                 %last three events are close enough in time and do not have
                 %the same x value
-                if combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
+                if combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maxDiffTime && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
                     %last 4 events are close enough in time and have the
                     %same x value
-                    if i ~= length(indices) && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i+1)) < maximumDifference && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-2)), combinedGrid.x(indices(i+1)) )
+                    if i ~= length(indices) && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i+1)) < maxDiffTime && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-2)), combinedGrid.x(indices(i+1)) )
                         quadruplet = zeros(4, 2);
                         for row = 1:4
                             quadruplet(row,:) = [combinedGrid.x(indices(i+2-row)), combinedGrid.y(indices(i+2-row))];
@@ -307,7 +308,7 @@ classdef Recording < handle
                         right = abs(quadruplet(4,:) - quadruplet(3,:));
                         rightMean = (quadruplet(4,:) + quadruplet(3,:))/2;
                         diff = abs(rightMean - leftMean);
-                        if leftDelta(1) < tileWidth && leftDelta(2) < tileHeight && right(1) < tileWidth && right(2) < tileHeight && diff(1) > tileWidth && diff(1) < 50 && diff(2) < tileHeight
+                        if leftDelta(1) < tileWidth && leftDelta(2) < tileHeight && right(1) < tileWidth && right(2) < tileHeight && diff(1) > tileWidth && diff(1) < maxDiffX && diff(2) < tileHeight
                             obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
                             blinkIndex = blinkIndex + 1;
                             skip = 2;
@@ -324,14 +325,14 @@ classdef Recording < handle
                     %two on the left
                     leftDiff = abs(triplet(2,:) - triplet(1,:));
                     leftMean = ((triplet(2,:) + triplet(1,:))/2);
-                    if  leftDiff(1) < tileWidth && leftDiff(2) < tileHeight && triplet(3,1) - leftMean(1) > tileWidth && triplet(3,1) - leftMean(1) < 50 && abs(triplet(3,2) - leftMean(2)) < tileHeight
+                    if  leftDiff(1) < tileWidth && leftDiff(2) < tileHeight && triplet(3,1) - leftMean(1) > tileWidth && triplet(3,1) - leftMean(1) < maxDiffX && abs(triplet(3,2) - leftMean(2)) < tileHeight
                         obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), triplet(3,1), leftMean(2), combinedGrid.ts(indices(i)));
                         blinkIndex = blinkIndex + 1;
                     end
                     %two on the right
                     rightDiff = abs(triplet(3,:) - triplet(2,:));
                     rightMean = ((triplet(3,:) + triplet(2,:))/2);
-                    if  rightDiff(1) < tileWidth && rightDiff(2) < tileHeight && rightMean(1) - triplet(1,1) > tileWidth && rightMean(1) - triplet(1,1) < 50 && abs(triplet(1,2) - rightMean(2)) < tileHeight
+                    if  rightDiff(1) < tileWidth && rightDiff(2) < tileHeight && rightMean(1) - triplet(1,1) > tileWidth && rightMean(1) - triplet(1,1) < maxDiffX && abs(triplet(1,2) - rightMean(2)) < tileHeight
                         obj.Blinks(blinkIndex) = Blink(triplet(1,1), rightMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
                         blinkIndex = blinkIndex + 1;
                     end
