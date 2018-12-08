@@ -513,7 +513,7 @@ classdef Recording < handle
                     break;
                 end
             end
-            blinkstoprint = [1 4 6];
+            %blinkstoprint = [1 4 6];
             for i = 1:length(blinkstoprint)
                 closestScreenshot = round(obj.Blinks(blinkstoprint(i)).ts / 1000000);
                 framepath = (['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', lower(obj.Parent.Name), '/', num2str(obj.Number), '/frames/', num2str(closestScreenshot), '.png']);
