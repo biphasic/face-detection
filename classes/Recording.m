@@ -560,7 +560,7 @@ classdef Recording < handle
             figure
             %plot([0 eye.ts(end)], [correlationThreshold correlationThreshold]);
             hold on;
-            ylim([0 10])
+            ylim([0 4])
             xlim([0 eye.ts(end)])
             opts1={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.OnColour};%rot
             opts2={'FaceAlpha', 0.7, 'FaceColor', obj.Parent.Parent.OffColour};%blau
@@ -577,10 +577,12 @@ classdef Recording < handle
             end
             z = zeros(1, length(continuum.activityOn));
             x = continuum.ts;
-            y1 = continuum.activityOff;
-            y2 = continuum.activityOn;
-            fill_between(x, y1, y2, y1 < y2, opts1{:});
-            fill_between(x, z, y1, y1 > z, opts2{:});
+            y1 = continuum.activityOn;
+            y2 = continuum.activityOff;
+            %fill_between(x, y1, y2, y1 < y2, opts2{:});
+            %fill_between(x, z, y1, y1 > z, opts1{:});
+            plot(x, y1, 'r')
+            plot(x, y2, 'b')
             %sometimes it is desired to rather show the events 
             %stem(eye.ts, eye.activityOn/subjects.(names{s}).AmplitudeScale);
             %stem(eye.ts, -eye.activityOff/subjects.(names{s}).AmplitudeScale);
