@@ -8,7 +8,7 @@ allActivityOff = eye.activityOff;
 len = length(allTimestamps);
 eye.patternCorrelation = nan(1, len);
 
-minimumDifference = slidingWindowWidth/10;
+minimumDifference = slidingWindowWidth/15;
 bufferSize = slidingWindowWidth/corrBufferScale;
 
 bufferOn = zeros(1, length(allActivityOn));
@@ -69,7 +69,7 @@ for i = skip:len
                     bufOn(index) = allActivityOn(k);
                 end
                 m = max(bufOn(1:floor((slidingWindowWidth/corrBufferScale)/3)));
-                if m < 0.6 || m > 1.6
+                if m < 0.5 || m > 1.9
                     continue
                 end
                 for k=find(bufferOff == 1)

@@ -7,7 +7,7 @@ for s = 1:numel(names)
     if s == 1
         disp('Gregor/run3.es')
         gregor = Subject(names{s}, 0.88, mobile);
-        gregor.BlinkLength = 300000;
+        gregor.BlinkLength = 250000;
         gregor.addrecording(3, mobileEventsGregor, true);
         gregor.Recordings{3}.Left.Location = [102 149];
         gregor.Recordings{3}.Left.Times = [1546000     2629260     3809260];

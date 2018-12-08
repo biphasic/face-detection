@@ -281,8 +281,8 @@ classdef Recording < handle
             combinedGrid = merge_streams(obj.EventstreamGrid1, obj.EventstreamGrid2);
             mask = combinedGrid.patternCorrelation>obj.Parent.CorrelationThreshold;
             
-            maxDiffTime = 50000;
-            maxDiffX = 50;
+            maxDiffTime = 80000;
+            maxDiffX = 120;
             tileWidth = obj.TileSizes(1);
             tileHeight = obj.TileSizes(2);
             indices = find(mask);
@@ -308,7 +308,7 @@ classdef Recording < handle
                         right = abs(quadruplet(4,:) - quadruplet(3,:));
                         rightMean = (quadruplet(4,:) + quadruplet(3,:))/2;
                         diff = abs(rightMean - leftMean);
-                        if leftDelta(1) < tileWidth && leftDelta(2) < tileHeight && right(1) < tileWidth && right(2) < tileHeight && diff(1) > tileWidth && diff(1) < maxDiffX && diff(2) < tileHeight
+                        if leftDelta(1) <= tileWidth && leftDelta(2) < tileHeight && right(1) <= tileWidth && right(2) < tileHeight && diff(1) > tileWidth && diff(1) < maxDiffX && diff(2) < tileHeight
                             obj.Blinks(blinkIndex) = Blink(leftMean(1), leftMean(2), rightMean(1), rightMean(2), combinedGrid.ts(indices(i)));
                             blinkIndex = blinkIndex + 1;
                             skip = 2;
