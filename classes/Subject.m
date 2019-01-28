@@ -242,10 +242,16 @@ classdef Subject < handle
             end
              %plot both average and variance for ON and OFF
             title(ax, obj.Name)
-            ax = shadedErrorBar(1:length(obj.Modelblink.AverageOn), obj.Modelblink.AverageOn, obj.Modelblink.VarianceOn, 'lineprops', '-r');
-            ax.mainLine.LineWidth = 3;
-            ax = shadedErrorBar(1:length(obj.Modelblink.AverageOff), obj.Modelblink.AverageOff, obj.Modelblink.VarianceOff, 'lineprops', '-b');
-            ax.mainLine.LineWidth = 3;
+            if max(obj.Modelblink.VarianceOn) > 0
+                ax = shadedErrorBar(1:length(obj.Modelblink.AverageOn), obj.Modelblink.AverageOn, obj.Modelblink.VarianceOn, 'lineprops', '-r');
+                ax.mainLine.LineWidth = 3;
+                ax = shadedErrorBar(1:length(obj.Modelblink.AverageOff), obj.Modelblink.AverageOff, obj.Modelblink.VarianceOff, 'lineprops', '-b');
+                ax.mainLine.LineWidth = 3;
+            else
+                plot(ax, obj.Modelblink.AverageOn, 'Linewidth', 3, 'Color', 'red');
+                hold on
+                plot(ax, obj.Modelblink.AverageOff, 'Linewidth', 3, 'Color', 'blue');
+            end
             ylim([0 inf])
         end
         
