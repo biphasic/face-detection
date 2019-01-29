@@ -16,24 +16,19 @@ if allTimestamps(end) < 10000
 end
 
 cores = 12;
-%correlations = nan(cores, len);
-sequence = int32(allTimestamps(end)/cores);
+sequence = int32(len/cores);
+correlations = nan(cores, sequence);
+
 parfor c = 1:cores
-    if c == 1
-        start = 1
-    else
-        start = find(allTimestamps <= (c * sequence) - slidingWindowWidth);
-        start = start(end)
-    end
-    correlations(c,:) = nan(cores, length(allTimestamps));
-    stop = find(allTimestamps <= (c * sequence))
-    stop = stop(end)
+    start = (c-1) * sequence + 1;
+    %correlations(c,:) = nan(1, length(allTimestamps));
     lastPM = 0;
-    bufferOn = zeros(1, length(allActivityOn(start:stop)));
-    bufferOff = zeros(1, length(allActivityOn(start:stop)));
+    bufferOn = zeros(1, len);
+    bufferOff = bufferOn;
     bufferOnStart = start;
-    bufferOffStart = start;
-    for i = start:stop
+    bufferOffStart = bufferOnStart;
+    for l = 1:sequence
+        i = (c-1)*sequence + l;
         timestamp = allTimestamps(i);
         % add latest event to the buffer
         if isnan(allActivityOff(i))
@@ -91,7 +86,7 @@ parfor c = 1:cores
                     samplesOff = filterOff .* (bufOff>0);
                     resOn = xcorr(bufOn, samplesOn, 'coeff');
                     resOff = xcorr(bufOff, samplesOff, 'coeff');
-                    correlations(c, i) = 1.25*resOn(bufferSize) * 0.8*resOff(bufferSize);
+                    correlations(c, l) = 1.25*resOn(bufferSize) * 0.8*resOff(bufferSize);
                     lastPM = timestamp;
                 end
             end
