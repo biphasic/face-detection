@@ -14,11 +14,11 @@ if allTimestamps(end) < 10000
     return;
 end
 
-cores = 4;
+cores = 48;
 sequence = int32(len/cores)-1;
 correlations = nan(cores, sequence);
 
-for c = 1:cores
+parfor c = 1:cores
     sliceStart = (c-1) * sequence + 1;
     sliceStartTimestamp = allTimestamps(sliceStart);
     bufferOn = zeros(1, len);
@@ -115,7 +115,7 @@ for c = 1:cores
         end
     end
 end
-correlations = [correlations(1,:), correlations(2,:), correlations(3,:), correlations(4,:)];
+correlations = reshape(correlations', 1, []);
 for i = length(correlations):length(allTimestamps)
     correlations(i) = NaN;
 end
