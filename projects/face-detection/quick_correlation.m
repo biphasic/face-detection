@@ -10,36 +10,55 @@ len = length(allTimestamps);
 minimumDifference = slidingWindowWidth/10;
 bufferSize = slidingWindowWidth/corrBufferScale;
 
-
 if allTimestamps(end) < 10000
     return;
 end
 
-cores = 12;
-sequence = int32(len/cores);
+cores = 4;
+sequence = int32(len/cores)-1;
 correlations = nan(cores, sequence);
 
-parfor c = 1:cores
-    start = (c-1) * sequence + 1;
-    %correlations(c,:) = nan(1, length(allTimestamps));
-    lastPM = 0;
+for c = 1:cores
+    sliceStart = (c-1) * sequence + 1;
+    sliceStartTimestamp = allTimestamps(sliceStart);
     bufferOn = zeros(1, len);
     bufferOff = bufferOn;
-    bufferOnStart = start;
+    numBufferOn = 0;
+    numBufferOff = numBufferOn;
+    windowStart = find(allTimestamps > (sliceStartTimestamp - slidingWindowWidth));
+    windowStart = windowStart(1);
+    for b = windowStart:sliceStart
+        if isnan(allActivityOff(b))
+            bufferOn(b) = 1;
+            numBufferOn = numBufferOn + 1;
+        else
+            bufferOff(b) = 1;
+            numBufferOff = numBufferOff + 1;
+        end 
+    end
+    %correlations(c,:) = nan(1, length(allTimestamps));
+    lastPM = 0;
+    bufferOnStart = windowStart;
     bufferOffStart = bufferOnStart;
+    
     for l = 1:sequence
-        i = (c-1)*sequence + l;
+        i = (c-1) * sequence + l;
         timestamp = allTimestamps(i);
         % add latest event to the buffer
         if isnan(allActivityOff(i))
             bufferOn(i) = 1;
+            numBufferOn = numBufferOn + 1;
         else
             bufferOff(i) = 1;
+            numBufferOff = numBufferOff + 1;
         end
         % remove events from buffer that are outside sliding window
         for j = bufferOnStart:(i-1)
             if allTimestamps(j) < (timestamp - slidingWindowWidth)
-                bufferOn(j) = 0;
+                if bufferOn(j) == 1
+                    bufferOn(j) = 0;
+                    numBufferOn = numBufferOn - 1;
+                end
             else
                 bufferOnStart = j;
                 break;
@@ -47,7 +66,10 @@ parfor c = 1:cores
         end
         for j = bufferOffStart:(i-1)
             if allTimestamps(j) < (timestamp - slidingWindowWidth)
-                bufferOff(j) = 0;
+                if bufferOff(j) == 1
+                    bufferOff(j) = 0;
+                    numBufferOff = numBufferOff - 1;
+                end
             else
                 bufferOffStart = j;
                 break;
@@ -55,10 +77,9 @@ parfor c = 1:cores
         end
 
         if timestamp - lastPM >= minimumDifference
-            nOn = nnz(bufferOn(bufferOnStart:i));
-            if nOn > amplitudeScale/2 && nOn < 10*amplitudeScale/2
-                nOff = nnz(bufferOff(bufferOffStart:i));
-                if  nOff > amplitudeScale/3 && nOff < 10*amplitudeScale/2
+            if numBufferOn > amplitudeScale/2 && numBufferOn < 10*amplitudeScale/2
+                if  numBufferOff > amplitudeScale/3 && numBufferOff < 10*amplitudeScale/2
+                    %disp('Im here')
                     bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
                     bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
                     divisor = timestamp - slidingWindowWidth;
@@ -66,7 +87,7 @@ parfor c = 1:cores
                     % and downscale to smaller buffer size
                     for k=find(bufferOn == 1)
                         index = ceil(mod(allTimestamps(k), divisor)/corrBufferScale);
-                        if index == 0
+                        if index < 1
                             index = 1;
                         end
                         bufOn(index) = allActivityOn(k);
@@ -77,7 +98,7 @@ parfor c = 1:cores
                     end
                     for k=find(bufferOff == 1)
                         index = ceil(mod(allTimestamps(k), divisor)/corrBufferScale);
-                        if index == 0
+                        if index < 1
                             index = 1;
                         end
                         bufOff(index) = allActivityOff(k);
@@ -87,11 +108,16 @@ parfor c = 1:cores
                     resOn = xcorr(bufOn, samplesOn, 'coeff');
                     resOff = xcorr(bufOff, samplesOff, 'coeff');
                     correlations(c, l) = 1.25*resOn(bufferSize) * 0.8*resOff(bufferSize);
+                    %disp(num2str(1.25*resOn(bufferSize) * 0.8*resOff(bufferSize)))
                     lastPM = timestamp;
                 end
             end
         end
     end
+end
+correlations = [correlations(1,:), correlations(2,:), correlations(3,:), correlations(4,:)];
+for i = length(correlations):length(allTimestamps)
+    correlations(i) = NaN;
 end
 eye.patternCorrelation = correlations;
 
