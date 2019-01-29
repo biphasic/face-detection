@@ -23,6 +23,8 @@ end
 bufferOnStart = skip;
 bufferOffStart = skip;
 lastPM = 0;
+numBufferOn = 0;
+numBufferOff = numBufferOn;
 
 %loop over all events
 for i = skip:len
@@ -30,13 +32,18 @@ for i = skip:len
     % add latest event to the buffer
     if isnan(allActivityOff(i))
         bufferOn(i) = 1;
+        numBufferOn = numBufferOn + 1;
     else
         bufferOff(i) = 1;
+        numBufferOff = numBufferOff + 1;
     end
     % remove events from buffer that are outside sliding window
     for j = bufferOnStart:(i-1)
         if allTimestamps(j) < (timestamp - slidingWindowWidth)
-            bufferOn(j) = 0;
+            if bufferOn(j) == 1
+                bufferOn(j) = 0;
+                numBufferOn = numBufferOn - 1;
+            end
         else
             bufferOnStart = j;
             break;
@@ -44,7 +51,10 @@ for i = skip:len
     end
     for j = bufferOffStart:(i-1)
         if allTimestamps(j) < (timestamp - slidingWindowWidth)
-            bufferOff(j) = 0;
+            if bufferOff(j) == 1
+                bufferOff(j) = 0;
+                numBufferOff = numBufferOff - 1;
+            end
         else
             bufferOffStart = j;
             break;
@@ -52,10 +62,8 @@ for i = skip:len
     end
  
     if timestamp - lastPM >= minimumDifference
-        nOn = nnz(bufferOn(bufferOnStart:i));
-        if nOn > amplitudeScale/2 && nOn < 10*amplitudeScale/2
-            nOff = nnz(bufferOff(bufferOffStart:i));
-            if  nOff > amplitudeScale/3 && nOff < 10*amplitudeScale/2
+        if numBufferOn > amplitudeScale/2 && numBufferOn < 10*amplitudeScale/2
+            if  numBufferOff > amplitudeScale/3 && numBufferOff < 10*amplitudeScale/2
                 bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
                 bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
                 divisor = timestamp - slidingWindowWidth;
