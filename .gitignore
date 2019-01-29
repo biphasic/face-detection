@@ -2,6 +2,7 @@
 *.dat
 *.mat
 *.m~
+pathdef.m
 Recordings-alias
 backups
 testfile*
