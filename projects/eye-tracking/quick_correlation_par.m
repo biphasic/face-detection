@@ -86,17 +86,17 @@ parfor c = 1:cores
             end
         end
 
-        if timestamp - lastPM >= minimumDifference
+        if timestamp - lastPM >= minimumDifference && timestamp > slidingWindowWidthq
             if numBufferOn > amplitudeScale/2 && numBufferOn < 10*amplitudeScale/2
                 if  numBufferOff > amplitudeScale/3 && numBufferOff < 10*amplitudeScale/2
                     bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
                     bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
-                    divisor = timestamp - slidingWindowWidth;
+                    windowTimeStart = timestamp - slidingWindowWidth;
                     % generate a 'time representation' rather than simply the events
                     % and downscale to smaller buffer size
                     for k=find(bufferOn == 1)
-                        index = ceil(mod(newAllTimestamps(k), divisor)/corrBufferScale);
-                        if index < 1
+                        index = ceil((newAllTimestamps(k) - windowTimeStart)/corrBufferScale);
+                        if index == 0
                             index = 1;
                         end
                         bufOn(index) = newAllActivityOn(k);
@@ -106,8 +106,8 @@ parfor c = 1:cores
                         continue
                     end
                     for k=find(bufferOff == 1)
-                        index = ceil(mod(newAllTimestamps(k), divisor)/corrBufferScale);
-                        if index < 1
+                        index = ceil((newAllTimestamps(k) - windowTimeStart)/corrBufferScale);
+                        if index == 0
                             index = 1;
                         end
                         bufOff(index) = newAllActivityOff(k);

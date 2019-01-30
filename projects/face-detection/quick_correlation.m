@@ -13,21 +13,15 @@ bufferSize = slidingWindowWidth/corrBufferScale;
 
 bufferOn = zeros(1, length(allActivityOn));
 bufferOff = zeros(1, length(allActivityOn));
-skip = find(allTimestamps > 500000);
-if ~isempty(skip)
-    skip = skip(1);
-else
-    return;
-end
 
-bufferOnStart = skip;
-bufferOffStart = skip;
+bufferOnStart = 1;
+bufferOffStart = 1;
 lastPM = 0;
 numBufferOn = 0;
 numBufferOff = numBufferOn;
 
 %loop over all events
-for i = skip:len
+for i = 1:len
     timestamp = allTimestamps(i);
     % add latest event to the buffer
     if isnan(allActivityOff(i))
@@ -61,16 +55,16 @@ for i = skip:len
         end
     end
  
-    if timestamp - lastPM >= minimumDifference
+    if timestamp - lastPM >= minimumDifference && timestamp > slidingWindowWidth
         if numBufferOn > amplitudeScale/2 && numBufferOn < 10*amplitudeScale/2
             if  numBufferOff > amplitudeScale/3 && numBufferOff < 10*amplitudeScale/2
                 bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
                 bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
-                divisor = timestamp - slidingWindowWidth;
+                windowTimeStart = timestamp - slidingWindowWidth;
                 % generate a 'time representation' rather than simply the events
                 % and downscale to smaller buffer size
                 for k=find(bufferOn == 1)
-                    index = ceil(mod(allTimestamps(k), divisor)/corrBufferScale);
+                    index = round((allTimestamps(k) - windowTimeStart)/corrBufferScale);
                     if index == 0
                         index = 1;
                     end
@@ -81,7 +75,7 @@ for i = skip:len
                     continue
                 end
                 for k=find(bufferOff == 1)
-                    index = ceil(mod(allTimestamps(k), divisor)/corrBufferScale);
+                    index = ceil((allTimestamps(k) - windowTimeStart)/corrBufferScale);
                     if index == 0
                         index = 1;
                     end
