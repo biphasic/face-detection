@@ -132,56 +132,63 @@ classdef Recording < handle
             c = cell(obj.GridSizes(1), obj.GridSizes(2));
             c2 = cell(obj.GridSizes(1)-1, obj.GridSizes(2)-1);
             
-            ts=[];
-            x=[];
-            y=[];
-            corr=[];
-            disp('grid 1')
-            for i = 1:obj.GridSizes(1)
-                for j = 1:obj.GridSizes(2)
-                    tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
-                    tile = activity(tile, obj.Parent.ActivityDecayConstant, 1 / obj.Parent.AmplitudeScale, true);
-                    tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
-                    c{i,j} = tile;
-                    ts = horzcat(ts, tile.ts);
-                    x = horzcat(x, ones(1,length(tile.ts)).*((i-0.5) * (tile_width)));
-                    y = horzcat(y, ones(1,length(tile.ts)).*((j-0.5) * (tile_height)));
-                    corr = horzcat(corr, tile.patternCorrelation);
+            if obj.GridSizes == [1, 1]
+                disp('no grid detected, slicing recording temporally...')
+                tile = activity(obj.Eventstream, obj.Parent.ActivityDecayConstant, 1 / obj.Parent.AmplitudeScale, true);
+                tile = quick_correlation_par(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                obj.EventstreamGrid1 = tile;
+            else
+                disp('no slicing along temporal axis...')
+                ts=[];
+                x=[];
+                y=[];
+                corr=[];
+                disp('grid 1')
+                for i = 1:obj.GridSizes(1)
+                    for j = 1:obj.GridSizes(2)
+                        tile = crop_spatial(obj.Eventstream, (i-1) * tile_width, (j-1) * tile_height, tile_width, tile_height);
+                        tile = activity(tile, obj.Parent.ActivityDecayConstant, 1 / obj.Parent.AmplitudeScale, true);
+                        tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                        c{i,j} = tile;
+                        ts = horzcat(ts, tile.ts);
+                        x = horzcat(x, ones(1,length(tile.ts)).*((i-0.5) * (tile_width)));
+                        y = horzcat(y, ones(1,length(tile.ts)).*((j-0.5) * (tile_height)));
+                        corr = horzcat(corr, tile.patternCorrelation);
+                    end
                 end
-            end
-            fusion = [ts; x; y; corr]';
-            fusion = sortrows(fusion);
-            obj.EventstreamGrid1.ts = fusion(:,1)';
-            obj.EventstreamGrid1.x = fusion(:,2)';
-            obj.EventstreamGrid1.y = fusion(:,3)';
-            obj.EventstreamGrid1.patternCorrelation = fusion(:,4)';
-            
-            ts=[];
-            x=[];
-            y=[];
-            corr=[];
-            disp('grid 2')
-            for i = 1:(obj.GridSizes(1)-1)
-                for j = 1:(obj.GridSizes(2)-1)
-                    tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
-                    tile = activity(tile, obj.Parent.ActivityDecayConstant, 1 / obj.Parent.AmplitudeScale, true);
-                    tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
-                    c2{i,j} = tile;
-                    ts = horzcat(ts, tile.ts);
-                    x = horzcat(x, ones(1,length(tile.ts)).*(i * tile_width));
-                    y = horzcat(y, ones(1,length(tile.ts)).*(j * tile_height));
-                    corr = horzcat(corr, tile.patternCorrelation);
+                fusion = [ts; x; y; corr]';
+                fusion = sortrows(fusion);
+                obj.EventstreamGrid1.ts = fusion(:,1)';
+                obj.EventstreamGrid1.x = fusion(:,2)';
+                obj.EventstreamGrid1.y = fusion(:,3)';
+                obj.EventstreamGrid1.patternCorrelation = fusion(:,4)';
+
+                ts=[];
+                x=[];
+                y=[];
+                corr=[];
+                disp('grid 2')
+                for i = 1:(obj.GridSizes(1)-1)
+                    for j = 1:(obj.GridSizes(2)-1)
+                        tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
+                        tile = activity(tile, obj.Parent.ActivityDecayConstant, 1 / obj.Parent.AmplitudeScale, true);
+                        tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                        c2{i,j} = tile;
+                        ts = horzcat(ts, tile.ts);
+                        x = horzcat(x, ones(1,length(tile.ts)).*(i * tile_width));
+                        y = horzcat(y, ones(1,length(tile.ts)).*(j * tile_height));
+                        corr = horzcat(corr, tile.patternCorrelation);
+                    end
                 end
+                fusion = [ts; x; y; corr]';
+                fusion = sortrows(fusion);
+                obj.EventstreamGrid2.ts = fusion(:,1)';
+                obj.EventstreamGrid2.x = fusion(:,2)';
+                obj.EventstreamGrid2.y = fusion(:,3)';
+                obj.EventstreamGrid2.patternCorrelation = fusion(:,4)';
+                obj.Grids{1,2} = c2;
             end
-            fusion = [ts; x; y; corr]';
-            fusion = sortrows(fusion);
-            obj.EventstreamGrid2.ts = fusion(:,1)';
-            obj.EventstreamGrid2.x = fusion(:,2)';
-            obj.EventstreamGrid2.y = fusion(:,3)';
-            obj.EventstreamGrid2.patternCorrelation = fusion(:,4)';
-            
             obj.Grids{1,1} = c;
-            obj.Grids{1,2} = c2;
             toc
         end
         
