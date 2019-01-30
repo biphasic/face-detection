@@ -36,19 +36,18 @@ parfor c = 1:cores
             numBufferOff = numBufferOff + 1;
         end 
     end
-    %correlations(c,:) = nan(1, length(allTimestamps));
     lastPM = 0;
     bufferOnStart = windowStart;
     bufferOffStart = bufferOnStart;
-    disp(["Hello from thread number " + num2str(c) + ", I'm slicing at " + num2str(sliceStartTimestamp/1000000) + "s."])
+    disp("Hello from thread number " + num2str(c) + ", I'm slicing at " + num2str(sliceStartTimestamp/1000000) + "s.")
     half = round(sequence/2);
     quarter = round(sequence/4);
     for l = 1:sequence
         if l == quarter
-            disp(["Thread " + num2str(c) + " reporting quarter way done!"])
+            disp("Thread " + num2str(c) + " reporting quarter way done!")
         end
         if l == half
-            disp(["Thread " + num2str(c) + " reporting half way done!"])
+            disp("Thread " + num2str(c) + " reporting half way done!")
         end
         i = (c-1) * sequence + l;
         timestamp = allTimestamps(i);
@@ -87,7 +86,6 @@ parfor c = 1:cores
         if timestamp - lastPM >= minimumDifference
             if numBufferOn > amplitudeScale/2 && numBufferOn < 10*amplitudeScale/2
                 if  numBufferOff > amplitudeScale/3 && numBufferOff < 10*amplitudeScale/2
-                    %disp('Im here')
                     bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
                     bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
                     divisor = timestamp - slidingWindowWidth;
@@ -116,7 +114,6 @@ parfor c = 1:cores
                     resOn = xcorr(bufOn, samplesOn, 'coeff');
                     resOff = xcorr(bufOff, samplesOff, 'coeff');
                     correlations(c, l) = 1.25*resOn(bufferSize) * 0.8*resOff(bufferSize);
-                    %disp(num2str(1.25*resOn(bufferSize) * 0.8*resOff(bufferSize)))
                     lastPM = timestamp;
                 end
             end
