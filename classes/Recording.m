@@ -156,32 +156,35 @@ classdef Recording < handle
             obj.EventstreamGrid1.y = fusion(:,3)';
             obj.EventstreamGrid1.patternCorrelation = fusion(:,4)';
             
-            ts=[];
-            x=[];
-            y=[];
-            corr=[];
-            disp('grid 2')
-            for i = 1:(obj.GridSizes(1)-1)
-                for j = 1:(obj.GridSizes(2)-1)
-                    tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
-                    tile = activity(tile, obj.Parent.ActivityDecayConstant, 1 / obj.Parent.AmplitudeScale, true);
-                    tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
-                    c2{i,j} = tile;
-                    ts = horzcat(ts, tile.ts);
-                    x = horzcat(x, ones(1,length(tile.ts)).*(i * tile_width));
-                    y = horzcat(y, ones(1,length(tile.ts)).*(j * tile_height));
-                    corr = horzcat(corr, tile.patternCorrelation);
+            if obj.GridSizes ~= [1, 1]
+                ts=[];
+                x=[];
+                y=[];
+                corr=[];
+                disp('grid 2')
+                for i = 1:(obj.GridSizes(1)-1)
+                    for j = 1:(obj.GridSizes(2)-1)
+                        tile = crop_spatial(obj.Eventstream, (i-1) * tile_width + floor(tile_width/2), (j-1) * tile_height + floor(tile_height/2), tile_width, tile_height);
+                        tile = activity(tile, obj.Parent.ActivityDecayConstant, 1 / obj.Parent.AmplitudeScale, true);
+                        tile = quick_correlation(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
+                        c2{i,j} = tile;
+                        ts = horzcat(ts, tile.ts);
+                        x = horzcat(x, ones(1,length(tile.ts)).*(i * tile_width));
+                        y = horzcat(y, ones(1,length(tile.ts)).*(j * tile_height));
+                        corr = horzcat(corr, tile.patternCorrelation);
+                    end
                 end
+                fusion = [ts; x; y; corr]';
+                fusion = sortrows(fusion);
+                obj.EventstreamGrid2.ts = fusion(:,1)';
+                obj.EventstreamGrid2.x = fusion(:,2)';
+                obj.EventstreamGrid2.y = fusion(:,3)';
+                obj.EventstreamGrid2.patternCorrelation = fusion(:,4)';
+                obj.Grids{1,2} = c2;
+            else
+                disp('skipping redundant grid 2...')
             end
-            fusion = [ts; x; y; corr]';
-            fusion = sortrows(fusion);
-            obj.EventstreamGrid2.ts = fusion(:,1)';
-            obj.EventstreamGrid2.x = fusion(:,2)';
-            obj.EventstreamGrid2.y = fusion(:,3)';
-            obj.EventstreamGrid2.patternCorrelation = fusion(:,4)';
-            
             obj.Grids{1,1} = c;
-            obj.Grids{1,2} = c2;
             toc
         end
         
