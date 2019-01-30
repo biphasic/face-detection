@@ -40,8 +40,16 @@ parfor c = 1:cores
     lastPM = 0;
     bufferOnStart = windowStart;
     bufferOffStart = bufferOnStart;
-    
+    disp(["Hello from thread number " + num2str(c) + ", I'm slicing at " + num2str(sliceStartTimestamp/1000000) + "s."])
+    half = round(sequence/2);
+    quarter = round(sequence/4);
     for l = 1:sequence
+        if l == quarter
+            disp(["Thread " + num2str(c) + " reporting quarter way done!"])
+        end
+        if l == half
+            disp(["Thread " + num2str(c) + " reporting half way done!"])
+        end
         i = (c-1) * sequence + l;
         timestamp = allTimestamps(i);
         % add latest event to the buffer
