@@ -1,12 +1,12 @@
 if ~exist('eyerecording', 'var')
     disp('loading compressed recording from file...')
-    load('eyerecording.mat')
+    load('eyerecording-500.mat')
 end
 
 %%
 eyerecording = activity(eyerecording, 50000);
 
-skip = 1000;
+skip = 100;
 scatter(eyerecording.ts(1:skip:end), eyerecording.activityOn(1:skip:end))
 hold on
 scatter(eyerecording.ts(1:skip:end), eyerecording.activityOff(1:skip:end))
