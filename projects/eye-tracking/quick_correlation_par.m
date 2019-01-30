@@ -20,15 +20,18 @@ correlations = nan(cores, sequence);
 
 parfor c = 1:cores
     sliceStart = (c-1) * sequence + 1;
-    sliceStartTimestamp = allTimestamps(sliceStart);
+    newAllTimestamps = allTimestamps;
+    newAllActivityOff = allActivityOff;
+    newAllActivityOn = allActivityOn;
+    sliceStartTimestamp = newAllTimestamps(sliceStart);
     bufferOn = zeros(1, len);
     bufferOff = bufferOn;
     numBufferOn = 0;
     numBufferOff = numBufferOn;
-    windowStart = find(allTimestamps > (sliceStartTimestamp - slidingWindowWidth));
+    windowStart = find(newAllTimestamps > (sliceStartTimestamp - slidingWindowWidth));
     windowStart = windowStart(1);
     for b = windowStart:sliceStart
-        if isnan(allActivityOff(b))
+        if isnan(newAllActivityOff(b))
             bufferOn(b) = 1;
             numBufferOn = numBufferOn + 1;
         else
@@ -50,9 +53,9 @@ parfor c = 1:cores
             disp("Thread " + num2str(c) + " reporting half way done!")
         end
         i = (c-1) * sequence + l;
-        timestamp = allTimestamps(i);
+        timestamp = newAllTimestamps(i);
         % add latest event to the buffer
-        if isnan(allActivityOff(i))
+        if isnan(newAllActivityOff(i))
             bufferOn(i) = 1;
             numBufferOn = numBufferOn + 1;
         else
@@ -61,7 +64,7 @@ parfor c = 1:cores
         end
         % remove events from buffer that are outside sliding window
         for j = bufferOnStart:(i-1)
-            if allTimestamps(j) < (timestamp - slidingWindowWidth)
+            if newAllTimestamps(j) < (timestamp - slidingWindowWidth)
                 if bufferOn(j) == 1
                     bufferOn(j) = 0;
                     numBufferOn = numBufferOn - 1;
@@ -72,7 +75,7 @@ parfor c = 1:cores
             end
         end
         for j = bufferOffStart:(i-1)
-            if allTimestamps(j) < (timestamp - slidingWindowWidth)
+            if newAllTimestamps(j) < (timestamp - slidingWindowWidth)
                 if bufferOff(j) == 1
                     bufferOff(j) = 0;
                     numBufferOff = numBufferOff - 1;
@@ -92,22 +95,22 @@ parfor c = 1:cores
                     % generate a 'time representation' rather than simply the events
                     % and downscale to smaller buffer size
                     for k=find(bufferOn == 1)
-                        index = ceil(mod(allTimestamps(k), divisor)/corrBufferScale);
+                        index = ceil(mod(newAllTimestamps(k), divisor)/corrBufferScale);
                         if index < 1
                             index = 1;
                         end
-                        bufOn(index) = allActivityOn(k);
+                        bufOn(index) = newAllActivityOn(k);
                     end
                     m = max(bufOn(1:floor((slidingWindowWidth/corrBufferScale)/3)));
                     if m < 0.6 || m > 1.6
                         continue
                     end
                     for k=find(bufferOff == 1)
-                        index = ceil(mod(allTimestamps(k), divisor)/corrBufferScale);
+                        index = ceil(mod(newAllTimestamps(k), divisor)/corrBufferScale);
                         if index < 1
                             index = 1;
                         end
-                        bufOff(index) = allActivityOff(k);
+                        bufOff(index) = newAllActivityOff(k);
                     end
                     samplesOn = filterOn .* (bufOn>0);
                     samplesOff = filterOff .* (bufOff>0);

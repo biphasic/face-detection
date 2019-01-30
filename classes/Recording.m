@@ -133,8 +133,9 @@ classdef Recording < handle
             c2 = cell(obj.GridSizes(1)-1, obj.GridSizes(2)-1);
             
             if obj.GridSizes == [1, 1]
-                disp('no grid detected, slicing recording temporally...')
+                disp('computing activity...')
                 tile = activity(obj.Eventstream, obj.Parent.ActivityDecayConstant, 1 / obj.Parent.AmplitudeScale, true);
+                disp('no grid detected, slicing recording temporally...')
                 tile = quick_correlation_par(tile, modelblink.AverageOn, modelblink.AverageOff, obj.Parent.AmplitudeScale, obj.Parent.BlinkLength, obj.Parent.ModelSubsamplingRate);
                 obj.EventstreamGrid1 = tile;
             else
