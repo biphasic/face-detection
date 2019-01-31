@@ -9,6 +9,8 @@ len = length(allTimestamps);
 eye.patternCorrelation = nan(1, len);
 
 minimumDifference = slidingWindowWidth/10;
+minimumStep = 1000;
+lastTimestamp = 0;
 bufferSize = slidingWindowWidth/corrBufferScale;
 
 bufferOn = zeros(1, length(allActivityOn));
@@ -54,17 +56,18 @@ for i = 1:len
             break;
         end
     end
- 
-    if timestamp - lastPM >= minimumDifference && timestamp > slidingWindowWidth
-        if numBufferOn > amplitudeScale/2 && numBufferOn < 10*amplitudeScale/2
-            if  numBufferOff > amplitudeScale/3 && numBufferOff < 10*amplitudeScale/2
+
+    if timestamp - lastPM >= minimumDifference && timestamp - lastTimestamp > minimumStep && timestamp > slidingWindowWidth
+        lastTimestamp = timestamp;
+        if numBufferOn > amplitudeScale * 1 && numBufferOn < 10 * amplitudeScale
+            if  numBufferOff > amplitudeScale * 1 && numBufferOff < 10 * amplitudeScale
                 bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
                 bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
                 windowTimeStart = timestamp - slidingWindowWidth;
                 % generate a 'time representation' rather than simply the events
                 % and downscale to smaller buffer size
                 for k=find(bufferOn == 1)
-                    index = round((allTimestamps(k) - windowTimeStart)/corrBufferScale);
+                    index = ceil((allTimestamps(k) - windowTimeStart)/corrBufferScale);
                     if index == 0
                         index = 1;
                     end
