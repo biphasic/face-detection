@@ -366,7 +366,7 @@ classdef Recording < handle
             stop = length(rec.ts);
             for i = start:stop
                 if blinkIndex <= blinkCount && rec.ts(i) >= obj.Blinks(blinkIndex).ts
-                    blobs = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 5, 0, 3);
+                    blobs = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 8, 0, 5);
                     blobs(2) = Blob(obj.Blinks(blinkIndex).x2, obj.Blinks(blinkIndex).y2, 8, 0, 5);
                     blinkIndex = blinkIndex + 1;
                 else
@@ -413,8 +413,8 @@ classdef Recording < handle
             set(gca, 'zticklabel', zt)
             %y
             ylabel('time [s]')
-            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
-            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
+            ylim([-round(obj.EventstreamGrid1.ts(end)/50000000, 1)*50000000 0]);
+            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/50000000, 1)*50000000:10000000:0)
             yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
             set(gca, 'yticklabel', yt);
         end
@@ -448,8 +448,8 @@ classdef Recording < handle
             set(gca, 'zticklabels', 0:obj.TileSizes(2)*2:obj.Dimensions(2))
             % y
             ylabel('time [s]')
-            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
-            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000:10000000:0)
+            ylim([-round(obj.EventstreamGrid1.ts(end)/50000000, 1)*50000000 0]);
+            set(gca, 'ytick', -round(obj.EventstreamGrid1.ts(end)/50000000, 1)*50000000:10000000:0)
             yt=arrayfun(@num2str,get(gca,'ytick')/-1000000, 'UniformOutput', false);
             set(gca, 'yticklabel', yt);
             legend(ax, 'left eye detected', 'right eye detected', 'Location', 'best')
@@ -547,7 +547,7 @@ classdef Recording < handle
             %title(sprintf([obj.Parent.Name, ' rec No. ', int2str(obj.Number), ', corr threshold: ', num2str(obj.Parent.CorrelationThreshold), ', \nmodel temporal resolution: ', int2str(obj.Parent.ModelSubsamplingRate), 'us, \nfirst blink detected at ', num2str(round(obj.Blinks(1).ts/1000000,3)), 's']))
             xlim([0 obj.Dimensions(1)])
             zlim([0 obj.Dimensions(2)])
-            ylim([-round(obj.EventstreamGrid1.ts(end)/100000000, 1)*100000000 0]);
+            ylim([-round(obj.EventstreamGrid1.ts(end)/50000000, 1)*50000000 0]);
             %a = legend('show');
             %a.String(end-length(blinkstoprint)+1:end) = '';
             title('')
