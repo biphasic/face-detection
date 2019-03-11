@@ -6,7 +6,7 @@ scale = Collection('scale');
 for s = 1:numel(names)
     if s == 1
         disp('Gregor/run6.es')
-        gregor = Subject(names{s}, scale);
+        gregor = Subject(names{s}, 0.88, scale);
         gregor.BlinkLength = 300000;
         gregor.addrecording(6, scaleEventsGregor, true);
         gregor.Recordings{6}.Center.Location = [129 131];

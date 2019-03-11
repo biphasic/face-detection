@@ -187,9 +187,9 @@ classdef Recording < handle
                 obj.EventstreamGrid2.x = fusion(:,2)';
                 obj.EventstreamGrid2.y = fusion(:,3)';
                 obj.EventstreamGrid2.patternCorrelation = fusion(:,4)';
-                obj.Grids{1,2} = c2;
+                %obj.Grids{1,2} = c2;
             end
-            obj.Grids{1,1} = c;
+            %obj.Grids{1,1} = c;
             toc
         end
         
@@ -455,14 +455,15 @@ classdef Recording < handle
             legend(ax, 'left eye detected', 'right eye detected', 'Location', 'best')
         end
 
-        function result = readGT(obj)
-            path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/run', num2str(obj.Number), '-frames.csv'];
+        function result = readViolaJonesGT(obj)
+            filename = ['run', num2str(obj.Number), '-frames.csv'];
+            path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/', filename];
             result = false;
             if exist(path, 'file') == 2
                 csv = csvread(path);
                 obj.GT.ts = csv(:,1)';
                 obj.GT.x = (csv(:,2)+csv(:,4)/2)';
-                obj.GT.y = obj.Dimensions(2) - (csv(:,3)' + 0.40 * csv(:,4)');
+                obj.GT.y = obj.Dimensions(2) - (csv(:,3)' + 0.40 * csv(:,5)');
                 obj.GT.ts(obj.GT.x == 0) = nan;
                 obj.GT.x(obj.GT.x == 0) = nan;
                 obj.GT.y(obj.GT.x == 0) = nan;
@@ -471,30 +472,60 @@ classdef Recording < handle
             end
         end
         
-        function res = calculatetrackingerror(obj)
-            if obj.readGT
-                if ~isfield(obj.Eventstream, 'leftTracker')
-                    disp(['no tracking data present for rec no ', num2str(obj.Number), ', starting computation...'])
-                    obj.calculatetracking
-                end
-                %figure
-                trackerX = (obj.Eventstream.leftTracker.x + obj.Eventstream.rightTracker.x)/2;
-                trackerY = (obj.Eventstream.leftTracker.y + obj.Eventstream.rightTracker.y)/2;
-                [~, ia, ~] = unique(obj.Eventstream.ts);
-                interpolatedX = interp1(obj.Eventstream.ts(ia), trackerX(ia), obj.GT.ts);
-                interpolatedY = interp1(obj.Eventstream.ts(ia), trackerY(ia), obj.GT.ts);
-                %scatter3(obj.GT.ts, obj.GT.x, obj.GT.y)
-                %hold on
-                %scatter3(obj.GT.ts, interpolatedX, interpolatedY);
-                deviation = sqrt((obj.GT.x - interpolatedX).^2 + (obj.GT.y - interpolatedY).^2);
-                obj.AverageTrackingError = mean(deviation(~isnan(deviation)));
-                disp(['tracking error for rec no ', num2str(obj.Number), ': ', num2str(obj.AverageTrackingError)])
-                %rel = sum(deviation(~isnan(deviation)))/obj.GT.ts(end)
-                res = true;
+        function result = readFasterRcnnGT(obj)
+            filename = [num2str(obj.Number), '-faster-rcnn-annotations.csv'];
+            path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/', filename];
+            result = false;
+            if exist(path, 'file') == 2
+                csv = csvread(path);
+                obj.GT.ts = csv(:,1)';
+                obj.GT.x = ((csv(:,2) + csv(:,4))/2)';
+                obj.GT.y = obj.Dimensions(2) - ((csv(:,5) + csv(:,3)) * 0.46)';
+                obj.GT.ts(obj.GT.x == 0) = nan;
+                obj.GT.x(obj.GT.x == 0) = nan;
+                obj.GT.y(obj.GT.x == 0) = nan;
+                %obj.GT.width = csv(:,4)';
+                result = true;
+            end
+        end
+        
+        function res = calculatetrackingerrorViolaJones(obj)
+            if obj.readViolaJonesGT()
+                res = obj.calculatetrackingerror;
             else
-                disp(['could not read GT for rec no ', num2str(obj.Number)])
+                disp(['could not read Viola Jones GT for rec no ', num2str(obj.Number)])
                 res = false;
             end
+        end
+        
+        function res = calculatetrackingerrorFasterRcnn(obj)
+            if obj.readFasterRcnnGT()
+                res = obj.calculatetrackingerror;
+            else
+                disp(['could not read Faster RCNN GT for rec no ', num2str(obj.Number)])
+                res = false;
+            end
+        end
+        
+        function res = calculatetrackingerror(obj)
+            if ~isfield(obj.Eventstream, 'leftTracker')
+                disp(['no tracking data present for rec no ', num2str(obj.Number), ', starting computation...'])
+                obj.calculatetracking
+            end
+            figure
+            trackerX = (obj.Eventstream.leftTracker.x + obj.Eventstream.rightTracker.x)/2;
+            trackerY = (obj.Eventstream.leftTracker.y + obj.Eventstream.rightTracker.y)/2;
+            [~, ia, ~] = unique(obj.Eventstream.ts);
+            interpolatedX = interp1(obj.Eventstream.ts(ia), trackerX(ia), obj.GT.ts);
+            interpolatedY = interp1(obj.Eventstream.ts(ia), trackerY(ia), obj.GT.ts);
+            scatter3(obj.GT.ts, obj.GT.x, obj.GT.y)
+            hold on
+            scatter3(obj.GT.ts, interpolatedX, interpolatedY);
+            deviation = sqrt((obj.GT.x - interpolatedX).^2 + (obj.GT.y - interpolatedY).^2);
+            obj.AverageTrackingError = mean(deviation(~isnan(deviation)));
+            disp(['tracking error for rec no ', num2str(obj.Number), ': ', num2str(obj.AverageTrackingError)])
+            %rel = sum(deviation(~isnan(deviation)))/obj.GT.ts(end)
+            res = true;
         end
         
         function plottracking(obj, varargin)
