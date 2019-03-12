@@ -519,26 +519,45 @@ classdef Recording < handle
             end
         end
         
+        function result = readFasterRCNNGT(obj)
+            path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/3-faster-rcnn-annotations.csv'];
+            result = false;
+            if exist(path, 'file') == 2
+                csv = csvread(path);
+                for f = 1:length(obj.Faces)
+                    obj.Faces(f).GT.ts = csv(:,1)';
+                    obj.Faces(f).GT.x = ((csv(:,(f-1)*4+2)+csv(:,(f-1)*4+4))/2)';
+                    obj.Faces(f).GT.y = obj.Dimensions(2) - ((csv(:,(f-1)*4+3) + csv(:,(f-1)*4+5)) * 0.46)';
+                    obj.Faces(f).GT.ts(obj.Faces(f).GT.x == 0) = nan;
+                    obj.Faces(f).GT.x(obj.Faces(f).GT.x == 0) = nan;
+                    obj.Faces(f).GT.y(obj.Faces(f).GT.x == 0) = nan;
+                end
+                result = true;
+            end
+        end
+        
         function res = calculatetrackingerror(obj)
+            %if obj.readFasterRCNNGT
             if obj.readGT
                 if ~isfield(obj.Eventstream, 'faces')
                     disp(['no tracking data present for rec no ', num2str(obj.Number), ', starting computation...'])
                     obj.calculatetracking
                 end
-                %figure
-                tracker = (obj.Eventstream.leftTracker + obj.Eventstream.rightTracker) / 2;
-                trackerX = tracker(:,1)';
-                trackerY = tracker(:,2)';
-                [~, ia, ~] = unique(obj.Eventstream.ts);
-                interpolatedX = interp1(obj.Eventstream.ts(ia), trackerX(ia), obj.GT.ts);
-                interpolatedY = interp1(obj.Eventstream.ts(ia), trackerY(ia), obj.GT.ts);
-                %scatter3(obj.GT.ts, obj.GT.x, obj.GT.y)
-                %hold on
-                %scatter3(obj.GT.ts, interpolatedX, interpolatedY);
-                deviation = sqrt((obj.GT.x - interpolatedX).^2 + (obj.GT.y - interpolatedY).^2);
-                obj.AverageTrackingError = mean(deviation(~isnan(deviation)));
-                disp(['tracking error for rec no ', num2str(obj.Number), ': ', num2str(obj.AverageTrackingError)])
-                %rel = sum(deviation(~isnan(deviation)))/obj.GT.ts(end)
+                figure
+                for f = 1:length(obj.Faces)
+                    trackerX = (obj.Eventstream.faces(f).leftTracker.x + obj.Eventstream.faces(f).rightTracker.x) / 2;
+                    trackerY = (obj.Eventstream.faces(f).leftTracker.y + obj.Eventstream.faces(f).rightTracker.y) / 2;
+                    [~, ia, ~] = unique(obj.Eventstream.ts);
+                    interpolatedX = interp1(obj.Eventstream.ts(ia), trackerX(ia), obj.Faces(f).GT.ts);
+                    interpolatedY = interp1(obj.Eventstream.ts(ia), trackerY(ia), obj.Faces(f).GT.ts);
+                    scatter3(obj.Faces(f).GT.ts, obj.Faces(f).GT.x, obj.Faces(f).GT.y)
+                    hold on
+                    scatter3(obj.Faces(f).GT.ts, interpolatedX, interpolatedY);
+                    deviation = sqrt((obj.Faces(f).GT.x - interpolatedX).^2 + (obj.Faces(f).GT.y - interpolatedY).^2);
+                    obj.AverageTrackingError = mean(deviation(~isnan(deviation)));
+                    disp(['tracking error for rec no ', num2str(obj.Number), ': ', num2str(obj.AverageTrackingError)])
+                    %rel = sum(deviation(~isnan(deviation)))/obj.GT.ts(end)
+                end
                 res = true;
             else
                 disp(['could not read GT for rec no ', num2str(obj.Number)])
