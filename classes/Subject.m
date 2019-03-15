@@ -107,9 +107,16 @@ classdef Subject < handle
         end
         
         function exportmodelblink(obj)
-            path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.DatasetType, '/', obj.Name, '/modelblink.csv'];
-            m = [obj.Modelblink.AverageOn; obj.Modelblink.AverageOff];
-            csvwrite(path, m);
+            path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.DatasetType, '/', obj.Name, '/modelblink.txt'];
+            fileID = fopen(path, 'w');
+            for i = 1:length(obj.Modelblink.AverageOn)
+                fprintf(fileID, '%f ', obj.Modelblink.AverageOn(i));
+            end
+            fprintf(fileID, '\n');
+            for i = 1:length(obj.Modelblink.AverageOff)
+                fprintf(fileID, '%f ', obj.Modelblink.AverageOff(i));
+            end
+            fclose(fileID);
         end
         
         function ploteyeactivitiesfortraining(obj)
