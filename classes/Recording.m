@@ -539,10 +539,11 @@ classdef Recording < handle
                 figure;
                 ax = gca;
             end
+            skip = 1000;
             obj.plotdetectedblinks(ax)
-            scatter3(ax, obj.Eventstream.leftTracker.x, -obj.Eventstream.ts, obj.Eventstream.leftTracker.y, '.', 'red',  'Displayname', 'left eye tracker');
+            scatter3(ax, obj.Eventstream.leftTracker.x(1:skip:end), -obj.Eventstream.ts(1:skip:end), obj.Eventstream.leftTracker.y(1:skip:end), '.', 'red',  'Displayname', 'left eye tracker');
             hold on 
-            scatter3(ax, obj.Eventstream.rightTracker.x, -obj.Eventstream.ts, obj.Eventstream.rightTracker.y, '.', 'green', 'Displayname', 'right eye tracker');
+            scatter3(ax, obj.Eventstream.rightTracker.x(1:skip:end), -obj.Eventstream.ts(1:skip:end), obj.Eventstream.rightTracker.y(1:skip:end), '.', 'green', 'Displayname', 'right eye tracker');
             
             %print screenshots
             blinkstoprint = [1 1 length(obj.Blinks)];
