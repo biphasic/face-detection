@@ -108,7 +108,7 @@ classdef Recording < handle
             first = scale(indices);
             scale = scale/ first(1);
             obj.Eventstream.scale = scale;
-            skip = 200;
+            skip = 500;
             matrix = [obj.Eventstream.ts(1:skip:end); obj.Eventstream.leftTracker.x(1:skip:end) ; obj.Eventstream.leftTracker.y(1:skip:end) ; obj.Eventstream.rightTracker.x(1:skip:end) ; obj.Eventstream.rightTracker.y(1:skip:end); obj.Eventstream.scale(1:skip:end) ];
             path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number)];
             if exist(path, 'dir') == 7
@@ -290,7 +290,7 @@ classdef Recording < handle
             mask = combinedGrid.patternCorrelation>obj.Parent.CorrelationThreshold;
             
             maxDiffTime = 50000;
-            maxDiffX = 50;
+            maxDiffX = 150;
             tileWidth = obj.TileSizes(1);
             tileHeight = obj.TileSizes(2);
             indices = find(mask);
@@ -302,7 +302,7 @@ classdef Recording < handle
                 end
                 %last three events are close enough in time and do not have
                 %the same x value
-                if combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maxDiffTime && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
+                if combinedGrid.y(indices(i)) > 250 && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maxDiffTime && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
                     %last 4 events are close enough in time and have the
                     %same x value
                     if i ~= length(indices) && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i+1)) < maxDiffTime && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-2)), combinedGrid.x(indices(i+1)) )
@@ -363,11 +363,11 @@ classdef Recording < handle
             blinkIndex = 1;
             blinkCount = length(obj.Blinks);
             start = find(rec.ts == obj.Blinks(1).ts);
-            stop = length(rec.ts);
+            stop = length(rec.ts)/2;
             for i = start:stop
                 if blinkIndex <= blinkCount && rec.ts(i) >= obj.Blinks(blinkIndex).ts
-                    blobs = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 8, 0, 5);
-                    blobs(2) = Blob(obj.Blinks(blinkIndex).x2, obj.Blinks(blinkIndex).y2, 8, 0, 5);
+                    blobs = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 15, 0, 10);
+                    blobs(2) = Blob(obj.Blinks(blinkIndex).x2, obj.Blinks(blinkIndex).y2, 15, 0, 10);
                     blinkIndex = blinkIndex + 1;
                 else
                     for b = 1:length(blobs)

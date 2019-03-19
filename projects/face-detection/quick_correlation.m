@@ -59,8 +59,8 @@ for i = 1:len
 
     if timestamp - lastPM >= minimumDifference && timestamp - lastTimestamp > minimumStep && timestamp > slidingWindowWidth
         lastTimestamp = timestamp;
-        if numBufferOn > amplitudeScale * 1 && numBufferOn < 10 * amplitudeScale
-            if  numBufferOff > amplitudeScale * 1 && numBufferOff < 10 * amplitudeScale
+        if numBufferOn > amplitudeScale /2 && numBufferOn < 10 * amplitudeScale
+            if  numBufferOff > amplitudeScale /3 && numBufferOff < 10 * amplitudeScale
                 bufOn = zeros(1, slidingWindowWidth/corrBufferScale);
                 bufOff = zeros(1, slidingWindowWidth/corrBufferScale);
                 windowTimeStart = timestamp - slidingWindowWidth;

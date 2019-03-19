@@ -5,9 +5,9 @@ classdef Blob < handle
         sigmaX
         sigmaXY
         sigmaY
-        positionInertia = 0.9
+        positionInertia = 0.88
         varianceInertia = 0.9999
-        minimumProbability = 0.003
+        minimumProbability = 0.0001
     end
     
     methods
