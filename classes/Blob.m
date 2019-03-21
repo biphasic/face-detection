@@ -3,7 +3,7 @@ classdef Blob < handle
         x
         y
         sigmaX
-        sigmaXY
+        sigmaXY = 0
         sigmaY
         positionInertia = 0.9
         varianceInertia = 0.9999
@@ -11,12 +11,13 @@ classdef Blob < handle
     end
     
     methods
-        function obj = Blob(x, y, sigmaX, sigmaXY, sigmaY)
+        function obj = Blob(x, y, sigmaX, sigmaY, positionInertia, minProb)
             obj.x = x;
             obj.y = y;
             obj.sigmaX = sigmaX;
-            obj.sigmaXY = sigmaXY;
             obj.sigmaY = sigmaY;
+            obj.positionInertia = positionInertia;
+            obj.minimumProbability = minProb;
         end
         
         function updatebyevent(obj, x, y)

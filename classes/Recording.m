@@ -348,7 +348,7 @@ classdef Recording < handle
             end
         end
                 
-        function calculatetracking(obj)
+        function calculatetracking(obj, sigmaX, sigmaY, posInertia, minProb)
             if isempty(obj.Blinks)
                disp(['no blinks detected yet for rec no ', num2str(obj.Number), ', triggering detection...'])
                obj.detectblinks
@@ -359,15 +359,15 @@ classdef Recording < handle
             rec.leftTracker.y = nan(1, length(rec.ts));
             rec.rightTracker.x = nan(1, length(rec.ts));
             rec.rightTracker.y = nan(1, length(rec.ts));
-            blobs = Blob(1,1,1,1,1);
+            blobs = Blob(1,1,1,1,1,1);
             blinkIndex = 1;
             blinkCount = length(obj.Blinks);
             start = find(rec.ts == obj.Blinks(1).ts);
             stop = length(rec.ts);
             for i = start:stop
                 if blinkIndex <= blinkCount && rec.ts(i) >= obj.Blinks(blinkIndex).ts
-                    blobs = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, 8, 0, 5);
-                    blobs(2) = Blob(obj.Blinks(blinkIndex).x2, obj.Blinks(blinkIndex).y2, 8, 0, 5);
+                    blobs = Blob(obj.Blinks(blinkIndex).x1, obj.Blinks(blinkIndex).y1, sigmaX, sigmaY, posInertia, minProb);
+                    blobs(2) = Blob(obj.Blinks(blinkIndex).x2, obj.Blinks(blinkIndex).y2, sigmaX, sigmaY, posInertia, minProb);
                     blinkIndex = blinkIndex + 1;
                 else
                     for b = 1:length(blobs)
@@ -574,15 +574,15 @@ classdef Recording < handle
                 disp(['no tracking data present for rec no ', num2str(obj.Number), ', starting computation...'])
                 obj.calculatetracking
             end
-            figure
+            %figure
             trackerX = (obj.Eventstream.leftTracker.x + obj.Eventstream.rightTracker.x)/2;
             trackerY = (obj.Eventstream.leftTracker.y + obj.Eventstream.rightTracker.y)/2;
             [~, ia, ~] = unique(obj.Eventstream.ts);
             interpolatedX = interp1(obj.Eventstream.ts(ia), trackerX(ia), obj.GT.ts);
             interpolatedY = interp1(obj.Eventstream.ts(ia), trackerY(ia), obj.GT.ts);
-            scatter3(obj.GT.ts, obj.GT.x, obj.GT.y)
-            hold on
-            scatter3(obj.GT.ts, interpolatedX, interpolatedY);
+            %scatter3(obj.GT.ts, obj.GT.x, obj.GT.y)
+            %hold on
+            %scatter3(obj.GT.ts, interpolatedX, interpolatedY);
             deviation = sqrt(((obj.GT.x - interpolatedX)./obj.GT.w).^2 + ((obj.GT.y - interpolatedY)./obj.GT.h).^2);
             obj.AverageTrackingError = mean(deviation(~isnan(deviation)));
             disp(['tracking error for rec no ', num2str(obj.Number), ': ', num2str(obj.AverageTrackingError)])
