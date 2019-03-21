@@ -459,7 +459,7 @@ classdef Recording < handle
             if nargin > 1
                 boundingBoxShift = varargin{1};
             else
-                boundingBoxShift = 0.4;
+                boundingBoxShift = obj.Parent.BoundingBoxShiftVJ;
             end
             filename = ['run', num2str(obj.Number), '-frames.csv'];
             path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/', filename];
@@ -485,7 +485,7 @@ classdef Recording < handle
             if nargin > 1
                 boundingBoxShift = varargin{1};
             else
-                boundingBoxShift = 0.37;
+                boundingBoxShift = obj.Parent.BoundingBoxShiftFRCNN;
             end
             filename = [num2str(obj.Number), '-faster-rcnn-annotations.csv'];
             path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/', filename];
@@ -511,7 +511,7 @@ classdef Recording < handle
             if nargin > 1
                 boundingBoxShift = varargin{1};
             else
-                boundingBoxShift = 0.35;
+                boundingBoxShift = obj.Parent.BoundingBoxShiftSSD;
             end
             filename = [num2str(obj.Number), '-ssd-annotations.csv'];
             path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/', filename];
@@ -537,13 +537,11 @@ classdef Recording < handle
             res = false;
             if nargin > 1
                 boundingBoxShift = varargin{1};
-                if obj.readViolaJonesGT(boundingBoxShift)
-                    res = obj.calculatetrackingerror;
-                end
             else
-                if obj.readViolaJonesGT()
-                    res = obj.calculatetrackingerror;
-                end
+                boundingBoxShift = obj.Parent.BoundingBoxShiftVJ;
+            end
+            if obj.readViolaJonesGT(boundingBoxShift)
+                res = obj.calculatetrackingerror;
             end
         end
         
@@ -551,13 +549,11 @@ classdef Recording < handle
             res = false;
             if nargin > 1
                 boundingBoxShift = varargin{1};
-                if obj.readFasterRcnnGT(boundingBoxShift)
-                    res = obj.calculatetrackingerror;
-                end
             else
-                if obj.readFasterRcnnGT()
-                    res = obj.calculatetrackingerror;
-                end
+                boundingBoxShift = obj.Parent.BoundingBoxShiftFRCNN;
+            end
+            if obj.readFasterRcnnGT(boundingBoxShift)
+                res = obj.calculatetrackingerror;
             end
         end
         
@@ -565,13 +561,11 @@ classdef Recording < handle
             res = false;
             if nargin > 1
                 boundingBoxShift = varargin{1};
-                if obj.readSsdGT(boundingBoxShift)
-                    res = obj.calculatetrackingerror;
-                end
             else
-                if obj.readSsdGT()
-                    res = obj.calculatetrackingerror;
-                end
+                boundingBoxShift = obj.Parent.boundingBoxShiftSSD;
+            end
+            if obj.readSsdGT(boundingBoxShift)
+                res = obj.calculatetrackingerror;
             end
         end
         

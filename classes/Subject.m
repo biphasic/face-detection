@@ -9,6 +9,9 @@ classdef Subject < handle
         ModelSubsamplingRate = 100
         ActivityDecayConstant = 50000
         AverageTrackingError = 0
+        BoundingBoxShiftVJ = 0.4
+        BoundingBoxShiftFRCNN = 0.37
+        BoundingBoxShiftSSD = 0.35
         Parent
     end
 
@@ -92,11 +95,16 @@ classdef Subject < handle
             end
         end
         
-        function average = calculateaverageerrorVJ(obj)
+        function average = calculateaverageerrorVJ(obj, varargin)
+            if nargin > 1
+                boundingBoxShift = varargin{1};
+            else
+                boundingBoxShift = obj.BoundingBoxShiftVJ;
+            end
             average = 0;
             num = 0;
             for r = 1:numel(obj.Recordings)
-                if obj.Recordings{r}.calculatetrackingerrorViolaJones
+                if obj.Recordings{r}.calculatetrackingerrorViolaJones(boundingBoxShift)
                     average = average + obj.Recordings{r}.AverageTrackingError;
                     num = num + 1;
                 end
@@ -106,11 +114,16 @@ classdef Subject < handle
             disp(['average VJ tracking error for subject ', obj.Name, ': ', num2str(obj.AverageTrackingError)])
         end
         
-        function average = calculateaverageerrorFRCNN(obj)
+        function average = calculateaverageerrorFRCNN(obj, varargin)
+            if nargin > 1
+                boundingBoxShift = varargin{1};
+            else
+                boundingBoxShift = obj.BoundingBoxShiftFRCNN;
+            end
             average = 0;
             num = 0;
             for r = 1:numel(obj.Recordings)
-                if obj.Recordings{r}.calculatetrackingerrorFasterRcnn
+                if obj.Recordings{r}.calculatetrackingerrorFasterRcnn(boundingBoxShift)
                     average = average + obj.Recordings{r}.AverageTrackingError;
                     num = num + 1;
                 end
@@ -120,11 +133,16 @@ classdef Subject < handle
             disp(['average Faster RCNN tracking error for subject ', obj.Name, ': ', num2str(obj.AverageTrackingError)])
         end
         
-        function average = calculateaverageerrorSSD(obj)
+        function average = calculateaverageerrorSSD(obj, varargin)
+            if nargin > 1
+                boundingBoxShift = varargin{1};
+            else
+                boundingBoxShift = obj.BoundingBoxShiftSSD;
+            end
             average = 0;
             num = 0;
             for r = 1:numel(obj.Recordings)
-                if obj.Recordings{r}.calculatetrackingerrorSSD
+                if obj.Recordings{r}.calculatetrackingerrorSSD(boundingBoxShift)
                     average = average + obj.Recordings{r}.AverageTrackingError;
                     num = num + 1;
                 end
