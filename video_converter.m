@@ -15,7 +15,7 @@ fontSize = 22;
 % Open the rhino.avi demo movie that ships with MATLAB.
 % First get the folder that it lives in.
 recNumber = 3;
-folder = ['/home/gregorlenz/Recordings/face-detection/indoor/suzon/', int2str(recNumber), '/'];
+folder = ['/home/gregorlenz/Recordings/face-detection/indoor/alex/', int2str(recNumber), '/'];
 outFolder = folder;
 %folder = fileparts(which('rhinos.avi')); % Determine where demo folder is (works with all versions).
 % Pick one of the two demo movies shipped with the Image Processing Toolbox.

@@ -455,7 +455,12 @@ classdef Recording < handle
             legend(ax, 'left eye detected', 'right eye detected', 'Location', 'best')
         end
 
-        function result = readViolaJonesGT(obj)
+        function result = readViolaJonesGT(obj, varargin)
+            if nargin > 1
+                boundingBoxShift = varargin{1};
+            else
+                boundingBoxShift = 0.4;
+            end
             filename = ['run', num2str(obj.Number), '-frames.csv'];
             path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/', filename];
             result = false;
@@ -463,16 +468,23 @@ classdef Recording < handle
                 csv = csvread(path);
                 obj.GT.ts = csv(:,1)';
                 obj.GT.x = (csv(:,2)+csv(:,4)/2)';
-                obj.GT.y = obj.Dimensions(2) - (csv(:,3)' + 0.40 * csv(:,5)');
+                obj.GT.y = obj.Dimensions(2) - (csv(:,3)' + boundingBoxShift * csv(:,5)');
                 obj.GT.ts(obj.GT.x == 0) = nan;
                 obj.GT.x(obj.GT.x == 0) = nan;
                 obj.GT.y(obj.GT.x == 0) = nan;
                 %obj.GT.width = csv(:,4)';
                 result = true;
+            else
+                disp(['could not read Viola Jones GT for rec no ', num2str(obj.Number)])
             end
         end
         
-        function result = readFasterRcnnGT(obj)
+        function result = readFasterRcnnGT(obj, varargin)
+            if nargin > 1
+                boundingBoxShift = varargin{1};
+            else
+                boundingBoxShift = 0.37;
+            end
             filename = [num2str(obj.Number), '-faster-rcnn-annotations.csv'];
             path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/', filename];
             result = false;
@@ -480,17 +492,23 @@ classdef Recording < handle
                 csv = csvread(path);
                 obj.GT.ts = csv(:,1)';
                 obj.GT.x = ((csv(:,2) + csv(:,4))/2)';
-                boundingBoxShift = 0.37;
                 obj.GT.y = obj.Dimensions(2) - ((1-boundingBoxShift) * csv(:,3) + boundingBoxShift * csv(:,5))';
                 obj.GT.ts(obj.GT.x == 0) = nan;
                 obj.GT.x(obj.GT.x == 0) = nan;
                 obj.GT.y(obj.GT.x == 0) = nan;
                 %obj.GT.width = csv(:,4)';
                 result = true;
+            else
+                disp(['could not read Faster RCNN GT for rec no ', num2str(obj.Number)])
             end
         end
         
-        function result = readSsdGT(obj)
+        function result = readSsdGT(obj, varargin)
+            if nargin > 1
+                boundingBoxShift = varargin{1};
+            else
+                boundingBoxShift = 0.35;
+            end
             filename = [num2str(obj.Number), '-ssd-annotations.csv'];
             path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/', filename];
             result = false;
@@ -498,40 +516,56 @@ classdef Recording < handle
                 csv = csvread(path);
                 obj.GT.ts = csv(:,1)';
                 obj.GT.x = ((csv(:,3) + csv(:,5))/2)';
-                boundingBoxShift = 0.4;
                 obj.GT.y = obj.Dimensions(2) - ((1-boundingBoxShift) * csv(:,2) + boundingBoxShift * csv(:,4))';
                 obj.GT.ts(obj.GT.x == 0) = nan;
                 obj.GT.x(obj.GT.x == 0) = nan;
                 obj.GT.y(obj.GT.x == 0) = nan;
                 %obj.GT.width = csv(:,4)';
                 result = true;
-            end
-        end
-        
-        function res = calculatetrackingerrorViolaJones(obj)
-            if obj.readViolaJonesGT()
-                res = obj.calculatetrackingerror;
-            else
-                disp(['could not read Viola Jones GT for rec no ', num2str(obj.Number)])
-                res = false;
-            end
-        end
-        
-        function res = calculatetrackingerrorFasterRcnn(obj)
-            if obj.readFasterRcnnGT()
-                res = obj.calculatetrackingerror;
-            else
-                disp(['could not read Faster RCNN GT for rec no ', num2str(obj.Number)])
-                res = false;
-            end
-        end
-        
-        function res = calculatetrackingerrorSSD(obj)
-            if obj.readSsdGT()
-                res = obj.calculatetrackingerror;
             else
                 disp(['could not read SSD GT for rec no ', num2str(obj.Number)])
-                res = false;
+            end
+        end
+        
+        function res = calculatetrackingerrorViolaJones(obj, varargin)
+            res = false;
+            if nargin > 1
+                boundingBoxShift = varargin{1};
+                if obj.readViolaJonesGT(boundingBoxShift)
+                    res = obj.calculatetrackingerror;
+                end
+            else
+                if obj.readViolaJonesGT()
+                    res = obj.calculatetrackingerror;
+                end
+            end
+        end
+        
+        function res = calculatetrackingerrorFasterRcnn(obj, varargin)
+            res = false;
+            if nargin > 1
+                boundingBoxShift = varargin{1};
+                if obj.readFasterRcnnGT(boundingBoxShift)
+                    res = obj.calculatetrackingerror;
+                end
+            else
+                if obj.readFasterRcnnGT()
+                    res = obj.calculatetrackingerror;
+                end
+            end
+        end
+        
+        function res = calculatetrackingerrorSSD(obj, varargin)
+            res = false;
+            if nargin > 1
+                boundingBoxShift = varargin{1};
+                if obj.readSsdGT(boundingBoxShift)
+                    res = obj.calculatetrackingerror;
+                end
+            else
+                if obj.readSsdGT()
+                    res = obj.calculatetrackingerror;
+                end
             end
         end
         
@@ -567,7 +601,8 @@ classdef Recording < handle
                 figure;
                 ax = gca;
             end
-            skip = 1000;
+            skip = 100;
+            disp(['Skipping every ', num2str(skip), 'th value'])
             obj.plotdetectedblinks(ax)
             scatter3(ax, obj.Eventstream.leftTracker.x(1:skip:end), -obj.Eventstream.ts(1:skip:end), obj.Eventstream.leftTracker.y(1:skip:end), '.', 'red',  'Displayname', 'left eye tracker');
             hold on 
