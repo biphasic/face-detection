@@ -302,7 +302,7 @@ classdef Recording < handle
                 end
                 %last three events are close enough in time and do not have
                 %the same x value
-                if combinedGrid.y(indices(i)) > 250 && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maxDiffTime && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
+                if combinedGrid.y(indices(i)) > 250 && combinedGrid.y(indices(i-1)) > 250 && combinedGrid.y(indices(i-2)) > 250 && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i-2)) < maxDiffTime && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-1))) && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i-2))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i-2)))%check temporal coherence
                     %last 4 events are close enough in time and have the
                     %same x value
                     if i ~= length(indices) && combinedGrid.ts(indices(i)) - combinedGrid.ts(indices(i+1)) < maxDiffTime && ~isequal(combinedGrid.x(indices(i)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-1)), combinedGrid.x(indices(i+1))) && ~isequal(combinedGrid.x(indices(i-2)), combinedGrid.x(indices(i+1)) )
