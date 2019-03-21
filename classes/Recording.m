@@ -480,7 +480,26 @@ classdef Recording < handle
                 csv = csvread(path);
                 obj.GT.ts = csv(:,1)';
                 obj.GT.x = ((csv(:,2) + csv(:,4))/2)';
-                obj.GT.y = obj.Dimensions(2) - ((csv(:,5) + csv(:,3)) * 0.46)';
+                boundingBoxShift = 0.37;
+                obj.GT.y = obj.Dimensions(2) - ((1-boundingBoxShift) * csv(:,3) + boundingBoxShift * csv(:,5))';
+                obj.GT.ts(obj.GT.x == 0) = nan;
+                obj.GT.x(obj.GT.x == 0) = nan;
+                obj.GT.y(obj.GT.x == 0) = nan;
+                %obj.GT.width = csv(:,4)';
+                result = true;
+            end
+        end
+        
+        function result = readSsdGT(obj)
+            filename = [num2str(obj.Number), '-ssd-annotations.csv'];
+            path = ['/home/gregorlenz/Recordings/face-detection/', obj.Parent.Parent.DatasetType, '/', obj.Parent.Name, '/', num2str(obj.Number), '/', filename];
+            result = false;
+            if exist(path, 'file') == 2
+                csv = csvread(path);
+                obj.GT.ts = csv(:,1)';
+                obj.GT.x = ((csv(:,3) + csv(:,5))/2)';
+                boundingBoxShift = 0.4;
+                obj.GT.y = obj.Dimensions(2) - ((1-boundingBoxShift) * csv(:,2) + boundingBoxShift * csv(:,4))';
                 obj.GT.ts(obj.GT.x == 0) = nan;
                 obj.GT.x(obj.GT.x == 0) = nan;
                 obj.GT.y(obj.GT.x == 0) = nan;
@@ -503,6 +522,15 @@ classdef Recording < handle
                 res = obj.calculatetrackingerror;
             else
                 disp(['could not read Faster RCNN GT for rec no ', num2str(obj.Number)])
+                res = false;
+            end
+        end
+        
+        function res = calculatetrackingerrorSSD(obj)
+            if obj.readSsdGT()
+                res = obj.calculatetrackingerror;
+            else
+                disp(['could not read SSD GT for rec no ', num2str(obj.Number)])
                 res = false;
             end
         end
@@ -587,6 +615,12 @@ classdef Recording < handle
             %print GT
             if obj.readViolaJonesGT
                 scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'blue')
+            end
+            if obj.readFasterRcnnGT
+                scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'yellow')
+            end
+            if obj.readSsdGT
+                scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'black')
             end
         end
         
