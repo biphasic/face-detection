@@ -92,18 +92,46 @@ classdef Subject < handle
             end
         end
         
-        function average = calculateaverageerror(obj)
+        function average = calculateaverageerrorVJ(obj)
             average = 0;
             num = 0;
             for r = 1:numel(obj.Recordings)
-                if obj.Recordings{r}.calculatetrackingerror
+                if obj.Recordings{r}.calculatetrackingerrorViolaJones
                     average = average + obj.Recordings{r}.AverageTrackingError;
                     num = num + 1;
                 end
             end
             average = average / num;
             obj.AverageTrackingError = average;
-            disp(['average tracking error for subject ', obj.Name, ': ', num2str(obj.AverageTrackingError)])
+            disp(['average VJ tracking error for subject ', obj.Name, ': ', num2str(obj.AverageTrackingError)])
+        end
+        
+        function average = calculateaverageerrorFRCNN(obj)
+            average = 0;
+            num = 0;
+            for r = 1:numel(obj.Recordings)
+                if obj.Recordings{r}.calculatetrackingerrorFasterRcnn
+                    average = average + obj.Recordings{r}.AverageTrackingError;
+                    num = num + 1;
+                end
+            end
+            average = average / num;
+            obj.AverageTrackingError = average;
+            disp(['average Faster RCNN tracking error for subject ', obj.Name, ': ', num2str(obj.AverageTrackingError)])
+        end
+        
+        function average = calculateaverageerrorSSD(obj)
+            average = 0;
+            num = 0;
+            for r = 1:numel(obj.Recordings)
+                if obj.Recordings{r}.calculatetrackingerrorSSD
+                    average = average + obj.Recordings{r}.AverageTrackingError;
+                    num = num + 1;
+                end
+            end
+            average = average / num;
+            obj.AverageTrackingError = average;
+            disp(['average Faster SSD tracking error for subject ', obj.Name, ': ', num2str(obj.AverageTrackingError)])
         end
         
         function exportmodelblink(obj)

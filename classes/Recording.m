@@ -655,7 +655,7 @@ classdef Recording < handle
                 scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'yellow')
             end
             if obj.readSsdGT
-                scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'black')
+                scatter3(ax, obj.GT.x, -obj.GT.ts, obj.GT.y, '.', 'cyan')
             end
         end
         
