@@ -468,7 +468,9 @@ classdef Recording < handle
                 csv = csvread(path);
                 obj.GT.ts = csv(:,1)';
                 obj.GT.x = (csv(:,2)+csv(:,4)/2)';
+                obj.GT.w = csv(:,4)';
                 obj.GT.y = obj.Dimensions(2) - (csv(:,3)' + boundingBoxShift * csv(:,5)');
+                obj.GT.h = csv(:,5)';
                 obj.GT.ts(obj.GT.x == 0) = nan;
                 obj.GT.x(obj.GT.x == 0) = nan;
                 obj.GT.y(obj.GT.x == 0) = nan;
@@ -492,7 +494,9 @@ classdef Recording < handle
                 csv = csvread(path);
                 obj.GT.ts = csv(:,1)';
                 obj.GT.x = ((csv(:,2) + csv(:,4))/2)';
+                obj.GT.w = (csv(:,4) - csv(:,2))';
                 obj.GT.y = obj.Dimensions(2) - ((1-boundingBoxShift) * csv(:,3) + boundingBoxShift * csv(:,5))';
+                obj.GT.h = (csv(:,5) - csv(:,3))';
                 obj.GT.ts(obj.GT.x == 0) = nan;
                 obj.GT.x(obj.GT.x == 0) = nan;
                 obj.GT.y(obj.GT.x == 0) = nan;
@@ -516,7 +520,9 @@ classdef Recording < handle
                 csv = csvread(path);
                 obj.GT.ts = csv(:,1)';
                 obj.GT.x = ((csv(:,3) + csv(:,5))/2)';
+                obj.GT.w = (csv(:,5) - csv(:,3))';
                 obj.GT.y = obj.Dimensions(2) - ((1-boundingBoxShift) * csv(:,2) + boundingBoxShift * csv(:,4))';
+                obj.GT.h = (csv(:,4) - csv(:,2))';
                 obj.GT.ts(obj.GT.x == 0) = nan;
                 obj.GT.x(obj.GT.x == 0) = nan;
                 obj.GT.y(obj.GT.x == 0) = nan;
@@ -583,7 +589,7 @@ classdef Recording < handle
             scatter3(obj.GT.ts, obj.GT.x, obj.GT.y)
             hold on
             scatter3(obj.GT.ts, interpolatedX, interpolatedY);
-            deviation = sqrt((obj.GT.x - interpolatedX).^2 + (obj.GT.y - interpolatedY).^2);
+            deviation = sqrt(((obj.GT.x - interpolatedX)./obj.GT.w).^2 + ((obj.GT.y - interpolatedY)./obj.GT.h).^2);
             obj.AverageTrackingError = mean(deviation(~isnan(deviation)));
             disp(['tracking error for rec no ', num2str(obj.Number), ': ', num2str(obj.AverageTrackingError)])
             %rel = sum(deviation(~isnan(deviation)))/obj.GT.ts(end)
