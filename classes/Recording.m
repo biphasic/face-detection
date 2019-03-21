@@ -510,7 +510,9 @@ classdef Recording < handle
                 for f = 1:length(obj.Faces)
                     obj.Faces(f).GT.ts = csv(:,1)';
                     obj.Faces(f).GT.x = (csv(:,(f-1)*4+2)+csv(:,(f-1)*4+4)/2)';
-                    obj.Faces(f).GT.y = obj.Dimensions(2) - (csv(:,(f-1)*4+3)' + 0.40 * csv(:,(f-1)*4+4)');
+                    obj.Faces(f).GT.w = csv(:,(f-1)*4+4)';
+                    obj.Faces(f).GT.y = obj.Dimensions(2) - (csv(:,(f-1)*4+3)' + 0.35 * csv(:,(f-1)*4+4)');
+                    obj.Faces(f).GT.h = csv(:,(f-1)*4+5)';
                     obj.Faces(f).GT.ts(obj.Faces(f).GT.x == 0) = nan;
                     obj.Faces(f).GT.x(obj.Faces(f).GT.x == 0) = nan;
                     obj.Faces(f).GT.y(obj.Faces(f).GT.x == 0) = nan;
@@ -527,7 +529,10 @@ classdef Recording < handle
                 for f = 1:length(obj.Faces)
                     obj.Faces(f).GT.ts = csv(:,1)';
                     obj.Faces(f).GT.x = ((csv(:,(f-1)*4+2)+csv(:,(f-1)*4+4))/2)';
-                    obj.Faces(f).GT.y = obj.Dimensions(2) - ((csv(:,(f-1)*4+3) + csv(:,(f-1)*4+5)) * 0.46)';
+                    boundingBoxShift = 0.40;
+                    obj.Faces(f).GT.y = obj.Dimensions(2) - ((1-boundingBoxShift) * csv(:,(f-1)*4+3) + boundingBoxShift * csv(:,(f-1)*4+5))';
+                    obj.Faces(f).GT.w = (csv(:,(f-1)*4+4) - csv(:,(f-1)*4+2))';
+                    obj.Faces(f).GT.h = (csv(:,(f-1)*4+5) - csv(:,(f-1)*4+3))';
                     obj.Faces(f).GT.ts(obj.Faces(f).GT.x == 0) = nan;
                     obj.Faces(f).GT.x(obj.Faces(f).GT.x == 0) = nan;
                     obj.Faces(f).GT.y(obj.Faces(f).GT.x == 0) = nan;
@@ -537,8 +542,8 @@ classdef Recording < handle
         end
         
         function res = calculatetrackingerror(obj)
-            %if obj.readFasterRCNNGT
-            if obj.readGT
+            if obj.readFasterRCNNGT
+            %if obj.readGT
                 if ~isfield(obj.Eventstream, 'faces')
                     disp(['no tracking data present for rec no ', num2str(obj.Number), ', starting computation...'])
                     obj.calculatetracking
@@ -553,7 +558,7 @@ classdef Recording < handle
                     scatter3(obj.Faces(f).GT.ts, obj.Faces(f).GT.x, obj.Faces(f).GT.y)
                     hold on
                     scatter3(obj.Faces(f).GT.ts, interpolatedX, interpolatedY);
-                    deviation = sqrt((obj.Faces(f).GT.x - interpolatedX).^2 + (obj.Faces(f).GT.y - interpolatedY).^2);
+                    deviation = sqrt(((obj.Faces(f).GT.x - interpolatedX)./obj.Faces(f).GT.w).^2 + ((obj.Faces(f).GT.y - interpolatedY)./obj.Faces(f).GT.h).^2);
                     obj.AverageTrackingError = mean(deviation(~isnan(deviation)));
                     disp(['tracking error for rec no ', num2str(obj.Number), ': ', num2str(obj.AverageTrackingError)])
                     %rel = sum(deviation(~isnan(deviation)))/obj.GT.ts(end)
