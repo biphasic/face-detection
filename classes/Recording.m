@@ -562,7 +562,7 @@ classdef Recording < handle
             if nargin > 1
                 boundingBoxShift = varargin{1};
             else
-                boundingBoxShift = obj.Parent.boundingBoxShiftSSD;
+                boundingBoxShift = obj.Parent.BoundingBoxShiftSSD;
             end
             if obj.readSsdGT(boundingBoxShift)
                 res = obj.calculatetrackingerror;
