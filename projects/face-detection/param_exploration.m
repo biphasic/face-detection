@@ -9,7 +9,7 @@ for sigmaX = 3:1:13
             outdoor.ricardo.Recordings{1}.calculatetrackingerrorViolaJones;
             if outdoor.ricardo.Recordings{1}.AverageTrackingError < error
                 error = outdoor.ricardo.Recordings{1}.AverageTrackingError;
-                disp(['SigmaX: ', sigmaX, ', positionInertia: ', posInertia, ' min Probability: ', minProb])
+                disp(['Error: ', num2str(error), ', SigmaX: ', num2str(sigmaX), ', positionInertia: ', num2str(posInertia), ', min Probability: ', num2str(minProb)])
             end
         end
     end

@@ -353,7 +353,7 @@ classdef Recording < handle
                disp(['no blinks detected yet for rec no ', num2str(obj.Number), ', triggering detection...'])
                obj.detectblinks
             end
-            disp(['calculating tracking for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
+            %disp(['calculating tracking for subject ', obj.Parent.Name, ', rec no ', num2str(obj.Number)])
             rec = obj.Eventstream;
             rec.leftTracker.x = nan(1, length(rec.ts));
             rec.leftTracker.y = nan(1, length(rec.ts));
@@ -585,7 +585,7 @@ classdef Recording < handle
             %scatter3(obj.GT.ts, interpolatedX, interpolatedY);
             deviation = sqrt(((obj.GT.x - interpolatedX)./obj.GT.w).^2 + ((obj.GT.y - interpolatedY)./obj.GT.h).^2);
             obj.AverageTrackingError = mean(deviation(~isnan(deviation)));
-            disp(['tracking error for rec no ', num2str(obj.Number), ': ', num2str(obj.AverageTrackingError)])
+            %disp(['tracking error for rec no ', num2str(obj.Number), ': ', num2str(obj.AverageTrackingError)])
             %rel = sum(deviation(~isnan(deviation)))/obj.GT.ts(end)
             res = true;
         end
