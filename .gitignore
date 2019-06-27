@@ -2,6 +2,7 @@
 *.dat
 *.mat
 *.m~
+*.csv
 pathdef.m
 Recordings-alias
 backups
